@@ -1,41 +1,43 @@
 <script>
-	import '../app.css';
-	let { children, data } = $props();
-	import { browser } from '$app/environment';
-	import { page } from '$app/stores';
-	import { inject } from '@vercel/analytics';
-	import { webVitals } from '$lib/vitals';
-	import Header from './Header.svelte';
+    import '../app.css';
+    let { children, data } = $props();
+    import { browser } from '$app/environment';
+    import { page } from '$app/stores';
+    import { inject } from '@vercel/analytics';
+    import { webVitals } from '$lib/vitals';
+    import Header from './Header.svelte';
 
-	$effect(() => {
-		if (browser) {
-			inject(); // Inject Vercel Analytics
+    // Using $effect for side effects is correct
+    $effect(() => {
+        if (browser) {
+            inject(); // Inject Vercel Analytics
 
-			if (data?.analyticsId) {
-				webVitals({
-					path: $page.url.pathname,
-					params: $page.params,
-					analyticsId: data.analyticsId
-				});
-			}
-		}
-	});
+            // Optional chaining is good here
+            if (data?.analyticsId) {
+                webVitals({
+                    path: $page.url.pathname,
+                    params: $page.params,
+                    analyticsId: data.analyticsId
+                });
+            }
+        }
+    });
 </script>
 
 <div class="app">
-	<Header />
+    <Header />
 
-	<main>
-		{@render children()}
-	</main>
+    <main>
+        {@render children()}
+    </main>
 
-	<footer></footer>
+    <footer></footer>
 </div>
 
 <style>
-	.app {
-		display: flex;
-		flex-direction: column;
-		min-height: 100vh;
-	}
+    .app {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+    }
 </style>
