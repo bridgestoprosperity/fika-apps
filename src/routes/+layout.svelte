@@ -1,27 +1,9 @@
 <script>
     import '../app.css';
-    let { children, data } = $props();
-    import { browser } from '$app/environment';
-    import { page } from '$app/stores';
-    import { inject } from '@vercel/analytics';
-    import { webVitals } from '$lib/vitals';
+    let { children } = $props();
+    import { injectAnalytics } from '@vercel/analytics/sveltekit';
     import Header from './Header.svelte';
-
-    // Using $effect for side effects is correct
-    $effect(() => {
-        if (browser) {
-            inject(); // Inject Vercel Analytics
-
-            // Optional chaining is good here
-            if (data?.analyticsId) {
-                webVitals({
-                    path: $page.url.pathname,
-                    params: $page.params,
-                    analyticsId: data.analyticsId
-                });
-            }
-        }
-    });
+    injectAnalytics();
 </script>
 
 <div class="app">
