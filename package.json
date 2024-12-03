@@ -29,6 +29,7 @@
 		"@tailwindcss/typography": "^0.5.15",
 		"@vercel/analytics": "^1.4.1",
 		"daisyui": "^4.12.14",
+		"mapbox-gl": "^3.8.0",
 		"postcss": "^8.4.49",
 		"web-vitals": "^4.2.4"
 	}

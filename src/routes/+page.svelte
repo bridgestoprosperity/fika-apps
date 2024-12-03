@@ -15,7 +15,6 @@
 	import waternetMagma6 from '$lib/images/waternet-magma-6.png';
 	import waternetMagma8 from '$lib/images/waternet-magma-8.png';
 	import waternetVectorEthiopia from '$lib/images/waternet-vector-ethiopia.png';
-	import { CalendarCheckRegular } from 'svelte-awesome-icons';
 	let isLoaded = false;
 
 	onMount(() => {
@@ -129,11 +128,11 @@
 
 		<!-- Remaining items without animation -->
 		<div
-			class="relative col-start-3 row-start-5 rounded-md md:col-span-2 md:col-start-2 md:row-span-1 md:row-start-2">
+			class="fika-slide relative col-start-3 row-start-5 rounded-md md:col-span-2 md:col-start-2 md:row-span-1 md:row-start-2 text-right">
 			<span class="title-text relative z-10">Fika</span>
 		</div>
 		<div
-			class="relative hidden rounded-md md:col-span-2 md:col-start-3 md:row-span-1 md:row-start-3 md:block">
+			class="apps-slide relative hidden rounded-md md:col-span-2 md:col-start-3 md:row-span-1 md:row-start-3 md:block">
 			<span class="title-text relative z-10">Apps</span>
 		</div>
 	</div>
@@ -196,6 +195,14 @@
 </div>
 
 <style>
+	.fika-slide {
+		animation: fikaSlide 3s ease-out forwards;
+		opacity: 0;
+	}
+	.apps-slide {
+		animation: appsSlide 3s ease-out forwards;
+		opacity: 0;
+	}
 	.slide-from-top {
 		animation: slideFromTop 3s ease-out forwards;
 		opacity: 0;
@@ -228,8 +235,29 @@
 		animation-delay: 300ms;
 	}
 	.title-text {
-		font-size: 6rem;
+		font-size: 8rem;
 		font-weight: 700;
+	}
+
+	@keyframes fikaSlide {
+		from {
+			transform: translateX(-1000px);
+			opacity: 0;
+		}
+		to {
+			transform: translateX(0);
+			opacity: 1;
+		}
+	}
+	@keyframes appsSlide {
+		from {
+			transform: translateX(1000px);
+			opacity: 0;
+		}
+		to {
+			transform: translateX(0);
+			opacity: 1;
+		}
 	}
 
 	@keyframes slideFromTop {

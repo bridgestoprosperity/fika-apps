@@ -1,0 +1,51 @@
+<script>
+    import { onMount } from 'svelte';
+    import mapboxgl from 'mapbox-gl';
+    
+    // You'll need to replace this with your actual Mapbox access token
+    const MAPBOX_TOKEN = 'pk.eyJ1IjoiYnJpZGdlc3RvcHJvc3Blcml0eSIsImEiOiJjajRpd2sxeGQwMjU5MnhxajJkNzZnODZtIn0.UrOwxq6A1Zl2yvwzYxBudQ';
+    
+    let mapContainer;
+    let map;
+    
+    onMount(() => {
+        mapboxgl.accessToken = MAPBOX_TOKEN;
+        
+        map = new mapboxgl.Map({
+          container: mapContainer,
+          style: 'mapbox://styles/bridgestoprosperity/cltoqnr9y01cg01oihr9d3yqh',
+          center: [36.817223, -1.286389], // Default to New York City area
+          zoom: 12
+        });
+        
+        // Add navigation controls
+        map.addControl(new mapboxgl.NavigationControl());
+        
+        // Clean up on component destruction
+        return () => {
+          map.remove();
+        };
+    });
+  </script>
+  
+  <svelte:head>
+    <link
+      href="https://api.mapbox.com/mapbox-gl-js/v3.8.0/mapbox-gl.css"
+      rel="stylesheet"
+    />
+  </svelte:head>
+  
+  <div bind:this={mapContainer} class="map-container" />
+  
+  <style>
+    .map-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: 100%;
+      height: 100vh;
+      z-index: 0;
+    }
+  </style>
