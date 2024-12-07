@@ -2,7 +2,6 @@
     import { onMount } from 'svelte';
     import mapboxgl from 'mapbox-gl';
     
-    // You'll need to replace this with your actual Mapbox access token
     const MAPBOX_TOKEN = 'pk.eyJ1IjoiYnJpZGdlc3RvcHJvc3Blcml0eSIsImEiOiJjajRpd2sxeGQwMjU5MnhxajJkNzZnODZtIn0.UrOwxq6A1Zl2yvwzYxBudQ';
     
     let mapContainer;
@@ -14,14 +13,12 @@
         map = new mapboxgl.Map({
           container: mapContainer,
           style: 'mapbox://styles/bridgestoprosperity/cltoqnr9y01cg01oihr9d3yqh',
-          center: [36.817223, -1.286389], // Default to New York City area
+          center: [36.817223, -1.286389], 
           zoom: 12
         });
         
-        // Add navigation controls
         map.addControl(new mapboxgl.NavigationControl());
         
-        // Clean up on component destruction
         return () => {
           map.remove();
         };

@@ -1,6 +1,7 @@
 <script>
     import '../app.css';
     let { children } = $props();
+    import 'mapbox-gl/dist/mapbox-gl.css';
     import { injectAnalytics } from '@vercel/analytics/sveltekit';
     import Header from './Header.svelte';
     injectAnalytics();
