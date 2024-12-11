@@ -5,6 +5,8 @@
 	import bplLogo from '$lib/images/bpl-logo.png';
 	import { palettes } from '$lib/colorPalettes';
 	import { waternetMapState } from '$lib/state.svelte';
+	import { vectorWaternet, rasterWaternet, satelliteImagery } from './WaternetMapStyling';
+
 </script>
 
 <div class="relative h-screen w-full">
