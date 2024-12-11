@@ -4,7 +4,9 @@
 	import { onMount, onDestroy } from 'svelte';
 	// Accept streamOrder as a prop that can be updated
 	import { waternetMapState } from '$lib/state.svelte';
-	import { waternetMapLayers } from '$lib/waternetMapStyling.svelte';
+	// import { waternetMapLayers } from '$lib/waternetMapStyling.svelte';
+	import { vectorWaternet, rasterWaternet, satelliteImagery } from '$lib/components/WaternetMapStyles.svelte';
+
 	let map;
 	let mapContainer;
 
@@ -38,15 +40,9 @@
 				maxzoom: header.maxZoom,
 				bounds: bounds
 			});
-			map.addLayer(
-				waternetMapLayers.rasterWaternet
-			);
-			map.addLayer(
-				waternetMapLayers.tdx
-			);
-			map.addLayer(
-				// waternetMapLayers.satellite
-			);
+			map.addLayer(vectorWaternet);
+			map.addLayer(rasterWaternet);
+			map.addLayer(satelliteImagery);
 
 			map.on('mousemove', 'tdx', (e) => {
 				map.getCanvas().style.cursor = 'crosshair';
