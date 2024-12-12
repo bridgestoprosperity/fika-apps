@@ -7,8 +7,6 @@
 	import bplLogo from '$lib/images/bpl-logo.png';
 	import { palettes } from '$lib/colorPalettes';
 
-	console.log('Component script starting');
-
 	let map;
 	let mapContainer;
 
@@ -22,7 +20,6 @@
 		vectorStyle: 'Stream Order'
 	});
 
-	// Derived values for layer visibility
 	let vectorVisibility = $derived(mapState.vectorData ? 'visible' : 'none');
 	let rasterVisibility = $derived(mapState.rasterData ? 'visible' : 'none');
 	let satelliteVisibility = $derived(mapState.satelliteImagery ? 'visible' : 'none');
@@ -31,28 +28,20 @@
 			? [
 					'match',
 					['get', 'stream_order'],
-					[0],
-					palettes.violetocean[0],
-					[1],
-					palettes.violetocean[1],
-					[2],
-					palettes.violetocean[2],
-					[3],
-					palettes.violetocean[3],
-					[4],
-					palettes.violetocean[4],
-					[5],
-					palettes.violetocean[5],
-					[6],
-					palettes.violetocean[6],
-					[7],
-					palettes.violetocean[7],
-					[8],
-					palettes.violetocean[8],
+					[0], palettes.violetocean[0],
+					[1], palettes.violetocean[1],
+					[2], palettes.violetocean[2],
+					[3], palettes.violetocean[3],
+					[4], palettes.violetocean[4],
+					[5], palettes.violetocean[5],
+					[6], palettes.violetocean[6],
+					[7], palettes.violetocean[7],
+					[8], palettes.violetocean[8],
 					palettes.violetocean[9]
 				]
 			: ['case', ['==', ['get', 'from_tdx'], true], '#0C7BDC', '#FFCE00']
 	);
+
 	let rasterPaint = $derived(
 		mapState.rasterData
 			? {
@@ -60,27 +49,23 @@
 						'interpolate',
 						['linear'],
 						['raster-value'],
-						38,
-						palettes[mapState.selectedPalette][0],
-						64,
-						palettes[mapState.selectedPalette][1],
-						128,
-						palettes[mapState.selectedPalette][2],
-						192,
-						palettes[mapState.selectedPalette][3],
-						217,
-						palettes[mapState.selectedPalette][4]
+						38, palettes[mapState.selectedPalette][0],
+						64, palettes[mapState.selectedPalette][1],
+						128, palettes[mapState.selectedPalette][2],
+						192, palettes[mapState.selectedPalette][3],
+						217, palettes[mapState.selectedPalette][4]
 					],
 					'raster-color-mix': [256, 0, 0, 0],
 					'raster-color-range': [0, 256]
 				}
 			: {}
 	);
+
 	let satelliteSaturation = $derived(mapState.satStyle === 'Black and White' ? -1 : 0);
+
 	function initializeLayers(pmtilesUrl, header, bounds) {
 		if (!map) return;
 
-		// Add layers in order
 		if (!map.getLayer('satellite-layer')) {
 			map.addLayer(createSatelliteLayer());
 		}
@@ -88,6 +73,7 @@
 		if (!map.getLayer('raster-waternet')) {
 			map.addLayer(createRasterLayer());
 		}
+
 		if (!map.getSource('waterways')) {
 			map.addSource('waterways', {
 				type: PmTilesSource.SOURCE_TYPE,
@@ -102,7 +88,6 @@
 			map.addLayer(createVectorLayer());
 		}
 
-		// Immediately apply current state
 		updateLayerProperties();
 	}
 
@@ -144,7 +129,7 @@
 		},
 		paint: {
 			'line-width': ['interpolate', ['linear'], ['zoom'], 4, 0.1, 12, 2],
-			'line-color': vectorLineColor // Use initial derived color
+			'line-color': vectorLineColor
 		}
 	});
 
@@ -154,13 +139,15 @@
 		source: {
 			type: 'raster',
 			tiles: ['https://public-b2p-geodata.s3.amazonaws.com/waternet-raster-tiles/{z}/{x}/{y}.png'],
-			tileSize: 256
+			tileSize: 256,
+            maxzoom: 11
 		},
 		layout: {
 			visibility: mapState.rasterData ? 'visible' : 'none'
 		},
-		paint: rasterPaint // Use initial derived paint properties
+		paint: rasterPaint
 	});
+
 	const createSatelliteLayer = () => ({
 		id: 'satellite-layer',
 		type: 'raster',
@@ -173,11 +160,11 @@
 			visibility: mapState.satelliteImagery ? 'visible' : 'none'
 		},
 		paint: {
-			'raster-saturation': satelliteSaturation // Use initial derived saturation
+			'raster-saturation': satelliteSaturation
 		}
 	});
+
 	$effect(() => {
-		// Create a dependency on all state that affects layer properties
 		const _ = [
 			satelliteVisibility,
 			vectorVisibility,
@@ -186,76 +173,36 @@
 			rasterPaint,
 			satelliteSaturation
 		];
-
 		updateLayerProperties();
 	});
 
 	onMount(() => {
-		console.log('onMount called');
-
 		mapboxgl.Style.setSourceType(PmTilesSource.SOURCE_TYPE, PmTilesSource);
-		console.log('PmTilesSource setup complete');
 
-		try {
-			mapboxgl.accessToken =
-				'pk.eyJ1IjoiYnJpZGdlc3RvcHJvc3Blcml0eSIsImEiOiJjbTJ1d2Rka3cwNTM5MmxxMWExZmo2OG1tIn0.B6fDwi43tGjtDzyFSrncxQ';
-			map = new mapboxgl.Map({
-				container: mapContainer,
-				style: 'mapbox://styles/bridgestoprosperity/cm4kippxv01k101slb7hs8mvr',
-				center: [26.19, -0.21],
-				zoom: 4,
-				hash: true
-			});
-			console.log('Map instance created');
+		mapboxgl.accessToken = 'pk.eyJ1IjoiYnJpZGdlc3RvcHJvc3Blcml0eSIsImEiOiJjbTJ1d2Rka3cwNTM5MmxxMWExZmo2OG1tIn0.B6fDwi43tGjtDzyFSrncxQ';
+		map = new mapboxgl.Map({
+			container: mapContainer,
+			style: 'mapbox://styles/bridgestoprosperity/cm4kippxv01k101slb7hs8mvr',
+			center: [26.19, -0.21],
+			zoom: 4,
+			hash: true
+		});
 
-			// Add error handler
-			map.on('error', (e) => {
-				console.error('Mapbox error:', e);
-			});
-
-			// Add style loading handlers
-			map.on('styledata', () => {
-				console.log('Style data loaded');
-			});
-
-			map.on('load', async () => {
-				console.log('Map load event fired');
-
-				try {
-					const PMTILES_URL =
-						'https://public-b2p-geodata.s3.us-east-1.amazonaws.com/waternet-vector/waterway_model_outputs_20m_vector.pmtiles';
-					console.log('Fetching PMTiles header...');
-
-					const header = await PmTilesSource.getHeader(PMTILES_URL);
-					console.log('PMTiles header received:', header);
-
-					const bounds = [header.minLon, header.minLat, header.maxLon, header.maxLat];
-
-					// Initialize layers with current state, passing the required parameters
-					initializeLayers(PMTILES_URL, header, bounds);
-
-					// Log the current map state
-					console.log('Current sources:', Object.keys(map.getStyle().sources));
-					console.log(
-						'Current layers:',
-						map.getStyle().layers.map((l) => l.id)
-					);
-					console.log('Current map style:', map.getStyle());
-					console.log(mapState);
-				} catch (error) {
-					console.error('Error in map load handler:', error);
-				}
-			});
-		} catch (error) {
-			console.error('Error creating map:', error);
-		}
+		map.on('load', async () => {
+			try {
+				const PMTILES_URL = 'https://data.source.coop/fika/waternet/pmtiles/waterway_model_outputs_20m_vector.pmtiles';
+				const header = await PmTilesSource.getHeader(PMTILES_URL);
+				const bounds = [header.minLon, header.minLat, header.maxLon, header.maxLat];
+				initializeLayers(PMTILES_URL, header, bounds);
+			} catch (error) {
+				console.error('Error initializing layers:', error);
+			}
+		});
 	});
 
 	onDestroy(() => {
-		console.log('onDestroy called');
 		if (map) {
 			map.remove();
-			console.log('Map removed');
 		}
 	});
 </script>
@@ -352,6 +299,3 @@
 		</div>
 	</ControlPanel>
 </div>
-
-<style>
-</style>
