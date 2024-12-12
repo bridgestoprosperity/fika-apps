@@ -26,6 +26,7 @@
 				<img src={bplLogo} alt="Better Planet Lab - Visit Homepage" class="h-auto w-full" />
 			</a>
 		</div>
+		<div class="divider" ></div>
 
 		<!-- Data Visualization Controls -->
 		<h2 class="mb-2 text-lg font-semibold text-gray-800">Data Visualized</h2>
