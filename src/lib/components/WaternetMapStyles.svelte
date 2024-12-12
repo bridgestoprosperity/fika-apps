@@ -2,19 +2,6 @@
 	import { waternetMapState } from './state.svelte';
 	import { palettes } from './colorPalettes';
 
-	const violetOcean = [
-		'#93ECDD',
-		'#7DD6E0',
-		'#6DC0DE',
-		'#66A9DA',
-		'#5493D9',
-		'#507CD4',
-		'#5E60C7',
-		'#6043C0',
-		'#6A11B1',
-		'#9F237E'
-	];
-
 	export const vectorWaternet = {
 		id: 'vector-waternet',
 		source: 'waterways-source',
@@ -38,24 +25,24 @@
 							'match',
 							['get', 'stream_order'],
 							[0],
-							violetOcean[0],
+							palettes.palettes.violetocean[0],
 							[1],
-							violetOcean[1],
+							palettes.violetocean[1],
 							[2],
-							violetOcean[2],
+							palettes.violetocean[2],
 							[3],
-							violetOcean[3],
+							palettes.violetocean[3],
 							[4],
-							violetOcean[4],
+							palettes.violetocean[4],
 							[5],
-							violetOcean[5],
+							palettes.violetocean[5],
 							[6],
-							violetOcean[6],
+							palettes.violetocean[6],
 							[7],
-							violetOcean[7],
+							palettes.violetocean[7],
 							[8],
-							violetOcean[8],
-							violetOcean[9]
+							palettes.violetocean[8],
+							palettes.violetocean[9]
 						]
 					: ['case', ['==', ['get', 'from_tdx'], true], '#0C7BDC', '#FFCE00']
 			)
