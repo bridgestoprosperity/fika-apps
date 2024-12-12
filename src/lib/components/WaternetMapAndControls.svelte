@@ -14,7 +14,7 @@
 
 	let mapState = $state({
 		streamOrder: 0,
-		vectorData: true,
+		vectorData: false,
 		rasterData: true,
 		selectedPalette: 'inferno',
 		satelliteImagery: false,
@@ -77,6 +77,55 @@
 			: {}
 	);
 	let satelliteSaturation = $derived(mapState.satStyle === 'Black and White' ? -1 : 0);
+	function initializeLayers(pmtilesUrl, header, bounds) {
+		if (!map) return;
+
+		// Add layers in order
+		if (!map.getLayer('satellite-layer')) {
+			map.addLayer(createSatelliteLayer());
+		}
+
+		if (!map.getLayer('raster-waternet')) {
+			map.addLayer(createRasterLayer());
+		}
+		if (!map.getSource('waterways')) {
+			map.addSource('waterways', {
+				type: PmTilesSource.SOURCE_TYPE,
+				url: pmtilesUrl,
+				minzoom: header.minZoom,
+				maxzoom: header.maxZoom,
+				bounds: bounds
+			});
+		}
+
+		if (!map.getLayer('vector-waternet')) {
+			map.addLayer(createVectorLayer());
+		}
+
+		// Immediately apply current state
+		updateLayerProperties();
+	}
+
+	function updateLayerProperties() {
+		if (!map) return;
+
+		if (map.getLayer('satellite-layer')) {
+			map.setLayoutProperty('satellite-layer', 'visibility', satelliteVisibility);
+			map.setPaintProperty('satellite-layer', 'raster-saturation', satelliteSaturation);
+		}
+
+		if (map.getLayer('vector-waternet')) {
+			map.setLayoutProperty('vector-waternet', 'visibility', vectorVisibility);
+			map.setPaintProperty('vector-waternet', 'line-color', vectorLineColor);
+		}
+
+		if (map.getLayer('raster-waternet')) {
+			map.setLayoutProperty('raster-waternet', 'visibility', rasterVisibility);
+			Object.entries(rasterPaint).forEach(([key, value]) => {
+				map.setPaintProperty('raster-waternet', key, value);
+			});
+		}
+	}
 
 	const createVectorLayer = () => ({
 		id: 'vector-waternet',
@@ -127,47 +176,19 @@
 			'raster-saturation': satelliteSaturation // Use initial derived saturation
 		}
 	});
-
-	// Effect to update layer properties when they change
 	$effect(() => {
-		console.log('Effect triggered, visibility states:', {
-			satellite: satelliteVisibility,
-			vector: vectorVisibility,
-			raster: rasterVisibility
-		});
+		// Create a dependency on all state that affects layer properties
+		const _ = [
+			satelliteVisibility,
+			vectorVisibility,
+			rasterVisibility,
+			vectorLineColor,
+			rasterPaint,
+			satelliteSaturation
+		];
 
-		if (!map) return;
-
-		// Satellite layer
-		if (map.getLayer('satellite-layer')) {
-			console.log('Updating satellite layer visibility to:', satelliteVisibility);
-			map.setLayoutProperty('satellite-layer', 'visibility', satelliteVisibility);
-			if (mapState.satelliteImagery) {
-				map.setPaintProperty('satellite-layer', 'raster-saturation', satelliteSaturation);
-			}
-		}
-
-		// Vector layer
-		if (map.getLayer('vector-waternet')) {
-			console.log('Updating vector layer visibility to:', vectorVisibility);
-			map.setLayoutProperty('vector-waternet', 'visibility', vectorVisibility);
-			if (mapState.vectorData) {
-				map.setPaintProperty('vector-waternet', 'line-color', vectorLineColor);
-			}
-		}
-
-		// Raster layer
-		if (map.getLayer('raster-waternet')) {
-			console.log('Updating raster layer visibility to:', rasterVisibility);
-			map.setLayoutProperty('raster-waternet', 'visibility', rasterVisibility);
-			if (mapState.rasterData) {
-				Object.entries(rasterPaint).forEach(([key, value]) => {
-					map.setPaintProperty('raster-waternet', key, value);
-				});
-			}
-		}
+		updateLayerProperties();
 	});
-    
 
 	onMount(() => {
 		console.log('onMount called');
@@ -201,9 +222,6 @@
 				console.log('Map load event fired');
 
 				try {
-					// Add satellite layer first
-					console.log('Adding satellite layer...');
-					map.addLayer(createSatelliteLayer());
 					const PMTILES_URL =
 						'https://public-b2p-geodata.s3.us-east-1.amazonaws.com/waternet-vector/waterway_model_outputs_20m_vector.pmtiles';
 					console.log('Fetching PMTiles header...');
@@ -213,20 +231,8 @@
 
 					const bounds = [header.minLon, header.minLat, header.maxLon, header.maxLat];
 
-					console.log('Adding waterways source...');
-					map.addSource('waterways', {
-						type: PmTilesSource.SOURCE_TYPE,
-						url: PMTILES_URL,
-						minzoom: header.minZoom,
-						maxzoom: header.maxZoom,
-						bounds: bounds
-					});
-					console.log('Waterways source added');
-
-					console.log('Adding layers...');
-					map.addLayer(createVectorLayer());
-					map.addLayer(createRasterLayer());
-					console.log('Layers added');
+					// Initialize layers with current state, passing the required parameters
+					initializeLayers(PMTILES_URL, header, bounds);
 
 					// Log the current map state
 					console.log('Current sources:', Object.keys(map.getStyle().sources));
