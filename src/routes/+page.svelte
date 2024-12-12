@@ -1,5 +1,6 @@
 <script>
 	import { onMount } from 'svelte';
+	import TopNav from '$lib/components/TopNav.svelte';
 	import tdxhydroEthiopia from '$lib/images/tdxhydro-ethiopia.png';
 	import tdxhydroKenya from '$lib/images/tdxhydro-kenya.png';
 	import watenetMagma7 from '$lib/images/watenet-magma-7.png';
@@ -29,6 +30,7 @@
 </div> -->
 
 <header>
+	<TopNav />
 	<div class="m-4 grid grid-cols-3 grid-rows-5 gap-2 md:grid-cols-5 md:grid-rows-4 md:gap-2">
 		<!-- From top -->
 		<div

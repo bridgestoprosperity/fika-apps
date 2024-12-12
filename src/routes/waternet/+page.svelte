@@ -1,8 +1,10 @@
 <script>
-	import WaternetMapAndControls from '$lib/components/WaternetMapAndControls.svelte';
+	import WaternetMap from '$lib/components/WaternetMap.svelte';
+	import MapControls from '$lib/components/MapControls.svelte';
 
 </script>
 
 <div class="relative h-screen w-full">
-	<WaternetMapAndControls />
+	<WaternetMap />
+	<MapControls />
 </div>
