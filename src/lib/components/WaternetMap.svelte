@@ -1,132 +1,181 @@
 <script>
-    import { onMount, onDestroy } from 'svelte';
-    import mapboxgl from 'mapbox-gl';
-    import { PmTilesSource } from 'mapbox-pmtiles';
-    import MapControls from './MapControls.svelte';
-    import { mapState } from '$lib/stores/mapStore.svelte';
-    import { 
-        createVectorLayer, 
-        createRasterLayer, 
-        createSatelliteLayer,
-        getVectorLineColor,
-        getRasterPaint 
-    } from '$lib/utils/mapLayers.svelte';
+	import { onMount, onDestroy } from 'svelte';
+	import mapboxgl from 'mapbox-gl';
+	import { PmTilesSource } from 'mapbox-pmtiles';
+	import MapControls from '$lib/components/MapControls.svelte';
+	// import { mapState } from '$lib/stores/mapStore.svelte';
+	import { waternetMapState } from '$lib/utils/state.svelte';
+	import {
+		createVectorLayer,
+		createRasterLayer,
+		createSatelliteLayer,
+		getVectorLineColor,
+		getRasterPaint
+	} from '$lib/utils/mapLayers.svelte';
 
-    let map;
-    let mapContainer;
+	let map;
+	let mapContainer;
 
-    let vectorVisibility = $derived(mapState.vectorData ? 'visible' : 'none');
-    let rasterVisibility = $derived(mapState.rasterData ? 'visible' : 'none');
-    let satelliteVisibility = $derived(mapState.satelliteImagery ? 'visible' : 'none');
-    let satelliteSaturation = $derived(mapState.satStyle === 'Black and White' ? -1 : 0);
-    
+	let vectorVisibility = $derived(waternetMapState.visibility.vectorData ? 'visible' : 'none');
+	let rasterVisibility = $derived(waternetMapState.visibility.rasterData ? 'visible' : 'none');
+	let satelliteVisibility = $derived(
+		waternetMapState.visibility.satelliteImagery ? 'visible' : 'none'
+	);
+	let satelliteSaturation = $derived(
+		waternetMapState.style.satStyle === 'Black and White' ? -1 : 0
+	);
 
-    function updateLayerProperties() {
-        if (!map) return;
+	let layerStates = $derived({
+		satellite: {
+			visible: waternetMapState.visibility.satelliteImagery,
+			saturation: waternetMapState.style.satStyle === 'Black and White' ? -1 : 0
+		},
+		vector: {
+			visible: waternetMapState.visibility.vectorData,
+			lineColor: getVectorLineColor(),
+			threshold: 12 - waternetMapState.style.streamOrderThreshold
+		},
+		raster: {
+			visible: waternetMapState.visibility.rasterData,
+			paint: getRasterPaint()
+		}
+	});
 
-        if (map.getLayer('satellite-layer')) {
-            map.setLayoutProperty('satellite-layer', 'visibility', satelliteVisibility);
-            map.setPaintProperty('satellite-layer', 'raster-saturation', satelliteSaturation);
-        }
+	// Then update your updateLayerProperties function
+	function updateLayerProperties() {
+		if (!map) return;
 
-        if (map.getLayer('vector-waternet')) {
-            map.setLayoutProperty('vector-waternet', 'visibility', vectorVisibility);
-            map.setPaintProperty('vector-waternet', 'line-color', getVectorLineColor());
-        }
+		// Update satellite layer
+		const satelliteLayer = map.getLayer('satellite-layer');
+		if (satelliteLayer) {
+			const currentVisibility = map.getLayoutProperty('satellite-layer', 'visibility');
+			const shouldBeVisible = layerStates.satellite.visible ? 'visible' : 'none';
 
-        if (map.getLayer('raster-waternet')) {
-            map.setLayoutProperty('raster-waternet', 'visibility', rasterVisibility);
-            const rasterPaint = getRasterPaint();
-            Object.entries(rasterPaint).forEach(([key, value]) => {
-                map.setPaintProperty('raster-waternet', key, value);
-            });
-        }
-    }
+			if (currentVisibility !== shouldBeVisible) {
+				map.setLayoutProperty('satellite-layer', 'visibility', shouldBeVisible);
+			}
+			map.setPaintProperty(
+				'satellite-layer',
+				'raster-saturation',
+				layerStates.satellite.saturation
+			);
+		}
 
-    $effect(() => {
-        // Track all the properties that should trigger an update
-        const _ = [
-            mapState.vectorData,
-            mapState.rasterData,
-            mapState.satelliteImagery,
-            mapState.satStyle,
-            mapState.selectedPalette,
-            mapState.vectorStyle
-        ];
-        updateLayerProperties();
-    });
+		// Update vector layer
+		const vectorLayer = map.getLayer('vector-waternet');
+		if (vectorLayer) {
+			const currentVisibility = map.getLayoutProperty('vector-waternet', 'visibility');
+			const shouldBeVisible = layerStates.vector.visible ? 'visible' : 'none';
 
-    function initializeLayers(pmtilesUrl, header, bounds) {
-        if (!map) return;
+			if (currentVisibility !== shouldBeVisible) {
+				map.setLayoutProperty('vector-waternet', 'visibility', shouldBeVisible);
+			}
+			map.setPaintProperty('vector-waternet', 'line-color', layerStates.vector.lineColor);
+			map.setFilter('vector-waternet', ['>', 'stream_order', layerStates.vector.threshold]);
+		}
 
-        if (!map.getLayer('satellite-layer')) {
-            map.addLayer(createSatelliteLayer());
-        }
+		// Update raster layer
+		const rasterLayer = map.getLayer('raster-waternet');
+		if (rasterLayer) {
+			const currentVisibility = map.getLayoutProperty('raster-waternet', 'visibility');
+			const shouldBeVisible = layerStates.raster.visible ? 'visible' : 'none';
 
-        if (!map.getLayer('raster-waternet')) {
-            map.addLayer(createRasterLayer());
-        }
+			if (currentVisibility !== shouldBeVisible) {
+				map.setLayoutProperty('raster-waternet', 'visibility', shouldBeVisible);
+			}
+			Object.entries(layerStates.raster.paint).forEach(([key, value]) => {
+				map.setPaintProperty('raster-waternet', key, value);
+			});
+		}
+	}
 
-        if (!map.getSource('waterways')) {
-            map.addSource('waterways', {
-                type: PmTilesSource.SOURCE_TYPE,
-                url: pmtilesUrl,
-                minzoom: header.minZoom,
-                maxzoom: header.maxZoom,
-                bounds: bounds
-            });
-        }
+	$effect(() => {
+		// Track all the properties that should trigger an update
+		const _ = [
+			waternetMapState.visibility.vectorData,
+			waternetMapState.visibility.rasterData,
+			waternetMapState.visibility.satelliteImagery,
+			waternetMapState.style.satStyle,
+			waternetMapState.style.selectedPalette,
+			waternetMapState.style.vectorStyle,
+			waternetMapState.style.streamOrderThreshold
+		];
+		updateLayerProperties();
+	});
 
-        if (!map.getLayer('vector-waternet')) {
-            map.addLayer(createVectorLayer());
-        }
+	function initializeLayers(pmtilesUrl, header, bounds) {
+		if (!map) return;
 
-        updateLayerProperties();
-    }
+		if (!map.getLayer('satellite-layer')) {
+			map.addLayer(createSatelliteLayer());
+		}
 
-    onMount(() => {
-        mapboxgl.Style.setSourceType(PmTilesSource.SOURCE_TYPE, PmTilesSource);
+		if (!map.getLayer('raster-waternet')) {
+			map.addLayer(createRasterLayer());
+		}
 
-        mapboxgl.accessToken = 'pk.eyJ1IjoiYnJpZGdlc3RvcHJvc3Blcml0eSIsImEiOiJjbTJ1d2Rka3cwNTM5MmxxMWExZmo2OG1tIn0.B6fDwi43tGjtDzyFSrncxQ';
-        map = new mapboxgl.Map({
-            container: mapContainer,
-            style: 'mapbox://styles/bridgestoprosperity/cm4kippxv01k101slb7hs8mvr',
-            center: [26.19, -0.21],
-            zoom: 4,
-            hash: true
-        });
+		if (!map.getSource('waterways')) {
+			map.addSource('waterways', {
+				type: PmTilesSource.SOURCE_TYPE,
+				url: pmtilesUrl,
+				minzoom: header.minZoom,
+				maxzoom: header.maxZoom,
+				bounds: bounds
+			});
+		}
 
-        map.on('load', async () => {
-            try {
-                const PMTILES_URL = 'https://data.source.coop/fika/waternet/pmtiles/waterway_model_outputs_20m_vector.pmtiles';
-                const header = await PmTilesSource.getHeader(PMTILES_URL);
-                const bounds = [header.minLon, header.minLat, header.maxLon, header.maxLat];
-                initializeLayers(PMTILES_URL, header, bounds);
-            } catch (error) {
-                console.error('Error initializing layers:', error);
-            }
-        });
-        // on hover over wateways layer console log stream order
-        map.on('mousemove', 'vector-waternet', (e) => {
-            console.log(e.features[0].properties.stream_order);
-            // change mouse to cross hair
-            map.getCanvas().style.cursor = 'crosshair';
-            // update mapState.streamOrder
-            mapState.streamOrder = e.features[0].properties.stream_order;
-        });
-        map.on('mouseleave', 'vector-waternet', () => {
-            mapState.streamOrder = '';
-            map.getCanvas().style.cursor = '';
-        });
-    });
+		if (!map.getLayer('vector-waternet')) {
+			map.addLayer(createVectorLayer());
+		}
 
-    onDestroy(() => {
-        if (map) {
-            map.remove();
-        }
-    });
+		updateLayerProperties();
+	}
+
+	onMount(() => {
+		mapboxgl.Style.setSourceType(PmTilesSource.SOURCE_TYPE, PmTilesSource);
+
+		mapboxgl.accessToken =
+			'pk.eyJ1IjoiYnJpZGdlc3RvcHJvc3Blcml0eSIsImEiOiJjbTJ1d2Rka3cwNTM5MmxxMWExZmo2OG1tIn0.B6fDwi43tGjtDzyFSrncxQ';
+		map = new mapboxgl.Map({
+			container: mapContainer,
+			style: 'mapbox://styles/bridgestoprosperity/cm4kippxv01k101slb7hs8mvr',
+			center: [26.19, -0.21],
+			zoom: 4,
+			hash: true
+		});
+
+		map.on('load', async () => {
+			try {
+				const PMTILES_URL =
+					'https://data.source.coop/fika/waternet/pmtiles/waterway_model_outputs_20m_vector.pmtiles';
+				const header = await PmTilesSource.getHeader(PMTILES_URL);
+				const bounds = [header.minLon, header.minLat, header.maxLon, header.maxLat];
+				initializeLayers(PMTILES_URL, header, bounds);
+			} catch (error) {
+				console.error('Error initializing layers:', error);
+			}
+		});
+		// on hover over wateways layer console log stream order
+		map.on('mousemove', 'vector-waternet', (e) => {
+			console.log(e.features[0].properties.stream_order);
+			// change mouse to cross hair
+			map.getCanvas().style.cursor = 'crosshair';
+			// update mapState.streamOrder
+			waternetMapState.style.streamOrderValue = e.features[0].properties.stream_order;
+		});
+		map.on('mouseleave', 'vector-waternet', () => {
+			waternetMapState.style.streamOrderValue = '';
+			map.getCanvas().style.cursor = '';
+		});
+	});
+
+	onDestroy(() => {
+		if (map) {
+			map.remove();
+		}
+	});
 </script>
 
 <div class="relative h-full w-full">
-    <div bind:this={mapContainer} class="absolute inset-0 h-full w-full"></div>
+	<div bind:this={mapContainer} class="absolute inset-0 h-full w-full"></div>
 </div>

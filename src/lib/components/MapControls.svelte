@@ -1,73 +1,69 @@
 <script>
-	import { mapState } from '$lib/stores/mapStore.svelte';
-	import { palettes } from '../colorPalettes';
-	import b2pLogo from '../images/b2p-full-logo.png';
-	import bplLogo from '../images/bpl-logo.png';
-	import ControlPanel from './ControlPanel.svelte';
+	import { waternetMapState } from '$lib/utils/state.svelte.js';
+	import { palettes } from '$lib/utils/colorPalettes';
+	import b2pLogo from '$lib/images/b2p-full-logo.png';
+	import bplLogo from '$lib/images/bpl-logo.png';
+	import ControlPanel from '$lib/components/ControlPanel.svelte';
 </script>
 
-<div class="absolute left-0 top-[10px] z-10">
+<div class="absolute left-16 top-[150px] z-40">
 	<ControlPanel>
 		<!-- Logo Section -->
-		<div class="justify-left flex items-center">
+		<!-- <div class="justify-left flex items-center">
 			<img src={b2pLogo} alt="Bridges to Prosperity" class="mx-2 h-auto w-[40%]" />
 			<img src={bplLogo} alt="Bridging the Prosperity Gap" class="mx-2 h-auto w-[45%]" />
-		</div>
+		</div> -->
 
 		<!-- Data Visualization Controls -->
-		<p class="font-medium">Data Visualized</p>
+		<p class="font-bold">Data Visualized</p>
 
 		<!-- Raster Toggle -->
 		<div class="form-control">
 			<label class="label cursor-pointer">
-				<span class="label-text font-mono">Raster Data</span>
+				<span class="font-normal">Raster Data</span>
 				<input
 					type="checkbox"
 					class="toggle toggle-primary [--tglbg:#e8e8e8]"
-					onchange={(e) => (mapState.rasterData = e.target.checked)}
-					checked={mapState.rasterData} />
+					on:change={(e) => (waternetMapState.visibility.rasterData = e.target.checked)}
+					checked={waternetMapState.visibility.rasterData} />
 			</label>
 		</div>
 
 		<!-- Satellite Toggle -->
 		<div class="form-control">
 			<label class="label cursor-pointer">
-				<span class="label-text font-mono">Satellite Imagery</span>
+				<span class="font-normal">Satellite Imagery</span>
 				<input
 					type="checkbox"
 					class="toggle toggle-primary [--tglbg:#e8e8e8]"
-					onchange={(e) => (mapState.satelliteImagery = e.target.checked)}
-					checked={mapState.satelliteImagery} />
+					on:change={(e) => (waternetMapState.visibility.satelliteImagery = e.target.checked)}
+					checked={waternetMapState.visibility.satelliteImagery} />
 			</label>
 		</div>
 
 		<!-- Vector Toggle -->
 		<div class="form-control">
 			<label class="label cursor-pointer">
-				<span class="label-text font-mono">Vector Data</span>
+				<span class="font-normal">Vector Data</span>
 				<input
 					type="checkbox"
 					class="toggle toggle-primary [--tglbg:#e8e8e8]"
-					onchange={(e) => (mapState.vectorData = e.target.checked)}
-					checked={mapState.vectorData} />
+					on:change={(e) => (waternetMapState.visibility.vectorData = e.target.checked)}
+					checked={waternetMapState.visibility.vectorData} />
 			</label>
 		</div>
-
-		<!-- Style Controls Section -->
 		<div class="form-control">
-			{#if mapState.vectorData || mapState.satelliteImagery || mapState.rasterData}
-				<div class="divider"></div>
+			{#if waternetMapState.visibility.vectorData || waternetMapState.visibility.satelliteImagery || waternetMapState.visibility.rasterData}
+				<div class="divider  my-0"></div>
 			{/if}
 
-			<!-- Raster Style Controls -->
-			{#if mapState.rasterData}
+			{#if waternetMapState.visibility.rasterData}
 				<div class="label">
 					<span class="label-text">Raster Data Style</span>
 				</div>
 				<select
-					class="select select-bordered select-primary p-2"
-					value={mapState.selectedPalette}
-					onchange={(e) => (mapState.selectedPalette = e.target.value)}>
+					class="select select-bordered select-secondary p-1 font-mono bg-transparent"
+					bind:value={waternetMapState.style.selectedPalette}>
 					{#each Object.keys(palettes) as paletteName}
 						<option value={paletteName}>{paletteName}</option>
 					{/each}
@@ -75,41 +71,67 @@
 			{/if}
 
 			<!-- Satellite Style Controls -->
-			{#if mapState.satelliteImagery}
+			{#if waternetMapState.visibility.satelliteImagery}
 				<div class="label">
 					<span class="label-text">Satellite Data Style</span>
 				</div>
 				<select
-					class="select select-bordered select-primary p-2"
-					value={mapState.satStyle}
-					onchange={(e) => (mapState.satStyle = e.target.value)}>
+					class="select select-bordered select-secondary font-mono p-2 bg-transparent"
+					bind:value={waternetMapState.style.satStyle}>
 					<option>Black and White</option>
 					<option>Color</option>
 				</select>
 			{/if}
 
 			<!-- Vector Style Controls -->
-			{#if mapState.vectorData}
+			{#if waternetMapState.visibility.vectorData}
 				<div class="label">
 					<span class="label-text">Vector Data Style</span>
 				</div>
 				<select
-					class="select select-bordered select-primary p-2"
-					value={mapState.vectorStyle}
-					onchange={(e) => (mapState.vectorStyle = e.target.value)}>
+					class="select select-bordered select-secondary p-2 font-mono bg-transparent"
+					bind:value={waternetMapState.style.vectorStyle}>
 					<option>Stream Order</option>
 					<option>TDX Hydro Comparison</option>
 				</select>
-
-				<div class="divider"></div>
-
-				<!-- Stream Order Display -->
 				<div class="label">
-					<div class="font-mono text-lg font-bold text-gray-800">
-						Stream Order: {mapState.streamOrder}
+					<span class="label-text">Stream Order Threshold</span>
+				</div>
+				<input
+					type="range"
+					min="1"
+					max="12"
+					bind:value={waternetMapState.style.streamOrderThreshold}
+					class="range range-secondary"
+					step="1" />
+
+				<div class="flex w-full justify-between px-2 text-xs">
+					<span>12</span>
+					<span>|</span>
+					<span>|</span>
+					<span>|</span>
+					<span>8</span>
+					<span>|</span>
+					<span>|</span>
+					<span>5</span>
+					<span>|</span>
+					<span>|</span>
+					<span>|</span>
+					<span>1</span>
+				</div>
+
+				<div class="divider mt-2 mb-0"></div>
+
+				<div class="label">
+					<div class="font-mono text-sm font-bold text-gray-800">
+						Hovered Stream Order: {waternetMapState.style.streamOrderValue}
 					</div>
 				</div>
 			{/if}
 		</div>
 	</ControlPanel>
 </div>
+
+<style>
+	/* Add any component-specific styles here */
+</style>

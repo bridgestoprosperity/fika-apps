@@ -1,8 +1,11 @@
 <script>
 
+import SideNav from '$lib/components/SideNav.svelte';
 
 </script>
 
-<div class="relative h-screen w-full">
+<SideNav />
 
-</div>
+<!-- <div class="relative h-screen w-full"> -->
+
+<!-- </div> -->
