@@ -26,70 +26,70 @@
 	const gridItems = [
 		{
 			src: waternetMagma1,
-			alt: 'Water Network 1',
+			alt: 'tile 1',
 			className:
-				'slide-from-top col-span-2 col-start-1 row-start-1 md:col-span-2 md:col-start-1 md:row-start-1'
+				'slide-from-left animation-delay-300 col-span-2 col-start-1 row-start-1 md:col-span-2 md:col-start-1 md:row-start-1'
 		},
 		{
 			src: waternetMagma2,
-			alt: 'Water Network 2',
+			alt: 'tile 2',
 			className:
-				'slide-from-top animation-delay-100 col-span-2 col-start-2 row-span-2 row-start-1 md:col-span-1 md:col-start-3 md:row-span-1 md:row-start-1'
+				'slide-from-bottom animation-delay-100 col-span-2 col-start-2 row-span-2 row-start-1 md:col-span-1 md:col-start-3 md:row-span-1 md:row-start-1'
 		},
 		{
 			src: waternetMagma3,
-			alt: 'Water Network 3',
+			alt: 'tile 3',
 			className:
-				'slide-from-top animation-delay-200 col-start-1 row-start-2 md:col-span-1 md:col-start-4 md:row-span-2 md:row-start-1'
+				'slide-from-top animation-delay-300 col-start-1 row-start-2 md:col-span-1 md:col-start-4 md:row-span-2 md:row-start-1'
 		},
 		{
 			src: waternetMagma4Png,
-			alt: 'Water Network 4',
+			alt: 'tile 4',
 			className:
-				'slide-from-top animation-delay-300 col-span-2 col-start-1 row-start-3 md:col-span-1 md:col-start-5 md:row-span-1 md:row-start-1'
-		},
-		{
-			src: waternetMagma5,
-			alt: 'Water Network 5',
-			className:
-				'slide-from-right animation-delay-200 col-span-2 col-start-2 row-start-4 md:col-span-1 md:col-start-5 md:row-span-1 md:row-start-2'
-		},
-		{
-			src: tdxhydroEthiopia,
-			alt: 'TDX Hydro Ethiopia',
-			className:
-				'slide-from-right animation-delay-300 hidden md:col-span-1 md:col-start-5 md:row-span-2 md:row-start-3 md:block'
+				'slide-from-left animation-delay-0 col-span-2 col-start-1 row-start-3 md:col-span-1 md:col-start-5 md:row-span-1 md:row-start-1'
 		},
 		{
 			src: waternetMagma6,
-			alt: 'Water Network 6',
+			alt: 'tile 5',
 			className:
-				'slide-from-left col-start-2 row-start-5 md:col-span-1 md:col-start-1 md:row-span-1 md:row-start-2'
+				'slide-from-top animation-delay-100 col-start-2 row-start-5 md:col-span-1 md:col-start-1 md:row-span-1 md:row-start-2'
+		},
+		{
+			src: waternetMagma5,
+			alt: 'Tile 6',
+			className:
+				'slide-from-right animation-delay-300 col-span-2 col-start-2 row-start-4 md:col-span-1 md:col-start-5 md:row-span-1 md:row-start-2'
 		},
 		{
 			src: waternetMagma8,
-			alt: 'Water Network 8',
+			alt: 'Tile 7',
 			className:
-				'slide-from-left animation-delay-100 col-start-1 row-span-2 row-start-4 md:col-span-1 md:col-start-1 md:row-span-2 md:row-start-3'
+				'slide-from-left animation-delay-200 col-start-1 row-span-2 row-start-4 md:col-span-1 md:col-start-1 md:row-span-2 md:row-start-3'
 		},
 		{
 			src: waternetEthiopia,
-			alt: 'Water Network Ethiopia',
+			alt: 'Tile 8',
 			className:
-				'slide-from-bottom col-start-3 row-start-3 md:col-span-1 md:col-start-2 md:row-span-2 md:row-start-3'
+				'slide-from-bottom animation-delay-300 col-start-3 row-start-3 md:col-span-1 md:col-start-2 md:row-span-2 md:row-start-3'
 		},
 		{
 			src: tdxhydroKenya,
-			alt: 'TDX Hydro Kenya',
+			alt: 'Tile 9',
 			className:
-				'slide-from-bottom animation-delay-200 hidden md:col-span-1 md:col-start-3 md:row-span-1 md:row-start-4 md:block'
+				'slide-from-left animation-delay-100 hidden md:col-span-1 md:col-start-3 md:row-span-1 md:row-start-4 md:block'
 		},
 		{
 			src: waternetBlue1,
-			alt: 'Water Network Blue',
+			alt: 'Tile 10',
 			className:
-				'slide-from-bottom animation-delay-300 hidden md:col-span-1 md:col-start-4 md:row-span-1 md:row-start-4 md:block'
-		}
+				'slide-from-right animation-delay-200 hidden md:col-span-1 md:col-start-4 md:row-span-1 md:row-start-4 md:block'
+		},
+		{
+			src: tdxhydroEthiopia,
+			alt: 'Tile 11',
+			className:
+				'slide-from-top hidden md:col-span-1 md:col-start-5 md:row-span-2 md:row-start-3 md:block'
+		},
 	];
 
 	const appCards = [
@@ -147,32 +147,32 @@
 		height: calc(100vh - 64px); /* Adjust 64px to match your TopNav height */
 	}
 	.fika-slide {
-		animation: fikaSlide 3s ease-out forwards;
+		animation: fikaSlide 2.5s ease-out forwards;
 		opacity: 0;
 	}
 
 	.apps-slide {
-		animation: appsSlide 3s ease-out forwards;
+		animation: appsSlide 2.5s ease-out forwards;
 		opacity: 0;
 	}
 
 	.slide-from-top {
-		animation: slideFromTop 3s ease-out forwards;
+		animation: slideFromTop 2s ease-out forwards;
 		opacity: 0;
 	}
 
 	.slide-from-right {
-		animation: slideFromRight 3s ease-out forwards;
+		animation: slideFromRight 2s ease-out forwards;
 		opacity: 0;
 	}
 
 	.slide-from-bottom {
-		animation: slideFromBottom 3s ease-out forwards;
+		animation: slideFromBottom 2s ease-out forwards;
 		opacity: 0;
 	}
 
 	.slide-from-left {
-		animation: slideFromLeft 3s ease-out forwards;
+		animation: slideFromLeft 2s ease-out forwards;
 		opacity: 0;
 	}
 
