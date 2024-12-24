@@ -28,7 +28,7 @@
 					checked={waternetMapState.visibility.rasterData} />
 			</label>
 		</div>
-
+		<div class="divider" ></div>
 		<!-- Satellite Toggle -->
 		<div class="form-control">
 			<label class="label cursor-pointer">
