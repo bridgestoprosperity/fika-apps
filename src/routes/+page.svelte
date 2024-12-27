@@ -5,87 +5,91 @@
 	import TiltCard from '$lib/components/TiltCard.svelte';
 
 	// Import all images individually
-	import tdxhydroEthiopia from '$lib/images/tdxhydro-ethiopia.png';
-	import tdxhydroKenya from '$lib/images/tdxhydro-kenya.png';
-	import watenetMagma7 from '$lib/images/watenet-magma-7.png';
-	import waternetBlue1 from '$lib/images/waternet-blue-1.png';
-	import waternetEthiopia from '$lib/images/waternet-ethiopia.png';
-	import waternetKenya from '$lib/images/waternet-kenya.png';
-	import waternetMagma1 from '$lib/images/waternet-magma-1.png';
-	import waternetMagma2 from '$lib/images/waternet-magma-2.png';
-	import waternetMagma3 from '$lib/images/waternet-magma-3.png';
-	import waternetMagma4Png from '$lib/images/waternet-magma-4.png';
-	import waternetMagma5 from '$lib/images/waternet-magma-5.png';
-	import waternetMagma6 from '$lib/images/waternet-magma-6.png';
-	import waternetMagma8 from '$lib/images/waternet-magma-8.png';
+	import tile1 from '$lib/images/sites-bolivia.png';
+	import tile8 from '$lib/images/sites-sat-central-america.png';
+	import tile2 from '$lib/images/sites-single-sat.png';
+	import tile4 from '$lib/images/civ-map-only.png';
+	import tile3 from '$lib/images/fikamap-maponly.png';
+	import tile13 from '$lib/images/waternet-magma-7.png';
+	import tile6 from '$lib/images/waternet-blue-1.png';
+	import tile9 from '$lib/images/waternet-kenya.png';
+	import tile5 from '$lib/images/waternet-magma-1.png';
+	import tile11 from '$lib/images/waternet-magma-2.png';
+	import tile10 from '$lib/images/waternet-magma-5.png';
+	import tile12 from '$lib/images/waternet-magma-6.png';
+	import tile7 from '$lib/images/waternet-vector-ethiopia.png';
 	import waternetVectorEthiopia from '$lib/images/waternet-vector-ethiopia.png';
+	import civAppImage from '$lib/images/civ-maponly-flood.png';
+	import fikaMapAppImage from '$lib/images/fikamap-maponly.png';
+	import bridgeSitesAppImage from '$lib/images/sites-zoom-sat.png';
+	import waternetAppImage from '$lib/images/waternet-magma-4.png';
 
 	let isLoaded = $state(false);
 
 	// Define grid items for better maintainability
 	const gridItems = [
 		{
-			src: waternetMagma1,
+			src: tile1,
 			alt: 'tile 1',
 			className:
 				'slide-from-left animation-delay-300 col-span-2 col-start-1 row-start-1 md:col-span-2 md:col-start-1 md:row-start-1'
 		},
 		{
-			src: waternetMagma2,
+			src: tile2,
 			alt: 'tile 2',
 			className:
 				'slide-from-bottom animation-delay-100 col-span-2 col-start-2 row-span-2 row-start-1 md:col-span-1 md:col-start-3 md:row-span-1 md:row-start-1'
 		},
 		{
-			src: waternetMagma3,
+			src: tile3,
 			alt: 'tile 3',
 			className:
 				'slide-from-top animation-delay-300 col-start-1 row-start-2 md:col-span-1 md:col-start-4 md:row-span-2 md:row-start-1'
 		},
 		{
-			src: waternetMagma4Png,
+			src: tile4,
 			alt: 'tile 4',
 			className:
 				'slide-from-left animation-delay-0 col-span-2 col-start-1 row-start-3 md:col-span-1 md:col-start-5 md:row-span-1 md:row-start-1'
 		},
 		{
-			src: waternetMagma6,
+			src: tile5,
 			alt: 'tile 5',
 			className:
 				'slide-from-top animation-delay-100 col-start-2 row-start-5 md:col-span-1 md:col-start-1 md:row-span-1 md:row-start-2'
 		},
 		{
-			src: waternetMagma5,
+			src: tile6,
 			alt: 'Tile 6',
 			className:
 				'slide-from-right animation-delay-300 col-span-2 col-start-2 row-start-4 md:col-span-1 md:col-start-5 md:row-span-1 md:row-start-2'
 		},
 		{
-			src: waternetMagma8,
+			src: tile7,
 			alt: 'Tile 7',
 			className:
 				'slide-from-left animation-delay-200 col-start-1 row-span-2 row-start-4 md:col-span-1 md:col-start-1 md:row-span-2 md:row-start-3'
 		},
 		{
-			src: waternetEthiopia,
+			src: tile8,
 			alt: 'Tile 8',
 			className:
 				'slide-from-bottom animation-delay-300 col-start-3 row-start-3 md:col-span-1 md:col-start-2 md:row-span-2 md:row-start-3'
 		},
 		{
-			src: tdxhydroKenya,
+			src: tile9,
 			alt: 'Tile 9',
 			className:
 				'slide-from-left animation-delay-100 hidden md:col-span-1 md:col-start-3 md:row-span-1 md:row-start-4 md:block'
 		},
 		{
-			src: waternetBlue1,
+			src: tile10,
 			alt: 'Tile 10',
 			className:
 				'slide-from-right animation-delay-200 hidden md:col-span-1 md:col-start-4 md:row-span-1 md:row-start-4 md:block'
 		},
 		{
-			src: tdxhydroEthiopia,
+			src: tile11,
 			alt: 'Tile 11',
 			className:
 				'slide-from-top hidden md:col-span-1 md:col-start-5 md:row-span-2 md:row-start-3 md:block'
@@ -94,11 +98,32 @@
 
 	const appCards = [
 		{
-			image: waternetVectorEthiopia,
-			alt: 'map of ethiopia',
+			image: waternetAppImage,
+			alt: 'Waterway Explorer example',
 			title: 'Waterways Data Explorer App',
-			description: 'An application allowing you to explore the waterways data',
+			description: 'An application allowing you to explore waterways data created by Waternet',
 			href: '/waternet'
+		},
+		{
+			image: fikaMapAppImage,
+			alt: 'Fika Map example',
+			title: 'Fika Impact Map',
+			description: 'Prototype of a map application allowing user to visualize impact of trail bridges on communities around Rwanda',
+			href: 'https://map.fikamap.com/'
+		},
+		{
+			image: civAppImage,
+			alt: "Côte d'Ivoire",
+			title: "Côte d'Ivoire Bridge Impact Assessment",
+			description: 'Analysis done to determine where bridges are needed to support new schools built in Côte d’Ivoire',
+			href: 'https://bridgestoprosperity.github.io/civ-map/home/'
+		},
+		{
+			image: bridgeSitesAppImage,
+			alt: 'map of ethiopia',
+			title: 'Bridges Built Worldwide',
+			description: 'Locations of bridges built by 	Bridges to Prosperity around the world',
+			href: 'https://bridge-locations-map.vercel.app/'
 		}
 	];
 
