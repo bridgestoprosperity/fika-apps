@@ -70,7 +70,7 @@
 			0 2px 4px -1px rgba(0, 0, 0, 0.06);
 		transform: var(--tilt-transform);
 		/* make black and white */
-		filter: grayscale(100%);
+		/* filter: grayscale(30%); */
 		
 	}
 

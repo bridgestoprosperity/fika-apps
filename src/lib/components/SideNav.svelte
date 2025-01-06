@@ -2,12 +2,10 @@
 	import { onMount } from 'svelte';
 	import { SlidersSolid, MapSolid, HouseSolid, CircleInfoSolid } from 'svelte-awesome-icons';
 	import b2pLogo from '$lib/images/b2plogo.png';
-	import abstractBackground from '$lib/images/abstract-colors6.png';
-
-	let isPanelOpen = $state(true);
+	import { waternetMapState } from '$lib/utils/state.svelte';
 
 	function toggleControlPanel() {
-		isPanelOpen = !isPanelOpen;
+		waternetMapState.visibility.controlPanelOpen = !waternetMapState.visibility.controlPanelOpen;
 		document.querySelector('.panel-container').classList.toggle('closed');
 	}
 </script>
@@ -26,7 +24,7 @@
 
 		<nav class="mt-6 flex flex-col items-center gap-4">
 			<button
-				class="group relative flex h-12 w-12 items-center justify-center rounded-xl text-primary transition-all hover:scale-110"
+				class="group relative flex h-12 w-12 items-center justify-center rounded-xl text-secondary transition-all hover:scale-110"
 				onclick={() => {
 					window.location.href = '/';
 				}}>
@@ -36,15 +34,25 @@
 					Home
 				</span>
 			</button>
+			
+			<!-- should use slot to add everything here so i can reuse component -->
 
 			<button
-				class="group relative flex h-12 w-12 items-center justify-center text-primary transition-all hover:scale-110
-                       {isPanelOpen ? 'bg-green-foggy rounded-xl' : ''}"
+				class="group relative flex h-12 w-12 items-center justify-center text-secondary transition-all hover:scale-110
+                       {waternetMapState.visibility.controlPanelOpen ? 'bg-green-foggy rounded-xl' : ''}"
 				onclick={toggleControlPanel}>
 				<SlidersSolid class="h-6 w-6" />
 				<span
 					class="absolute left-full ml-4 hidden rounded-md bg-gray-900 px-2 py-1 text-sm text-white group-hover:block">
 					Controls
+				</span>
+			</button>
+			<button
+				class="group relative flex h-12 w-12 items-center justify-center text-secondary transition-all hover:scale-110">
+				<CircleInfoSolid class="h-6 w-6" />
+				<span
+					class="absolute left-full ml-4 hidden rounded-md bg-gray-900 px-2 py-1 text-sm text-white group-hover:block">
+					Info
 				</span>
 			</button>
 

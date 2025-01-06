@@ -12,10 +12,10 @@
 	import tile3 from '$lib/images/fikamap-maponly.png';
 	import tile13 from '$lib/images/waternet-magma-7.png';
 	import tile6 from '$lib/images/waternet-blue-1.png';
-	import tile9 from '$lib/images/waternet-kenya.png';
+	import tile10 from '$lib/images/waternet-kenya.png';
 	import tile5 from '$lib/images/waternet-magma-1.png';
-	import tile11 from '$lib/images/waternet-magma-2.png';
-	import tile10 from '$lib/images/waternet-magma-5.png';
+	import tile11 from '$lib/images/waternet-viridis-1.png';
+	import tile9 from '$lib/images/waternet-magma-5.png';
 	import tile12 from '$lib/images/waternet-magma-6.png';
 	import tile7 from '$lib/images/waternet-vector-ethiopia.png';
 	import waternetVectorEthiopia from '$lib/images/waternet-vector-ethiopia.png';
@@ -93,7 +93,7 @@
 			alt: 'Tile 11',
 			className:
 				'slide-from-top hidden md:col-span-1 md:col-start-5 md:row-span-2 md:row-start-3 md:block'
-		},
+		}
 	];
 
 	const appCards = [
@@ -108,14 +108,16 @@
 			image: fikaMapAppImage,
 			alt: 'Fika Map example',
 			title: 'Fika Impact Map',
-			description: 'Prototype of a map application allowing user to visualize impact of trail bridges on communities around Rwanda',
+			description:
+				'Prototype of a map application allowing user to visualize impact of trail bridges on communities around Rwanda',
 			href: 'https://map.fikamap.com/'
 		},
 		{
 			image: civAppImage,
 			alt: "Côte d'Ivoire",
 			title: "Côte d'Ivoire Bridge Impact Assessment",
-			description: 'Analysis done to determine where bridges are needed to support new schools built in Côte d’Ivoire',
+			description:
+				'Analysis done to determine where bridges are needed to support new schools built in Côte d’Ivoire',
 			href: 'https://bridgestoprosperity.github.io/civ-map/home/'
 		},
 		{
@@ -132,7 +134,7 @@
 	});
 </script>
 
-<div class="flex min-h-screen flex-col">
+<div class="background-texture flex min-h-screen flex-col">
 	<header class="flex flex-col">
 		<TopNav />
 		<div
@@ -217,6 +219,11 @@
 		font-size: 9rem;
 		font-weight: 700;
 	}
+
+	/* .background-texture {
+		background-color: #ffffff4b;
+		background-image: url('https://www.transparenttextures.com/patterns/bedge-grunge.png');
+	} */
 
 	@keyframes fikaSlide {
 		from {
