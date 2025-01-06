@@ -148,12 +148,12 @@
 			{/each}
 
 			<div
-				class="fika-slide flex items-end justify-end rounded-md text-right md:col-span-2 md:col-start-2 md:row-span-1 md:row-start-2">
+				class="fika-slide flex items-center justify-center rounded-md md:col-span-2 md:col-start-2 md:row-span-1 md:row-start-2">
 				<span class="title-text relative z-10">Fika</span>
 			</div>
 
 			<div
-				class="apps-slide flex items-start md:col-span-2 md:col-start-3 md:row-span-1 md:row-start-3 md:block">
+				class="apps-slide flex items-center justify-center md:col-span-2 md:col-start-3 md:row-span-1 md:row-start-3 ">
 				<span class="title-text relative z-10">Apps</span>
 			</div>
 		</div>
@@ -174,32 +174,32 @@
 		height: calc(100vh - 64px); /* Adjust 64px to match your TopNav height */
 	}
 	.fika-slide {
-		animation: fikaSlide 2.5s ease-out forwards;
+		animation: fikaSlide 1.5s ease-out forwards;
 		opacity: 0;
 	}
 
 	.apps-slide {
-		animation: appsSlide 2.5s ease-out forwards;
+		animation: appsSlide 1.5s ease-out forwards;
 		opacity: 0;
 	}
 
 	.slide-from-top {
-		animation: slideFromTop 2s ease-out forwards;
+		animation: slideFromTop 0.8s ease-out forwards;
 		opacity: 0;
 	}
 
 	.slide-from-right {
-		animation: slideFromRight 2s ease-out forwards;
+		animation: slideFromRight 0.8s ease-out forwards;
 		opacity: 0;
 	}
 
 	.slide-from-bottom {
-		animation: slideFromBottom 2s ease-out forwards;
+		animation: slideFromBottom 0.8s ease-out forwards;
 		opacity: 0;
 	}
 
 	.slide-from-left {
-		animation: slideFromLeft 2s ease-out forwards;
+		animation: slideFromLeft 0.8s ease-out forwards;
 		opacity: 0;
 	}
 
@@ -218,6 +218,7 @@
 	.title-text {
 		font-size: 9rem;
 		font-weight: 700;
+		line-height: .8;
 	}
 
 	/* .background-texture {
