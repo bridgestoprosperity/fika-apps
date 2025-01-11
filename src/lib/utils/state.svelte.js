@@ -13,3 +13,12 @@ export let waternetMapState = $state({
         streamOrderValue: '',
     }
 })
+
+export let saiMapState = $state({
+    visibility: {
+        controlPanelOpen: true,
+        satelliteImagery: false,
+    },
+    style: {
+    }
+})
