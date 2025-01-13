@@ -2,107 +2,161 @@
 	import { onMount, onDestroy } from 'svelte';
 	import mapboxgl from 'mapbox-gl';
 	import { PmTilesSource } from 'mapbox-pmtiles';
-	import MapControls from '$lib/components/MapControls.svelte';
-	// import { mapState } from '$lib/stores/mapStore.svelte';
 	import { saiMapState } from '$lib/utils/state.svelte';
-	// import {
-	// 	createVectorLayer,
-	// 	createRasterLayer,
-	// 	createSatelliteLayer,
-	// 	getVectorLineColor,
-	// 	getRasterPaint
-	// } from '$lib/utils/mapLayers.svelte';
+	import { vizOptions } from '$lib/utils/saiMapProperties';
+	import { palettes } from '$lib/utils/colorPalettes';
 
 	let map;
 	let mapContainer;
+	const defaultPalette = ['#ffffb2', '#fed976', '#feb24c', '#fd8d3c', '#f03b20', '#bd0026'];
 
-	let palette = ["#ffffb2","#fed976","#feb24c","#fd8d3c","#f03b20","#bd0026"];
+	// Create derived values for the visualization
+	let currentVizProps = $derived(vizOptions[saiMapState.selectedViz]);
+	let currentPalette = $derived.by(() => {
+		const palette = palettes[saiMapState.selectedPalette] || defaultPalette;
+		return saiMapState.reversePalette ? palette.slice().reverse() : palette;
+	});
 
-	function initializeLayers(pmtilesUrl, header, bounds) {
+	$effect(() => {
+		console.log(currentPalette);
+	});
+
+	async function initializeLayers(pmtilesUrl, header, bounds) {
 		if (!map) return;
 
-		if (!map.getSource('sai')) {
+		try {
+			if (!map.getSource('sai')) {
+				map.addSource('sai', {
+					type: PmTilesSource.SOURCE_TYPE,
+					url: pmtilesUrl,
+					minzoom: header.minZoom,
+					maxzoom: header.maxZoom,
+					bounds: bounds
+				});
 
-			map.addSource('sai', {
-				type: PmTilesSource.SOURCE_TYPE,
-				url: pmtilesUrl,
-				minzoom: header.minZoom,
-				maxzoom: header.maxZoom,
-				bounds: bounds
-			});
-
-			// Add the polygon layer
-	
-			map.addLayer({
-				id: 'sai-fill',
-				type: 'fill',
-				source: 'sai',
-				'source-layer': 'traveltimeroads', // Replace with your actual source layer name
-				paint: {
-					'fill-color': [
-						'case',
-						['==', ['get', 'travel_time_no_sites'], 0], // If travel time is 0
-						'#000000', // Use black
-						[
+				// Add fill layer with initial styling
+				map.addLayer({
+					id: 'sai-fill',
+					type: 'fill',
+					source: 'sai',
+					'source-layer': 'traveltimeroads',
+					filter: ['!=', ['get', saiMapState.selectedViz], 0],
+					paint: {
+						'fill-color': [
 							'interpolate',
 							['linear'],
-							['get', 'travel_time_no_sites'],
-							5,
-							palette[0],
-							10,
-							palette[1],
-							30,
-							palette[2],
-							45,
-							palette[3],
-							60,
-							palette[4],
-							90,
-							palette[5]
-						]
-					],
-					'fill-opacity': 0.7
-				}
-			});
+							['get', saiMapState.selectedViz],
+							currentVizProps['stop0'],
+							currentPalette[0],
+							currentVizProps['stop1'],
+							currentPalette[1],
+							currentVizProps['stop2'],
+							currentPalette[2],
+							currentVizProps['stop3'],
+							currentPalette[3],
+							currentVizProps['stop4'],
+							currentPalette[4]
+						],
+						'fill-opacity': 0.7
+					}
+				});
 
+				// Add line layer for zero values
+				map.addLayer({
+					id: 'sai-line',
+					type: 'line',
+					source: 'sai',
+					'source-layer': 'traveltimeroads',
+					filter: ['==', ['get', saiMapState.selectedViz], 0],
+					minzoom: 8.5,
+					paint: {
+						'line-color': '#bdb7af',
+						'line-width': ['interpolate', ['linear'], ['zoom'], 11.5, 0.1, 12, 1],
+						'line-opacity': ['interpolate', ['linear'], ['zoom'], 8.5, 0, 9, 1]
+					}
+				});
 
-			// Add hover interactions
-			// let hoveredStateId = null;
+				// Add click interaction
+				map.on('click', 'sai-fill', (e) => {
+					if (e.features.length > 0) {
+						const properties = e.features[0].properties;
+						console.log('Selected feature:', {
+							[saiMapState.selectedViz]: properties[saiMapState.selectedViz],
+							...properties
+						});
+						saiMapState.clickedData = {
+							[saiMapState.selectedViz]: properties[saiMapState.selectedViz],
+							...properties
+						};
+					}
+				});
 
-			// map.on('mousemove', 'sai-fill', (e) => {
-			// 	if (e.features.length > 0) {
-			// 		if (hoveredStateId !== null) {
-			// 			map.setFeatureState(
-			// 				{ source: 'sai', id: hoveredStateId, sourceLayer: 'your_source_layer_name' },
-			// 				{ hover: false }
-			// 			);
-			// 		}
-			// 		hoveredStateId = e.features[0].id;
-			// 		map.setFeatureState(
-			// 			{ source: 'sai', id: hoveredStateId, sourceLayer: 'your_source_layer_name' },
-			// 			{ hover: true }
-			// 		);
+				// Add hover effect
+				map.on('mouseenter', 'sai-fill', () => {
+					map.getCanvas().style.cursor = 'pointer';
+				});
 
-			// 		// Update cursor
-			// 		map.getCanvas().style.cursor = 'pointer';
-
-			// 		// Optionally update state with feature properties
-			// 		saiMapState.style.selectedFeature = e.features[0].properties;
-			// 	}
-			// });
-
-			// map.on('mouseleave', 'sai-polygons', () => {
-			// 	if (hoveredStateId !== null) {
-			// 		map.setFeatureState(
-			// 			{ source: 'sai', id: hoveredStateId, sourceLayer: 'your_source_layer_name' },
-			// 			{ hover: false }
-			// 		);
-			// 	}
-			// 	hoveredStateId = null;
-			// 	map.getCanvas().style.cursor = '';
-			// 	saiMapState.style.selectedFeature = null;
-			// });
+				map.on('mouseleave', 'sai-fill', () => {
+					map.getCanvas().style.cursor = '';
+				});
+			}
+		} catch (error) {
+			console.error('Error in initializeLayers:', error);
 		}
+	}
+
+	// Effect to update the map style when visualization or palette changes
+	$effect(() => {
+		const selectedViz = saiMapState.selectedViz;
+
+		saiMapState.selectedPalette = vizOptions[selectedViz].defaultPalette;
+		saiMapState.reversePalette = vizOptions[selectedViz].reversePalette;
+
+		if (map && map.getLayer('sai-fill')) {
+			try {
+				// Update the filters for both layers since they only depend on selectedViz
+				map.setFilter('sai-fill', ['!=', ['get', selectedViz], 0]);
+				map.setFilter('sai-line', ['==', ['get', selectedViz], 0]);
+
+				// Update the visualization property in the fill style
+				updateFillStyle();
+			} catch (error) {
+				console.error('Error updating visualization:', error);
+			}
+		}
+	});
+
+	// Effect for handling palette changes
+	$effect(() => {
+		const selectedPalette = saiMapState.selectedPalette;
+		const reversePalette = saiMapState.reversePalette;
+
+		if (map && map.getLayer('sai-fill')) {
+			try {
+				updateFillStyle();
+			} catch (error) {
+				console.error('Error updating palette:', error);
+			}
+		}
+	});
+
+	// Helper function to update the fill style
+	function updateFillStyle() {
+		map.setPaintProperty('sai-fill', 'fill-color', [
+			'interpolate',
+			['linear'],
+			['get', saiMapState.selectedViz],
+			currentVizProps['stop0'],
+			currentPalette[0],
+			currentVizProps['stop1'],
+			currentPalette[1],
+			currentVizProps['stop2'],
+			currentPalette[2],
+			currentVizProps['stop3'],
+			currentPalette[3],
+			currentVizProps['stop4'],
+			currentPalette[4]
+		]);
 	}
 
 	onMount(() => {
@@ -110,6 +164,7 @@
 
 		mapboxgl.accessToken =
 			'pk.eyJ1IjoiYnJpZGdlc3RvcHJvc3Blcml0eSIsImEiOiJjbTVyaGcweGswYWpzMnhxMjRyZHhtMGh0In0.4YOL9xCKxxQ0u2wZ7AlNMg';
+
 		map = new mapboxgl.Map({
 			container: mapContainer,
 			style: 'mapbox://styles/bridgestoprosperity/cm5rdpyp800it01rd4zgy7l5t',
@@ -124,24 +179,11 @@
 					'https://public-b2p-geodata.s3.us-east-1.amazonaws.com/general-pmtiles/travel-time-roads.pmtiles';
 				const header = await PmTilesSource.getHeader(PMTILES_URL);
 				const bounds = [header.minLon, header.minLat, header.maxLon, header.maxLat];
-				initializeLayers(PMTILES_URL, header, bounds);
+				await initializeLayers(PMTILES_URL, header, bounds);
 			} catch (error) {
-				console.error('Error initializing layers:', error);
+				console.error('Error in map load:', error);
 			}
 		});
-
-		// on hover over wateways layer console log stream order
-		// map.on('mousemove', 'vector-waternet', (e) => {
-		// 	console.log(e.features[0].properties.stream_order);
-		// 	// change mouse to cross hair
-		// 	map.getCanvas().style.cursor = 'crosshair';
-		// 	// update mapState.streamOrder
-		// 	waternetMapState.style.streamOrderValue = e.features[0].properties.stream_order;
-		// });
-		// map.on('mouseleave', 'vector-waternet', () => {
-		// 	waternetMapState.style.streamOrderValue = '';
-		// 	map.getCanvas().style.cursor = '';
-		// });
 	});
 
 	onDestroy(() => {
@@ -152,5 +194,5 @@
 </script>
 
 <div class="relative h-full w-full">
-	<div bind:this={mapContainer} class="absolute inset-0 h-full w-full"></div>
+	<div bind:this={mapContainer} class="absolute inset-0 h-full w-full" />
 </div>

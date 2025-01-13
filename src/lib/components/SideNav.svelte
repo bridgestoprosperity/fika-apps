@@ -1,13 +1,33 @@
 <script>
-	import { onMount } from 'svelte';
 	import { SlidersSolid, MapSolid, HouseSolid, CircleInfoSolid } from 'svelte-awesome-icons';
 	import b2pLogo from '$lib/images/b2plogo.png';
-	import { waternetMapState } from '$lib/utils/state.svelte';
+	import { generalState } from '$lib/utils/state.svelte';
 
-	function toggleControlPanel() {
-		waternetMapState.visibility.controlPanelOpen = !waternetMapState.visibility.controlPanelOpen;
-		document.querySelector('.panel-container').classList.toggle('closed');
-	}
+	// Accept additional items through props with a default empty array
+	let { items = [] } = $props();
+
+	// Define default navigation items
+	const defaultItems = [
+		{
+			icon: HouseSolid,
+			label: 'Home',
+			action: () => (window.location.href = '/')
+		},
+		{
+			icon: SlidersSolid,
+			label: 'Controls',
+			action: () => (generalState.controlPanelOpen = !generalState.controlPanelOpen),
+			isActive: () => generalState.controlPanelOpen
+		},
+		{
+			icon: CircleInfoSolid,
+			label: 'Info',
+			action: () => {} 
+		}
+	];
+
+	// Combine default items with any additional items passed as props
+	const navItems = $derived([...defaultItems, ...items]);
 </script>
 
 <aside class="fixed left-0 top-0 z-50 h-screen w-16 bg-white/30 backdrop-blur-sm">
@@ -23,56 +43,26 @@
 		</div>
 
 		<nav class="mt-6 flex flex-col items-center gap-4">
-			<button
-				class="group relative flex h-12 w-12 items-center justify-center rounded-xl text-secondary transition-all hover:scale-110"
-				onclick={() => {
-					window.location.href = '/';
-				}}>
-				<HouseSolid class="h-6 w-6" />
-				<span
-					class="absolute left-full ml-4 hidden rounded-md bg-gray-900 px-2 py-1 text-sm text-white group-hover:block">
-					Home
-				</span>
-			</button>
-			
-			<!-- should use slot to add everything here so i can reuse component -->
-
-			<button
-				class="group relative flex h-12 w-12 items-center justify-center text-secondary transition-all hover:scale-110
-                       {waternetMapState.visibility.controlPanelOpen ? 'bg-green-foggy rounded-xl' : ''}"
-				onclick={toggleControlPanel}>
-				<SlidersSolid class="h-6 w-6" />
-				<span
-					class="absolute left-full ml-4 hidden rounded-md bg-gray-900 px-2 py-1 text-sm text-white group-hover:block">
-					Controls
-				</span>
-			</button>
-			<button
-				class="group relative flex h-12 w-12 items-center justify-center text-secondary transition-all hover:scale-110">
-				<CircleInfoSolid class="h-6 w-6" />
-				<span
-					class="absolute left-full ml-4 hidden rounded-md bg-gray-900 px-2 py-1 text-sm text-white group-hover:block">
-					Info
-				</span>
-			</button>
-
-			<!-- Commented out info button preserved -->
-			<!-- <button
-                class="group relative flex h-12 w-12 items-center justify-center rounded-xl transition-all hover:scale-110 text-primary"
-                onclick={() => (activeItem = 'info')}>
-                <CircleInfoSolid class="h-6 w-6" />
-                <span
-                    class="absolute left-full ml-4 hidden rounded-md bg-gray-900 px-2 py-1 text-sm text-white group-hover:block">
-                    Info
-                </span>
-            </button> -->
+			{#each navItems as item}
+				<button
+					class="group relative flex h-12 w-12 items-center justify-center text-secondary transition-all hover:scale-110"
+					class:bg-foggy={item.isActive?.()}
+					class:rounded-xl={item.isActive?.()}
+					onclick={item.action}>
+					<item.icon class="h-6 w-6" />
+					<span
+						class="absolute left-full ml-4 hidden rounded-md bg-gray-900 px-2 py-1 text-sm text-white group-hover:block">
+						{item.label}
+					</span>
+				</button>
+			{/each}
 		</nav>
 	</div>
 </aside>
 
 <style>
-	.bg-green-foggy {
+	.bg-foggy {
 		backdrop-filter: blur(10px);
-		background: radial-gradient(circle, rgba(0, 181, 112, 0.346) 0%, rgba(0, 181, 112, 0) 100%);
+		background: radial-gradient(circle, #16143c2e 0%, rgba(0, 181, 112, 0) 100%);
 	}
 </style>
