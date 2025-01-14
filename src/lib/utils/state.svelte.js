@@ -1,6 +1,9 @@
-export let waternetMapState = $state({
+const generalState = $state({
+    controlPanelOpen: true,
+});
+
+const waternetMapState = $state({
     visibility: {
-        controlPanelOpen: true,
         vectorData: false,
         rasterData: true,
         satelliteImagery: false,
@@ -12,13 +15,14 @@ export let waternetMapState = $state({
         streamOrderThreshold: 12,
         streamOrderValue: '',
     }
-})
+});
 
-export let saiMapState = $state({
-    visibility: {
-        controlPanelOpen: true,
-        satelliteImagery: false,
-    },
-    style: {
-    }
-})
+const saiMapState = $state({
+    selectedViz: 'travel_time',
+    selectedPalette: 'inferno',
+    reversePalette: true,
+    satelliteImagery: false,
+    clickedData: {},
+});
+
+export { generalState, waternetMapState, saiMapState };

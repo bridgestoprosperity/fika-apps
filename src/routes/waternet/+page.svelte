@@ -1,27 +1,34 @@
 <script>
-    import WaternetMap from '$lib/components/WaternetMap.svelte';
-    import MapControls from '$lib/components/MapControls.svelte';
-    import SideNav from '$lib/components/SideNav.svelte';
+	import WaternetMap from '$lib/components/WaternetMap.svelte';
+    import ControlPanel from '$lib/components/ControlPanel.svelte';
+	import WaternetMapControls from '$lib/components/WaternetMapControls.svelte';
+	import SideNav from '$lib/components/SideNav.svelte';
 </script>
 
 <svelte:head>
-    <title>Waternet Explorer</title>
-    <meta name="description" content="An application to explore waterways data created with Waternet" />
-    <meta property="og:image" content="https://apps.fikamap.com/waternet-magma-5.png" />
-    <meta name="twitter:image" content="https://apps.fikamap.com/waternet-magma-5.png" />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="726" />
+	<title>Waternet Explorer</title>
+	<meta
+		name="description"
+		content="An application to explore waterways data created with Waternet" />
+	<meta property="og:image" content="https://apps.fikamap.com/waternet-magma-5.png" />
+	<meta name="twitter:image" content="https://apps.fikamap.com/waternet-magma-5.png" />
+	<meta property="og:image:width" content="1200" />
+	<meta property="og:image:height" content="726" />
 </svelte:head>
 
 <div class="relative h-screen w-full overflow-hidden">
-    <!-- Map container -->
-    <div class="absolute inset-0">
-        <WaternetMap />
-    </div>
-    
-    <!-- Controls -->
-    <MapControls />
-    
-    <!-- Sidenav -->
-    <SideNav />
+	<!-- Map container -->
+	<div class="absolute inset-0">
+		<WaternetMap />
+	</div>
+
+	<!-- Controls -->
+	<div class="absolute left-16 top-[150px] z-40">
+		<ControlPanel>
+			<WaternetMapControls />
+		</ControlPanel>
+	</div>
+
+	<!-- Sidenav -->
+	<SideNav />
 </div>

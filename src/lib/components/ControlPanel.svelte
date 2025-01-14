@@ -1,16 +1,14 @@
 <script>
-    import { onMount } from 'svelte';
-    import { AnglesLeftSolid } from 'svelte-awesome-icons';
     import { XmarkSolid } from 'svelte-awesome-icons';
-    import { waternetMapState } from '$lib/utils/state.svelte';
+    import { generalState } from '$lib/utils/state.svelte';
 
     function toggleControlPanel() {
-        waternetMapState.visibility.controlPanelOpen = !waternetMapState.visibility.controlPanelOpen;
+        generalState.controlPanelOpen = !generalState.controlPanelOpen;
     }
 </script>
 
-<div class="panel-container shadow-lg" class:closed={!waternetMapState.visibility.controlPanelOpen}>
-    <div class="panel-card px-2 py-2" class:closed={!waternetMapState.visibility.controlPanelOpen}>
+<div class="panel-container shadow-lg" class:closed={!generalState.controlPanelOpen}>
+    <div class="panel-card px-2 py-2" class:closed={!generalState.controlPanelOpen}>
         <div class="header">
             <div class="content-area">
                 <slot name="header"></slot>
