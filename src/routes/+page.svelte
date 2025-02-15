@@ -31,68 +31,57 @@
 		{
 			src: tile1,
 			alt: 'tile 1',
-			className:
-				'slide-from-left animation-delay-300 col-span-2 col-start-1 row-start-1 md:col-span-2 md:col-start-1 md:row-start-1'
+			className: `slide-from-left animation-delay-300 col-start-1 row-start-1 col-span-2 min-[800px]:col-start-1 min-[800px]:row-start-1 min-[800px]:col-span-2`
 		},
 		{
 			src: tile2,
 			alt: 'tile 2',
-			className:
-				'slide-from-bottom animation-delay-100 col-span-2 col-start-2 row-span-2 row-start-1 md:col-span-1 md:col-start-3 md:row-span-1 md:row-start-1'
+			className: `slide-from-bottom animation-delay-100 col-start-3 row-start-1 min-[800px]:col-start-3 min-[800px]:row-start-1`
 		},
 		{
 			src: tile3,
 			alt: 'tile 3',
-			className:
-				'slide-from-top animation-delay-300 col-start-1 row-start-2 md:col-span-1 md:col-start-4 md:row-span-2 md:row-start-1'
+			className: `slide-from-top animation-delay-300 col-start-4 row-start-1 row-span-2 min-[800px]:col-start-4 min-[800px]:row-start-1 min-[800px]:row-span-2`
 		},
 		{
 			src: tile4,
 			alt: 'tile 4',
-			className:
-				'slide-from-left animation-delay-0 col-span-2 col-start-1 row-start-3 md:col-span-1 md:col-start-5 md:row-span-1 md:row-start-1'
+			className: `slide-from-left animation-delay-0 col-start-1 row-start-3 row-span-2 min-[800px]:col-start-5 min-[800px]:row-start-1`
 		},
 		{
 			src: tile5,
 			alt: 'tile 5',
-			className:
-				'slide-from-top animation-delay-100 col-start-2 row-start-5 md:col-span-1 md:col-start-1 md:row-span-1 md:row-start-2'
+			className: `slide-from-top animation-delay-100 col-start-2 row-start-4 min-[800px]:col-start-1 min-[800px]:row-start-2`
 		},
 		{
 			src: tile6,
 			alt: 'Tile 6',
-			className:
-				'slide-from-right animation-delay-300 col-span-2 col-start-2 row-start-4 md:col-span-1 md:col-start-5 md:row-span-1 md:row-start-2'
+			className: `slide-from-right animation-delay-300 col-start-3 row-start-4 col-span-2 min-[800px]:col-start-5 min-[800px]:row-start-2`
 		},
 		{
 			src: tile7,
 			alt: 'Tile 7',
-			className:
-				'slide-from-left animation-delay-200 col-start-1 row-span-2 row-start-4 md:col-span-1 md:col-start-1 md:row-span-2 md:row-start-3'
+			className: `slide-from-left animation-delay-200 hidden min-[800px]:block min-[800px]:col-start-1 min-[800px]:row-start-3 min-[800px]:row-span-2`
 		},
 		{
 			src: tile8,
 			alt: 'Tile 8',
-			className:
-				'slide-from-bottom animation-delay-300 col-start-3 row-start-3 md:col-span-1 md:col-start-2 md:row-span-2 md:row-start-3'
+			className: `slide-from-bottom animation-delay-300 hidden min-[800px]:block min-[800px]:col-start-2 min-[800px]:row-start-3 min-[800px]:row-span-2`
 		},
 		{
 			src: tile9,
 			alt: 'Tile 9',
-			className:
-				'slide-from-left animation-delay-100 hidden md:col-span-1 md:col-start-3 md:row-span-1 md:row-start-4 md:block'
+			className: `slide-from-left animation-delay-100 hidden min-[800px]:block min-[800px]:col-start-3 min-[800px]:row-start-4`
 		},
 		{
 			src: tile10,
 			alt: 'Tile 10',
-			className:
-				'slide-from-right animation-delay-200 hidden md:col-span-1 md:col-start-4 md:row-span-1 md:row-start-4 md:block'
+			className: `slide-from-right animation-delay-200 hidden min-[800px]:block min-[800px]:col-start-4 min-[800px]:row-start-4`
 		},
 		{
 			src: tile11,
 			alt: 'Tile 11',
-			className:
-				'slide-from-top hidden md:col-span-1 md:col-start-5 md:row-span-2 md:row-start-3 md:block'
+			className: `slide-from-top hidden min-[800px]:block min-[800px]:col-start-5 min-[800px]:row-start-3 min-[800px]:row-span-2`
 		}
 	];
 
@@ -135,34 +124,50 @@
 </script>
 
 <div class="background-texture flex min-h-screen flex-col">
-	<header class="flex flex-col">
-		<TopNav />
-		<div
-			class="calc-grid grid grid-cols-3 grid-rows-5 gap-2 md:grid-cols-5 md:grid-rows-4 md:gap-2">
-			{#each gridItems as item}
-				<div class={item.className}>
-					<TiltCard src={item.src} alt={item.alt} className="w-full h-full object-cover">
-						<span class="relative z-10" />
-					</TiltCard>
+	<!-- Remove any horizontal padding in mobile -->
+	<div class="mx-auto w-full">
+		<header class="flex w-full flex-col">
+			<TopNav />
+			<!-- Container that maintains aspect ratio -->
+			<div
+				class="relative w-screen [aspect-ratio:3/4] min-[800px]:w-full min-[800px]:[aspect-ratio:16/9]">
+				<div class="absolute inset-0">
+					<!-- Add padding only in desktop mode -->
+					<div class="h-full sm:min-[800px]:px-6 min-[800px]:px-4 lg:min-[800px]:px-8">
+						<div
+							class="grid h-full grid-cols-4 grid-rows-4 gap-2 min-[800px]:grid-cols-5 min-[800px]:grid-rows-4 [&>*]:transition-all [&>*]:duration-300">
+							<div
+								class="fika-slide col-span-3 col-start-1 row-start-2 flex items-center justify-center rounded-md min-[800px]:col-span-2 min-[800px]:col-start-2 min-[800px]:row-start-2">
+								<span class="title-text relative z-10">Fika</span>
+							</div>
+
+							<div
+								class="apps-slide col-span-3 col-start-2 row-start-3 flex items-center justify-center min-[800px]:col-span-2 min-[800px]:col-start-3 min-[800px]:row-start-3">
+								<span class="title-text relative z-10">Apps</span>
+							</div>
+
+							{#each gridItems as item}
+								<div class={item.className}>
+									<TiltCard src={item.src} alt={item.alt} className="h-full w-full object-cover">
+										<span class="relative z-10" />
+									</TiltCard>
+								</div>
+							{/each}
+						</div>
+					</div>
 				</div>
-			{/each}
-
-			<div
-				class="fika-slide flex items-center justify-center rounded-md md:col-span-2 md:col-start-2 md:row-span-1 md:row-start-2">
-				<span class="title-text relative z-10">Fika</span>
 			</div>
+		</header>
 
-			<div
-				class="apps-slide flex items-center justify-center md:col-span-2 md:col-start-3 md:row-span-1 md:row-start-3 ">
-				<span class="title-text relative z-10">Apps</span>
+		<div class="px-4 sm:min-[800px]:px-6 min-[800px]:px-4 lg:min-[800px]:px-8">
+			<div class="grid grid-cols-1 gap-8 py-8 md:grid-cols-2 md:gap-10 xl:grid-cols-3 xl:gap-12">
+				{#each appCards as card}
+					<div class="w-full">
+						<AppCard {...card} />
+					</div>
+				{/each}
 			</div>
 		</div>
-	</header>
-
-	<div class="grid grid-cols-1 gap-4 p-4 md:grid-cols-3">
-		{#each appCards as card}
-			<AppCard {...card} />
-		{/each}
 	</div>
 </div>
 
@@ -216,9 +221,9 @@
 	}
 
 	.title-text {
-		font-size: 9rem;
+		font-size: clamp(6rem, 10vw, 10rem);
 		font-weight: 700;
-		line-height: .8;
+		line-height: 0.8;
 	}
 
 	/* .background-texture {
@@ -228,7 +233,7 @@
 
 	@keyframes fikaSlide {
 		from {
-			transform: translateX(-1000px);
+			transform: translateX(-100px);
 			opacity: 0;
 		}
 		to {
@@ -239,7 +244,7 @@
 
 	@keyframes appsSlide {
 		from {
-			transform: translateX(1000px);
+			transform: translateX(100px);
 			opacity: 0;
 		}
 		to {
@@ -250,7 +255,7 @@
 
 	@keyframes slideFromTop {
 		from {
-			transform: translateY(-1000px);
+			transform: translateY(-100px);
 			opacity: 0;
 		}
 		to {
@@ -261,7 +266,7 @@
 
 	@keyframes slideFromRight {
 		from {
-			transform: translateX(1000px);
+			transform: translateX(100px);
 			opacity: 0;
 		}
 		to {
@@ -272,7 +277,7 @@
 
 	@keyframes slideFromBottom {
 		from {
-			transform: translateY(1000px);
+			transform: translateY(100px);
 			opacity: 0;
 		}
 		to {
@@ -283,7 +288,7 @@
 
 	@keyframes slideFromLeft {
 		from {
-			transform: translateX(-1000px);
+			transform: translateX(-100px);
 			opacity: 0;
 		}
 		to {
