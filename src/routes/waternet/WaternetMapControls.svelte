@@ -3,6 +3,8 @@
     import { palettes } from '$lib/utils/colorPalettes';
     import b2pLogo from '$lib/images/b2p-full-logo.png';
     import bplLogo from '$lib/images/bpl-logo.png';
+    import ColorPaletteBar from '$lib/components/ColorPaletteBar.svelte';
+
 </script>
 
 <!-- Data Visualization Controls -->
@@ -32,7 +34,6 @@
     </label>
 </div>
 
-<!-- Vector Toggle -->
 <div class="form-control">
     <label class="label cursor-pointer">
         <span class="font-normal">Vector Data</span>
@@ -52,13 +53,27 @@
         <div class="label">
             <span class="label-text">Raster Data Style</span>
         </div>
-        <select
+        <!-- <select
             class="select select-bordered select-secondary p-1 font-mono bg-transparent"
             bind:value={waternetMapState.style.selectedPalette}>
             {#each Object.keys(palettes) as paletteName}
                 <option value={paletteName}>{paletteName}</option>
             {/each}
-        </select>
+        </select> -->
+        <div class="mb-2">
+			<ColorPaletteBar
+				colors={palettes[waternetMapState.style.selectedPalette]}
+				name={waternetMapState.style.selectedPalette} />
+		</div>
+        <select
+			class="select select-bordered select-secondary w-full bg-transparent p-1 font-mono"
+			bind:value={waternetMapState.style.selectedPalette}>
+			{#each Object.keys(palettes) as paletteName}
+				<option value={paletteName}>
+					{paletteName}
+				</option>
+			{/each}
+		</select>
     {/if}
 
     <!-- Satellite Style Controls -->

@@ -1,6 +1,6 @@
 <script>
-	import SAIMap from '$lib/components/SAIMap.svelte';
-	import SAIMapControls from '$lib/components/SAIMapControls.svelte';
+	import SAIMap from './SAIMap.svelte';
+	import SAIMapControls from './SAIMapControls.svelte';
 	import SideNav from '$lib/components/SideNav.svelte';
 	import ControlPanel from '$lib/components/ControlPanel.svelte';
 

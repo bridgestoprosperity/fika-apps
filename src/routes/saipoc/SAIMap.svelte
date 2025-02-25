@@ -194,5 +194,5 @@
 </script>
 
 <div class="relative h-full w-full">
-	<div bind:this={mapContainer} class="absolute inset-0 h-full w-full" />
+	<div bind:this={mapContainer} class="absolute inset-0 h-full w-full" ></div>
 </div>

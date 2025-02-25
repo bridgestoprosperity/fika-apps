@@ -2,8 +2,7 @@
 	import { onMount, onDestroy } from 'svelte';
 	import mapboxgl from 'mapbox-gl';
 	import { PmTilesSource } from 'mapbox-pmtiles';
-	import WaternetMapControls from '$lib/components/WaternetMapControls.svelte';
-	// import { mapState } from '$lib/stores/mapStore.svelte';
+	import WaternetMapControls from './WaternetMapControls.svelte';
 	import { waternetMapState } from '$lib/utils/state.svelte';
 	import {
 		createVectorLayer,

@@ -2,7 +2,7 @@
 	import { saiMapState } from '$lib/utils/state.svelte.js';
 	import { palettes } from '$lib/utils/colorPalettes';
 	import { vizOptions } from '$lib/utils/saiMapProperties';
-	import ColorPaletteBar from './ColorPaletteBar.svelte';
+	import ColorPaletteBar from '$lib/components/ColorPaletteBar.svelte';
 
 	// Create a derived value for the current visualization's properties
 	let currentVizProps = $derived(vizOptions[saiMapState.selectedViz]);
@@ -19,13 +19,12 @@
 				{#each Object.entries(vizOptions) as [vizName, vizProps]}
 					<option value={vizName}>
 						{vizName.replace(/_/g, ' ')}
-						<!-- Make the display name more readable -->
 					</option>
 				{/each}
 			</select>
 		</div>
 
-		<!-- Add statistics display -->
+		<!-- statistics display -->
 		{#if currentVizProps}
 			<div class="mt-2 space-y-1 text-sm">
 				<p>Mean: {currentVizProps.mean.toFixed(2)}</p>
@@ -34,12 +33,12 @@
 		{/if}
 	</div>
 
-	<!-- Color Palette Selection -->
+
 	<div>
 		<div class="label">
 			<span class="label-text">Data Color Scheme</span>
 		</div>
-		<!-- Show current palette preview -->
+
 		<div class="mb-2">
 			<ColorPaletteBar
 				colors={palettes[saiMapState.selectedPalette]}
@@ -65,7 +64,7 @@
 				checked={saiMapState.reversePalette} />
 		</label>
 	</div>
-	<!-- if sasiMapState.clickedData doesn't = {} add it it here -->
+	<!-- if sasiMapState.clickedData doesn't = {} add it it below -->
 	{#if Object.keys(saiMapState.clickedData).length > 0}
 		<div>
 			<p class="font-bold">Selected Feature</p>

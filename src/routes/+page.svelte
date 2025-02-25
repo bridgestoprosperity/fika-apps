@@ -4,7 +4,7 @@
 	import AppCard from '$lib/components/HomePageCard.svelte';
 	import TiltCard from '$lib/components/TiltCard.svelte';
 
-	// Import all images individually
+	// Images for top header
 	import tile1 from '$lib/images/sites-bolivia.png';
 	import tile8 from '$lib/images/sites-sat-central-america.png';
 	import tile2 from '$lib/images/sites-single-sat.png';
@@ -23,6 +23,7 @@
 	import fikaMapAppImage from '$lib/images/fikamap-maponly.png';
 	import bridgeSitesAppImage from '$lib/images/sites-zoom-sat.png';
 	import waternetAppImage from '$lib/images/waternet-magma-4.png';
+	import bridgeDesignToolImage from '$lib/images/bridge-design-tool.jpg';
 
 	let isLoaded = $state(false);
 
@@ -91,7 +92,8 @@
 			alt: 'Waterway Explorer example',
 			title: 'Waterways Data Explorer App',
 			description: 'An application allowing you to explore waterways data created by Waternet',
-			href: '/waternet'
+			href: '/waternet',
+			learn:'https://medium.com/fika-blog/waternet-ai-powered-global-water-mapping-triples-known-waterways-bc3095783661'
 		},
 		{
 			image: fikaMapAppImage,
@@ -99,7 +101,8 @@
 			title: 'Fika Impact Map',
 			description:
 				'Prototype of a map application allowing user to visualize impact of trail bridges on communities around Rwanda',
-			href: 'https://map.fikamap.com/'
+			href: 'https://map.fikamap.com/',
+			learn:''
 		},
 		{
 			image: civAppImage,
@@ -107,14 +110,32 @@
 			title: "Côte d'Ivoire Bridge Impact Assessment",
 			description:
 				'Analysis done to determine where bridges are needed to support new schools built in Côte d’Ivoire',
-			href: 'https://bridgestoprosperity.github.io/civ-map/home/'
+			href: 'https://bridgestoprosperity.github.io/civ-map/home/',
+			learn:''
 		},
 		{
 			image: bridgeSitesAppImage,
 			alt: 'map of ethiopia',
 			title: 'Bridges Built Worldwide',
-			description: 'Locations of bridges built by 	Bridges to Prosperity around the world',
-			href: 'https://bridge-locations-map.vercel.app/'
+			description: 'Locations of bridges built by Bridges to Prosperity around the world',
+			href: 'https://bridge-locations-map.vercel.app/',
+			learn:'https://bridgestoprosperity.org/our-impact/'
+		},
+		{
+			image: waternetVectorEthiopia,
+			alt: 'map of ethiopia',
+			title: 'Safe Access Index Proof of Concept',
+			description: 'Proof of concept application visualizing the travel time of communities to their nearest major road',
+			href: '/saipoc',
+			learn:''
+		},
+		{
+			image: bridgeDesignToolImage,
+			alt: 'Bridge design tool app screenshot',
+			title: 'Bridge Design Tools',
+			description: 'A suite of tools designed to support the building and design of trailbridges',
+			href: 'https://bridgedesignv3.streamlit.app/Updated_Bridge_Design_Helper',
+			learn:'',
 		}
 	];
 
@@ -124,15 +145,12 @@
 </script>
 
 <div class="background-texture flex min-h-screen flex-col">
-	<!-- Remove any horizontal padding in mobile -->
 	<div class="mx-auto w-full">
 		<header class="flex w-full flex-col">
 			<TopNav />
-			<!-- Container that maintains aspect ratio -->
 			<div
 				class="relative w-screen [aspect-ratio:3/4] min-[800px]:w-full min-[800px]:[aspect-ratio:16/9]">
 				<div class="absolute inset-0">
-					<!-- Add padding only in desktop mode -->
 					<div class="h-full sm:min-[800px]:px-6 min-[800px]:px-4 lg:min-[800px]:px-8">
 						<div
 							class="grid h-full grid-cols-4 grid-rows-4 gap-2 min-[800px]:grid-cols-5 min-[800px]:grid-rows-4 [&>*]:transition-all [&>*]:duration-300">
@@ -149,7 +167,7 @@
 							{#each gridItems as item}
 								<div class={item.className}>
 									<TiltCard src={item.src} alt={item.alt} className="h-full w-full object-cover">
-										<span class="relative z-10" />
+										<span class="relative z-10"></span>
 									</TiltCard>
 								</div>
 							{/each}
@@ -226,10 +244,10 @@
 		line-height: 0.8;
 	}
 
-	/* .background-texture {
-		background-color: #ffffff4b;
-		background-image: url('https://www.transparenttextures.com/patterns/bedge-grunge.png');
-	} */
+	.background-texture {
+		background-color: #fcfaf2;
+		/* background-image: url('https://www.transparenttextures.com/patterns/bedge-grunge.png'); */
+	}
 
 	@keyframes fikaSlide {
 		from {
