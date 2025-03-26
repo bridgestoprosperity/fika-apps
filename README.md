@@ -1,38 +1,59 @@
-# sv
+# FIKA Apps
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+A suite of interactive mapping applications for Bridges to Prosperity (B2P).
 
-## Creating a project
+## Features
 
-If you're seeing this, you've probably already done this step. Congrats!
+- **Waternet Map**: Visualize water network data
+- **SAI Map**: Safe Access Index visualization tool
+- **Impact Map**: Bridge location and impact visualization with PostgreSQL integration
 
-```bash
-# create a new project in the current directory
-npx sv create
+## Setup
 
-# create a new project in my-app
-npx sv create my-app
-```
+1. Clone the repository
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Set up environment variables:
+   - Copy `.env.local.example` to `.env.local`
+   - Add your database connection string
+
+## Database Setup
+
+The Impact Map requires a PostgreSQL database connection. The database should have a `bridges` table with the following fields:
+- `id`: Bridge ID
+- `name`: Bridge name
+- `bridge_type`: Type of bridge (e.g., suspended, trail bridge)
+- `year_completed`: Year the bridge was completed
+- `latitude`: Latitude coordinate
+- `longitude`: Longitude coordinate
+- `span_length`: Bridge span length in meters
+- `communities_served`: Number of communities served
+- `people_served`: Number of people served
 
 ## Developing
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+Start the development server:
 
 ```bash
 npm run dev
 
-# or start the server and open the app in a new browser tab
+# or open in browser automatically
 npm run dev -- --open
 ```
 
 ## Building
 
-To create a production version of your app:
+Create a production version:
 
 ```bash
 npm run build
 ```
 
-You can preview the production build with `npm run preview`.
+Preview the production build with `npm run preview`.
 
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+## Deployment
+
+The application is configured for Vercel deployment. Add the following environment variables in Vercel:
+- `DATABASE_URL`: PostgreSQL connection string
