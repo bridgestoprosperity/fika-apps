@@ -9,121 +9,44 @@
 	let postgresData = [];
 	let mapLoaded = false;
 
-	// Function to load data from PostgreSQL or fall back to mock data
+	// Function to load data from PostgreSQL
 	async function loadPostgresData() {
 		try {
 			impactMapState.loadingData = true;
 			impactMapState.error = null;
-
-			// Try to load mock data first to ensure we have something to display
-			try {
-				const mockResponse = await fetch('/api/bridges/mock.json');
-				const mockData = await mockResponse.json();
-				console.log('Loaded mock data as fallback:', mockData.length, 'bridges');
-				
-				// Save the mock data for fallback
-				const fallbackData = mockData.map(item => ({
-					id: item.id,
-					name: item.name || `Bridge ${item.id}`,
-					bridge_type: item.bridge_type || 'Suspended',
-					year_completed: item.year_completed || 2020,
-					latitude: parseFloat(item.latitude) || 0,
-					longitude: parseFloat(item.longitude) || 0,
-					span_length: item.span_length,
-					communities_served: item.communities_served,
-					people_served: item.people_served,
-					country: item.country || 'Rwanda',
-					region: item.region || 'Central',
-					district: item.district || 'Unknown'
-				}));
-				
-				// Use mock data right away to avoid blank map
-				postgresData = fallbackData;
-				impactMapState.dataCount = fallbackData.length;
-				console.log(`Using ${impactMapState.dataCount} bridges from mock data`);
-				
-				// If map is loaded, add the data layer
-				if (map && mapLoaded) {
-					updateMapData();
-				}
-			} catch (mockError) {
-				console.warn('Failed to load mock data:', mockError);
+			
+			// Query the database for bridges
+			const response = await fetch('/api/bridges?limit=120000');
+			
+			if (!response.ok) {
+				throw new Error('Failed to fetch bridge data');
 			}
-
-			// Test database connection 
-			try {
-				const testResponse = await fetch('/api/bridges/test-connection');
-				const testResult = await testResponse.json();
-				console.log('Database connection test:', testResult);
-				
-				// If connection test is successful but we don't have data, try force setup
-				if (testResult.success) {
-					try {
-						const setupResponse = await fetch('/api/bridges/force-setup');
-						const setupResult = await setupResponse.json();
-						console.log('Database setup result:', setupResult);
-					} catch (setupError) {
-						console.warn('Database setup failed:', setupError);
-					}
-				} else {
-					// Connection failed, but we're already using mock data
-					console.log('Using mock data since database connection failed');
-					return;
-				}
-			} catch (testError) {
-				console.warn('Database connection test failed:', testError);
-				// Continue with mock data, no need to show error
+			
+			const data = await response.json();
+			
+			// Check if we got an error response
+			if (data.error) {
+				throw new Error(`Database error: ${data.error}`);
+			}
+			
+			if (data.length === 0) {
+				impactMapState.error = 'No bridges found in the database';
 				return;
 			}
 			
-			// Try to query the database directly
-			try {
-				const response = await fetch('/api/bridges?limit=1000');
-				
-				if (!response.ok) {
-					throw new Error('Failed to fetch bridge data from database');
-				}
-				
-				// For real database data, the response is the data array directly
-				const data = await response.json();
-				
-				// Check if we got an error response instead
-				if (data.error) {
-					throw new Error(`Database error: ${data.error}`);
-				}
-				
-				console.log(`Loaded ${data.length} bridges from database`);
-				
-				if (data.length === 0) {
-					console.warn('No data returned from simple API, keeping mock data');
-				} else {
-					// Use the data from simple API
-					postgresData = data;
-					impactMapState.dataCount = data.length;
-					
-					// Enable clustering based on data size
-					impactMapState.enableClustering = data.length > 50;
-					
-					// If map is loaded, update the data layer
-					if (map && mapLoaded) {
-						updateMapData();
-					}
-				}
-				
-				// Skip other queries since we have data now
-				return;
-			} catch (error) {
-				console.error('Error loading data from simple API:', error);
-				// Continue trying other methods
+			// Use the database data
+			postgresData = data;
+			impactMapState.dataCount = data.length;
+			
+			// Enable clustering for large datasets
+			impactMapState.enableClustering = true;
+			
+			// If map is loaded, update the data layer
+			if (map && mapLoaded) {
+				updateMapData();
 			}
 		} catch (error) {
-			console.error('Error in data loading process:', error);
-			// Only show error if we don't have any data
-			if (postgresData.length === 0) {
-				impactMapState.error = 'Failed to load any data: ' + error.message;
-				postgresData = [];
-				impactMapState.dataCount = 0;
-			}
+			impactMapState.error = `Error loading data: ${error.message}`;
 		} finally {
 			impactMapState.loadingData = false;
 		}
@@ -131,30 +54,16 @@
 
 	// Helper function to parse PostGIS binary format
 	function parsePostGISBinary(hexString, item) {
-		// Log the attempts to parse geometry
-		console.log('Trying to parse geometry:', {
-			hexString: typeof hexString === 'string' ? hexString.substring(0, 30) + '...' : hexString,
-			hasLongitude: !!item.longitude,
-			hasLatitude: !!item.latitude,
-			rawLon: item.longitude,
-			rawLat: item.latitude
-		});
-		
 		// Check if it's a hex string (like from PostGIS)
 		if (typeof hexString === 'string' && hexString.startsWith('0101')) {
-			console.log(`PostGIS binary detected: ${hexString.substring(0, 30)}...`);
-			
-			// For now, since we can't properly parse the binary completely, use the latitude/longitude fields
+			// Use the extracted latitude/longitude fields
 			if (item.latitude !== undefined && item.longitude !== undefined) {
 				const lon = parseFloat(item.longitude);
 				const lat = parseFloat(item.latitude);
-				console.log(`Using raw coordinates: [${lon}, ${lat}]`);
 				return [lon, lat];
 			}
 			
-			// If we don't have lat/lon fields, in a production app we would parse the binary,
-			// but for now we'll return a default Rwanda location
-			console.log('No lat/long fields found, using Rwanda default');
+			// Fallback to Rwanda default if needed
 			return [30.0, -2.0]; // Center of Rwanda approximate
 		}
 		return null;
@@ -184,19 +93,12 @@
 					}
 					// Other formats
 					else {
-						// For debugging - log a few items to see the format
-						if (!window.loggedGeometryFormat) {
-							console.log('Geometry format example:', item.geometry);
-							window.loggedGeometryFormat = true;
-						}
-						
 						// Try to extract coordinates from various formats
 						if (item.longitude && item.latitude) {
 							coordinates = [parseFloat(item.longitude), parseFloat(item.latitude)];
 						} else {
-							// If we can't extract coordinates, use a default (this will need to be fixed)
+							// If we can't extract coordinates, use a default
 							coordinates = [0, 0];
-							console.warn('Failed to extract coordinates for bridge:', item.id);
 						}
 					}
 				} else if (item.longitude && item.latitude) {
@@ -204,7 +106,6 @@
 				} else {
 					// No coordinates found
 					coordinates = [0, 0];
-					console.warn('No coordinates found for bridge:', item.id);
 				}
 				
 				return {
@@ -216,7 +117,7 @@
 					properties: {
 						// Core properties we know will exist
 						id: item.id || item.ogc_fid,
-						name: item.name || `Bridge ${item.bridge_index || item.ogc_fid}`,
+						name: item.name || `Bridge ${item.bridge_index || item.ogc_fid || item.id}`,
 						// Any other properties that might exist
 						...item
 					}
@@ -257,8 +158,11 @@
 				type: 'geojson',
 				data: geojsonData,
 				cluster: impactMapState.enableClustering,
-				clusterMaxZoom: 12,
-				clusterRadius: 50
+				clusterMaxZoom: 14,     // Increase max zoom level for clustering
+				clusterRadius: 60,      // Larger radius to group more points
+				maxzoom: 16,            // Maximum zoom level to cache
+				buffer: 128,            // Larger tile buffer for smoother clustering
+				tolerance: 0.5          // Simplify geometries slightly for performance
 			});
 
 			// Add heatmap layer (shows density of bridges)
@@ -323,14 +227,19 @@
 							['get', 'point_count'],
 							'#009149',  // B2P green for small clusters
 							100, '#007238',  // Darker green for medium clusters
-							500, '#00572B'   // Even darker for large clusters
+							500, '#00572B',  // Darker for large clusters
+							1000, '#004020', // Even darker for very large clusters
+							5000, '#003018'  // Darkest for massive clusters
 						],
 						'circle-radius': [
-							'step',
+							'interpolate',
+							['exponential', 0.8],
 							['get', 'point_count'],
-							20,   // Size for small clusters
-							100, 25,  // Size for medium clusters
-							500, 30   // Size for large clusters
+							20, 18,     // Few points
+							100, 22,    // Small cluster
+							500, 28,    // Medium cluster
+							1000, 32,   // Large cluster
+							5000, 40    // Massive cluster
 						],
 						'circle-stroke-width': 1,
 						'circle-stroke-color': '#fff'
@@ -346,10 +255,21 @@
 					layout: {
 						'text-field': '{point_count_abbreviated}',
 						'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
-						'text-size': 12
+						'text-size': [
+							'interpolate',
+							['linear'],
+							['get', 'point_count'],
+							20, 12,    // Small clusters: smaller text
+							100, 14,   // Medium clusters: medium text
+							1000, 16   // Large clusters: larger text
+						],
+						'text-allow-overlap': false,
+						'text-ignore-placement': false
 					},
 					paint: {
-						'text-color': '#ffffff'
+						'text-color': '#ffffff',
+						'text-halo-color': 'rgba(0, 0, 0, 0.2)',
+						'text-halo-width': 1.5
 					}
 				});
 			}
@@ -452,7 +372,7 @@
 					map.setLayoutProperty('satellite', 'visibility', satVisibility);
 				}
 			} catch (error) {
-				console.error('Error setting satellite visibility:', error);
+				// Satellite layer not available
 			}
 		}
 	});
@@ -490,7 +410,7 @@
 					);
 				}
 			} catch (error) {
-				console.warn('Satellite layer not found or not ready');
+				// Satellite layer not found or not ready
 			}
 
 			// Load data from PostgreSQL
@@ -541,8 +461,8 @@
 				<p><span class="font-semibold">Exit Point Index:</span> {impactMapState.highlightedFeature.exit_point_index}</p>
 			{/if}
 			
-			{#if impactMapState.highlightedFeature.ogc_fid}
-				<p><span class="font-semibold">ID:</span> {impactMapState.highlightedFeature.ogc_fid}</p>
+			{#if impactMapState.highlightedFeature.id}
+				<p><span class="font-semibold">ID:</span> {impactMapState.highlightedFeature.id}</p>
 			{/if}
 			
 			<button 
