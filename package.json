@@ -31,6 +31,7 @@
 		"daisyui": "^4.12.14",
 		"mapbox-gl": "^3.8.0",
 		"mapbox-pmtiles": "^1.0.53",
+		"pg": "^8.11.3",
 		"postcss": "^8.4.49",
 		"web-vitals": "^4.2.4"
 	}

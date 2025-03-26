@@ -3,6 +3,13 @@ import { defineConfig } from 'vite';
 
 export default defineConfig({
 	plugins: [
-		sveltekit(),
-	]
+		sveltekit()
+	],
+	// Make sure environment variables are properly loaded
+	server: {
+		fs: {
+			// Allow serving files from the project root
+			allow: ['.']
+		}
+	}
 });

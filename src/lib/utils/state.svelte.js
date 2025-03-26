@@ -25,4 +25,17 @@ const saiMapState = $state({
     clickedData: {},
 });
 
-export { generalState, waternetMapState, saiMapState };
+const impactMapState = $state({
+    selectedLayer: 'bridges',
+    selectedPalette: 'viridis',
+    satelliteImagery: false,
+    highlightedFeature: null,
+    filterByYear: false,
+    yearRange: [2010, 2024],
+    loadingData: false,
+    error: null,
+    enableClustering: false,
+    dataCount: 0
+});
+
+export { generalState, waternetMapState, saiMapState, impactMapState };
