@@ -25,6 +25,14 @@ const saiMapState = $state({
     clickedData: {},
 });
 
+const hexMapState = $state({
+    selectedViz: 'population',
+    selectedPalette: 'magma',
+    reversePalette: true,
+    satelliteImagery: false,
+    clickedData: {},
+});
+
 const impactMapState = $state({
     selectedLayer: 'bridges',
     selectedPalette: 'viridis',
@@ -35,7 +43,10 @@ const impactMapState = $state({
     loadingData: false,
     error: null,
     enableClustering: false,
-    dataCount: 0
+    dataCount: 0,
+    showHexLayer: true,
+    hexDataViz: 'population',
+    hexReversePalette: true
 });
 
-export { generalState, waternetMapState, saiMapState, impactMapState };
+export { generalState, waternetMapState, saiMapState, hexMapState, impactMapState };

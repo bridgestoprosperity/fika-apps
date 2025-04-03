@@ -2,6 +2,7 @@
 	import { impactMapState } from '$lib/utils/state.svelte';
 	import { palettes } from '$lib/utils/colorPalettes';
 	import ColorPaletteBar from '$lib/components/ColorPaletteBar.svelte';
+	import { vizOptions } from '$lib/utils/hexMapProperties';
 
 	// Layer options
 	const layerOptions = [
@@ -104,6 +105,14 @@
 		<label class="label cursor-pointer">
 			<span class="label-text font-semibold">Satellite Imagery</span>
 			<input type="checkbox" class="toggle toggle-primary" bind:checked={impactMapState.satelliteImagery} />
+		</label>
+	</div>
+
+	<!-- Hex Data Layer - Simplified for focusing on just showing outlines -->
+	<div class="form-control">
+		<label class="label cursor-pointer">
+			<span class="label-text font-semibold">Show Hex Grid</span>
+			<input type="checkbox" class="toggle toggle-primary" bind:checked={impactMapState.showHexLayer} />
 		</label>
 	</div>
 
