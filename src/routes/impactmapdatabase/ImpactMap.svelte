@@ -1,7 +1,7 @@
 <script>
 	import { onMount, onDestroy } from 'svelte';
 	import mapboxgl from 'mapbox-gl';
-	import { impactMapState } from '$lib/utils/state.svelte';
+	import { impactMapDatabaseState } from '$lib/utils/state.svelte';
 	import { palettes } from '$lib/utils/colorPalettes';
 	import { vizOptions } from '$lib/utils/hexMapProperties';
 
@@ -14,8 +14,8 @@
 	// Function to load data from PostgreSQL
 	async function loadPostgresData() {
 		try {
-			impactMapState.loadingData = true;
-			impactMapState.error = null;
+			impactMapDatabaseState.loadingData = true;
+			impactMapDatabaseState.error = null;
 
 			// Query the database for bridges
 			const response = await fetch('/api/bridges?limit=120000');
@@ -32,25 +32,25 @@
 			}
 
 			if (data.length === 0) {
-				impactMapState.error = 'No bridges found in the database';
+				impactMapDatabaseState.error = 'No bridges found in the database';
 				return;
 			}
 
 			// Use the database data
 			postgresData = data;
-			impactMapState.dataCount = data.length;
+			impactMapDatabaseState.dataCount = data.length;
 
 			// Enable clustering for large datasets
-			impactMapState.enableClustering = true;
+			impactMapDatabaseState.enableClustering = true;
 
 			// If map is loaded, update the data layer
 			if (map && mapLoaded) {
 				updateMapData();
 			}
 		} catch (error) {
-			impactMapState.error = `Error loading data: ${error.message}`;
+			impactMapDatabaseState.error = `Error loading data: ${error.message}`;
 		} finally {
-			impactMapState.loadingData = false;
+			impactMapDatabaseState.loadingData = false;
 		}
 	}
 
@@ -58,12 +58,12 @@
 	async function loadHexData() {
 		try {
 			// Set loading state
-			impactMapState.loadingData = true;
+			impactMapDatabaseState.loadingData = true;
 			
 			console.log("Loading hex data from API...");
 			
 			// Query the database for hex data
-			const response = await fetch(`/api/hexdata?column=${impactMapState.hexDataViz}&limit=1000000`);
+			const response = await fetch(`/api/hexdata?column=${impactMapDatabaseState.hexDataViz}&limit=1000000`);
 			
 			if (!response.ok) {
 				throw new Error(`Failed to fetch hex data: ${response.status} ${response.statusText}`);
@@ -105,11 +105,11 @@
 			}
 		} catch (error) {
 			console.error(`Error loading hex data: ${error.message}`);
-			impactMapState.error = `Error loading hex data: ${error.message}`;
+			impactMapDatabaseState.error = `Error loading hex data: ${error.message}`;
 			// Turn off hex layer since we couldn't load data
-			impactMapState.showHexLayer = false;
+			impactMapDatabaseState.showHexLayer = false;
 		} finally {
-			impactMapState.loadingData = false;
+			impactMapDatabaseState.loadingData = false;
 		}
 	}
 
@@ -282,13 +282,13 @@
 			map.setLayoutProperty(
 				'hex-fill',
 				'visibility',
-				impactMapState.showHexLayer ? 'visible' : 'none'
+				impactMapDatabaseState.showHexLayer ? 'visible' : 'none'
 			);
 			
 			map.setLayoutProperty(
 				'hex-outline',
 				'visibility',
-				impactMapState.showHexLayer ? 'visible' : 'none'
+				impactMapDatabaseState.showHexLayer ? 'visible' : 'none'
 			);
 		} else {
 			// Add source
@@ -304,7 +304,7 @@
 				type: 'fill',
 				source: 'hex-data',
 				layout: {
-					visibility: impactMapState.showHexLayer ? 'visible' : 'none'
+					visibility: impactMapDatabaseState.showHexLayer ? 'visible' : 'none'
 				},
 				paint: {
 					'fill-color': '#ff3388',  // Changed to more visible magenta
@@ -318,7 +318,7 @@
 				type: 'line',
 				source: 'hex-data',
 				layout: {
-					visibility: impactMapState.showHexLayer ? 'visible' : 'none'
+					visibility: impactMapDatabaseState.showHexLayer ? 'visible' : 'none'
 				},
 				paint: {
 					'line-color': '#ff3388',  // Changed to more visible magenta
@@ -352,18 +352,18 @@
 
 		// Filter data if year filter is active
 		let filteredData = postgresData;
-		if (impactMapState.filterByYear) {
+		if (impactMapDatabaseState.filterByYear) {
 			filteredData = postgresData.filter(
 				(item) =>
-					item.year_completed >= impactMapState.yearRange[0] &&
-					item.year_completed <= impactMapState.yearRange[1]
+					item.year_completed >= impactMapDatabaseState.yearRange[0] &&
+					item.year_completed <= impactMapDatabaseState.yearRange[1]
 			);
 		}
 
 		// Filter by bridge type if not "all bridges"
-		if (impactMapState.selectedLayer !== 'bridges') {
+		if (impactMapDatabaseState.selectedLayer !== 'bridges') {
 			filteredData = filteredData.filter((item) =>
-				(item.bridge_type || '').toLowerCase().includes(impactMapState.selectedLayer.toLowerCase())
+				(item.bridge_type || '').toLowerCase().includes(impactMapDatabaseState.selectedLayer.toLowerCase())
 			);
 		}
 
@@ -377,7 +377,7 @@
 			map.addSource('bridges', {
 				type: 'geojson',
 				data: geojsonData,
-				cluster: impactMapState.enableClustering,
+				cluster: impactMapDatabaseState.enableClustering,
 				clusterMaxZoom: 14, // Increase max zoom level for clustering
 				clusterRadius: 60, // Larger radius to group more points
 				maxzoom: 16, // Maximum zoom level to cache
@@ -422,7 +422,7 @@
 			});
 
 			// If clustering is enabled, add cluster layers
-			if (impactMapState.enableClustering) {
+			if (impactMapDatabaseState.enableClustering) {
 				// Add cluster circles
 				map.addLayer({
 					id: 'clusters',
@@ -499,7 +499,7 @@
 				id: 'bridges-layer',
 				type: 'circle',
 				source: 'bridges',
-				filter: impactMapState.enableClustering ? ['!', ['has', 'point_count']] : ['all'],
+				filter: impactMapDatabaseState.enableClustering ? ['!', ['has', 'point_count']] : ['all'],
 				minzoom: 5,
 				paint: {
 					// Fixed circle radius since we don't have people_served
@@ -514,14 +514,14 @@
 			// Add click interaction for bridge details
 			map.on('click', 'bridges-layer', (e) => {
 				if (e.features.length > 0) {
-					impactMapState.highlightedFeature = e.features[0].properties;
+					impactMapDatabaseState.highlightedFeature = e.features[0].properties;
 					// console.log map style sheet
 					console.log("Map style sheet:", map.getStyle());
 				}
 			});
 
 			// Add click interaction for clusters
-			if (impactMapState.enableClustering) {
+			if (impactMapDatabaseState.enableClustering) {
 				map.on('click', 'clusters', (e) => {
 					const features = map.queryRenderedFeatures(e.point, { layers: ['clusters'] });
 					const clusterId = features[0].properties.cluster_id;
@@ -547,7 +547,7 @@
 			});
 
 			// Add hover effect for clusters
-			if (impactMapState.enableClustering) {
+			if (impactMapDatabaseState.enableClustering) {
 				map.on('mouseenter', 'clusters', () => {
 					map.getCanvas().style.cursor = 'pointer';
 				});
@@ -561,7 +561,7 @@
 
 	// Effect to update data when filter changes
 	$effect(() => {
-		const _ = [impactMapState.filterByYear, impactMapState.yearRange, impactMapState.selectedLayer];
+		const _ = [impactMapDatabaseState.filterByYear, impactMapDatabaseState.yearRange, impactMapDatabaseState.selectedLayer];
 
 		if (map && mapLoaded) {
 			updateMapData();
@@ -570,11 +570,11 @@
 
 	// Effect to toggle hex layer visibility
 	$effect(() => {
-		console.log("Hex layer visibility changed:", impactMapState.showHexLayer);
+		console.log("Hex layer visibility changed:", impactMapDatabaseState.showHexLayer);
 		if (map && mapLoaded) {
 			try {
 				if (map.getLayer('hex-fill')) {
-					const hexVisibility = impactMapState.showHexLayer ? 'visible' : 'none';
+					const hexVisibility = impactMapDatabaseState.showHexLayer ? 'visible' : 'none';
 					console.log("Setting hex-fill visibility to:", hexVisibility);
 					map.setLayoutProperty('hex-fill', 'visibility', hexVisibility);
 					
@@ -587,7 +587,7 @@
 					if (hexData.length > 0) {
 						console.log("Have hex data but no layer - creating layer now");
 						updateHexLayer();
-					} else if (impactMapState.showHexLayer) {
+					} else if (impactMapDatabaseState.showHexLayer) {
 						console.log("No hex data yet - trying to load it now");
 						loadHexData();
 					}
@@ -600,7 +600,7 @@
 
 	// Effect to reload hex data when visualization changes
 	$effect(() => {
-		if (impactMapState.showHexLayer && impactMapState.hexDataViz && map && mapLoaded) {
+		if (impactMapDatabaseState.showHexLayer && impactMapDatabaseState.hexDataViz && map && mapLoaded) {
 			loadHexData();
 		}
 	});
@@ -615,7 +615,7 @@
 	// Effect to update satellite layer visibility
 	$effect(() => {
 		if (map && mapLoaded) {
-			const satVisibility = impactMapState.satelliteImagery ? 'visible' : 'none';
+			const satVisibility = impactMapDatabaseState.satelliteImagery ? 'visible' : 'none';
 			try {
 				// Only change visibility if the layer exists
 				if (map.getLayer('satellite')) {
@@ -658,7 +658,7 @@
 					map.setLayoutProperty(
 						'satellite',
 						'visibility',
-						impactMapState.satelliteImagery ? 'visible' : 'none'
+						impactMapDatabaseState.satelliteImagery ? 'visible' : 'none'
 					);
 				}
 			} catch (error) {
@@ -686,59 +686,59 @@
 <div class="relative h-full w-full">
 	<div bind:this={mapContainer} class="absolute inset-0 h-full w-full"></div>
 
-	{#if impactMapState.loadingData}
+	{#if impactMapDatabaseState.loadingData}
 		<div class="absolute inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50">
 			<div class="loading loading-spinner loading-lg text-primary"></div>
 		</div>
 	{/if}
 
-	{#if impactMapState.error}
+	{#if impactMapDatabaseState.error}
 		<div
 			class="absolute bottom-4 right-4 z-50 max-w-md rounded-lg bg-error p-4 text-white shadow-lg">
 			<p class="font-semibold">Error loading data</p>
-			<p>{impactMapState.error}</p>
+			<p>{impactMapDatabaseState.error}</p>
 		</div>
 	{/if}
 
-	{#if impactMapState.highlightedFeature}
+	{#if impactMapDatabaseState.highlightedFeature}
 		<div class="absolute bottom-4 right-4 z-40 max-w-md rounded-lg bg-white p-4 shadow-lg">
-			<h3 class="mb-2 text-lg font-bold">{impactMapState.highlightedFeature.name}</h3>
+			<h3 class="mb-2 text-lg font-bold">{impactMapDatabaseState.highlightedFeature.name}</h3>
 
-			{#if impactMapState.highlightedFeature.bridge_type}
+			{#if impactMapDatabaseState.highlightedFeature.bridge_type}
 				<p>
 					<span class="font-semibold">Type:</span>
-					{impactMapState.highlightedFeature.bridge_type}
+					{impactMapDatabaseState.highlightedFeature.bridge_type}
 				</p>
 			{/if}
 
-			{#if impactMapState.highlightedFeature.year_completed}
+			{#if impactMapDatabaseState.highlightedFeature.year_completed}
 				<p>
 					<span class="font-semibold">Completed:</span>
-					{impactMapState.highlightedFeature.year_completed}
+					{impactMapDatabaseState.highlightedFeature.year_completed}
 				</p>
 			{/if}
 
-			{#if impactMapState.highlightedFeature.bridge_index}
+			{#if impactMapDatabaseState.highlightedFeature.bridge_index}
 				<p>
 					<span class="font-semibold">Bridge Index:</span>
-					{impactMapState.highlightedFeature.bridge_index}
+					{impactMapDatabaseState.highlightedFeature.bridge_index}
 				</p>
 			{/if}
 
-			{#if impactMapState.highlightedFeature.exit_point_index}
+			{#if impactMapDatabaseState.highlightedFeature.exit_point_index}
 				<p>
 					<span class="font-semibold">Exit Point Index:</span>
-					{impactMapState.highlightedFeature.exit_point_index}
+					{impactMapDatabaseState.highlightedFeature.exit_point_index}
 				</p>
 			{/if}
 
-			{#if impactMapState.highlightedFeature.id}
-				<p><span class="font-semibold">ID:</span> {impactMapState.highlightedFeature.id}</p>
+			{#if impactMapDatabaseState.highlightedFeature.id}
+				<p><span class="font-semibold">ID:</span> {impactMapDatabaseState.highlightedFeature.id}</p>
 			{/if}
 
 			<button
 				class="btn btn-circle btn-sm absolute right-2 top-2"
-				on:click={() => (impactMapState.highlightedFeature = null)}>
+				on:click={() => (impactMapDatabaseState.highlightedFeature = null)}>
 				✕
 			</button>
 		</div>

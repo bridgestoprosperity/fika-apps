@@ -33,7 +33,7 @@ const hexMapState = $state({
     clickedData: {},
 });
 
-const impactMapState = $state({
+const impactMapDatabaseState = $state({
     selectedLayer: 'bridges',
     selectedPalette: 'viridis',
     satelliteImagery: false,
@@ -49,4 +49,12 @@ const impactMapState = $state({
     hexReversePalette: true
 });
 
-export { generalState, waternetMapState, saiMapState, hexMapState, impactMapState };
+const impactMapState = $state({
+    menuState: 'Relative Wealth Index',
+    dataName: 'rwi',
+    satelliteImagery: false,
+    clickedData: {},
+    dataMapKey: 'Relative Wealth Index', // Key to the selected data in impactDataMap
+});
+
+export { generalState, waternetMapState, saiMapState, hexMapState, impactMapDatabaseState, impactMapState };

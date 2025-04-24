@@ -1,8 +1,13 @@
 <script>
-	import { impactMapState } from '$lib/utils/state.svelte';
+	import { impactMapDatabaseState } from '$lib/utils/state.svelte';
 	import { palettes } from '$lib/utils/colorPalettes';
 	import ColorPaletteBar from '$lib/components/ColorPaletteBar.svelte';
 	import { vizOptions } from '$lib/utils/hexMapProperties';
+
+	// Add reactivity for state tracking
+	$effect(() => {
+		console.log('State changed:', JSON.stringify(impactMapDatabaseState, null, 2));
+	});
 
 	// Layer options
 	const layerOptions = [
@@ -23,16 +28,17 @@
 
 	// Reset filters
 	function resetFilters() {
-		impactMapState.filterByYear = false;
-		impactMapState.yearRange = [2010, 2024];
+		impactMapDatabaseState.filterByYear = false;
+		impactMapDatabaseState.yearRange = [2010, 2024];
+		console.log('Filters reset, new state:', JSON.stringify(impactMapDatabaseState, null, 2));
 	}
 </script>
 
 <div class="flex h-full flex-col gap-4 overflow-y-auto">
 	<h2 class="text-xl font-bold text-primary">Impact Map</h2>
 	
-	{#if impactMapState.dataCount > 0}
-		<p class="text-sm text-gray-600">Showing {impactMapState.dataCount} bridges</p>
+	{#if impactMapDatabaseState.dataCount > 0}
+		<p class="text-sm text-gray-600">Showing {impactMapDatabaseState.dataCount} bridges</p>
 	{/if}
 	
 	<!-- Layer selector -->
@@ -42,7 +48,7 @@
 		</label>
 		<select 
 			class="select select-bordered w-full" 
-			bind:value={impactMapState.selectedLayer}
+			bind:value={impactMapDatabaseState.selectedLayer}
 		>
 			{#each layerOptions as option}
 				<option value={option.value}>{option.label}</option>
@@ -57,7 +63,7 @@
 		</label>
 		<select 
 			class="select select-bordered w-full" 
-			bind:value={impactMapState.selectedPalette}
+			bind:value={impactMapDatabaseState.selectedPalette}
 		>
 			{#each availablePalettes as palette}
 				<option value={palette.value}>{palette.label}</option>
@@ -66,7 +72,7 @@
 		
 		<!-- Color palette preview -->
 		<div class="mt-2">
-			<ColorPaletteBar palette={palettes[impactMapState.selectedPalette]} />
+			<ColorPaletteBar palette={palettes[impactMapDatabaseState.selectedPalette]} />
 		</div>
 	</div>
 
@@ -74,26 +80,26 @@
 	<div class="form-control">
 		<label class="label cursor-pointer">
 			<span class="label-text font-semibold">Filter by Year</span>
-			<input type="checkbox" class="toggle toggle-primary" bind:checked={impactMapState.filterByYear} />
+			<input type="checkbox" class="toggle toggle-primary" bind:checked={impactMapDatabaseState.filterByYear} />
 		</label>
 		
-		{#if impactMapState.filterByYear}
+		{#if impactMapDatabaseState.filterByYear}
 			<div class="mt-2">
 				<label class="label">
-					<span class="label-text">Year Range: {impactMapState.yearRange[0]} - {impactMapState.yearRange[1]}</span>
+					<span class="label-text">Year Range: {impactMapDatabaseState.yearRange[0]} - {impactMapDatabaseState.yearRange[1]}</span>
 				</label>
 				<input 
 					type="range" 
 					min="2010" 
 					max="2024" 
-					bind:value={impactMapState.yearRange[0]} 
+					bind:value={impactMapDatabaseState.yearRange[0]} 
 					class="range range-xs range-primary" 
 				/>
 				<input 
 					type="range" 
 					min="2010" 
 					max="2024" 
-					bind:value={impactMapState.yearRange[1]} 
+					bind:value={impactMapDatabaseState.yearRange[1]} 
 					class="range range-xs range-primary mt-2" 
 				/>
 			</div>
@@ -104,7 +110,7 @@
 	<div class="form-control">
 		<label class="label cursor-pointer">
 			<span class="label-text font-semibold">Satellite Imagery</span>
-			<input type="checkbox" class="toggle toggle-primary" bind:checked={impactMapState.satelliteImagery} />
+			<input type="checkbox" class="toggle toggle-primary" bind:checked={impactMapDatabaseState.satelliteImagery} />
 		</label>
 	</div>
 
@@ -112,7 +118,7 @@
 	<div class="form-control">
 		<label class="label cursor-pointer">
 			<span class="label-text font-semibold">Show Hex Grid</span>
-			<input type="checkbox" class="toggle toggle-primary" bind:checked={impactMapState.showHexLayer} />
+			<input type="checkbox" class="toggle toggle-primary" bind:checked={impactMapDatabaseState.showHexLayer} />
 		</label>
 	</div>
 
