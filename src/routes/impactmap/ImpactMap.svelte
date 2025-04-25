@@ -5,6 +5,11 @@
 	import { impactMapState } from '$lib/utils/state.svelte';
 	import { impactDataMap } from '$lib/utils/impactDataMap';
 	import { palettes } from '$lib/utils/colorPalettes';
+	
+	// Debug state changes
+	$effect(() => {
+		console.log('State tracking - current dataMapKey:', impactMapState.dataMapKey);
+	});
 
 	let map;
 	let mapContainer;
@@ -18,6 +23,7 @@
 		const reverse = impactDataMap[dataKey].meta_info.reverse_color_scale;
 		
 		if (reverse) {
+			console.log('Reversing color scale:', colorScale, [...palettes[colorScale]].reverse(), palettes[colorScale]);
 			return [...palettes[colorScale]].reverse();
 		} else {
 			return palettes[colorScale];
@@ -67,31 +73,42 @@
 		}
 	}
 
-	// Function to update the map source when data name changes
+	// Function to update the map source when data key changes
 	function updateMapSource() {
-		if (!map || !map.isStyleLoaded()) return;
+		if (!map || !map.isStyleLoaded()) {
+			console.warn('Cannot update source - map not ready');
+			return;
+		}
 
 		try {
 			// Make sure we have a valid data key first
 			const dataKey = impactMapState.dataMapKey;
+			console.log('updateMapSource called with dataKey:', dataKey);
+			
 			if (!dataKey || !impactDataMap[dataKey]) {
 				console.warn('Cannot update source - invalid data key');
 				return;
 			}
 			
+			console.log('Updating map source for data key:', dataKey);
+			console.log('Data available:', impactDataMap[dataKey]);
+			
 			// If the source already exists, remove it along with its layers
 			if (map.getSource('raster-source')) {
+				console.log('Removing existing layer and source');
 				if (map.getLayer('raster-layer')) {
 					map.removeLayer('raster-layer');
 				}
 				map.removeSource('raster-source');
 			}
-
-			// Construct new tile URL based on state
+			
+			// Get the data name from the selected data key's meta info
+			const dataName = impactDataMap[dataKey].meta_info.data_name;
+			console.log('Using data name from meta_info:', dataName);
+			
+			// Construct new tile URL based on actual data name from the selected data
 			const baseUrl = 'https://public-b2p-geodata.s3.us-east-1.amazonaws.com/impact-map-raster-tiles/';
-			const tileUrl = impactMapState.dataName
-				? `${baseUrl}all_countries_merged_hex8_${impactMapState.dataName}/{z}/{x}/{y}.png`
-				: `${baseUrl}all_countries_merged_hex8_rwi/{z}/{x}/{y}.png`;
+			const tileUrl = `${baseUrl}all_countries_merged_hex8_${dataName}/{z}/{x}/{y}.png`;
 
 			console.log('Using tile URL:', tileUrl);
 
@@ -130,18 +147,24 @@
 						styleStops[3], currentPalette[3],
 						styleStops[4], currentPalette[4]
 					],
-					'raster-color-mix': [255, 255, 255, 255],
+					'raster-color-mix': [255, 0, 0, 0],
 					'raster-color-range': [0, 255]
 				}
 			});
+			
+			console.log('Map source and layer updated successfully');
 		} catch (error) {
 			console.error('Error updating map source:', error);
+			console.error('Error details:', error.stack || error.message);
 		}
 	}
 
 	// Update currentPalette when dataMapKey changes
 	$effect(() => {
+		// Store the key in a variable to ensure reactivity
 		const newKey = impactMapState.dataMapKey;
+		console.log('Effect tracking dataMapKey:', newKey);
+		
 		// Only update if the key is valid
 		if (newKey && impactDataMap[newKey]) {
 			// Update our palette
@@ -155,9 +178,15 @@
 		}
 	});
 
-	// Update map source when data name changes
+	// Update map source when dataMapKey changes
 	$effect(() => {
-		if (map && map.isStyleLoaded() && impactMapState.dataName) {
+		// Explicitly access the dataMapKey to make sure the effect tracks it
+		const currentDataKey = impactMapState.dataMapKey;
+		console.log('Effect detected dataMapKey change to:', currentDataKey);
+		
+		if (map && map.isStyleLoaded() && currentDataKey) {
+			// Log that we're about to update the source
+			console.log('Updating map source due to dataMapKey change');
 			updateMapSource();
 		}
 	});
@@ -185,11 +214,12 @@
 					return;
 				}
 				
+				// Get the data name from the selected data key's meta info
+				const dataName = impactDataMap[dataKey].meta_info.data_name;
+				
 				// Initial map setup
 				const baseUrl = 'https://public-b2p-geodata.s3.us-east-1.amazonaws.com/impact-map-raster-tiles/';
-				const tileUrl = impactMapState.dataName
-					? `${baseUrl}all_countries_merged_hex8_${impactMapState.dataName}/{z}/{x}/{y}.png`
-					: `${baseUrl}all_countries_merged_hex8_rwi/{z}/{x}/{y}.png`;
+				const tileUrl = `${baseUrl}all_countries_merged_hex8_${dataName}/{z}/{x}/{y}.png`;
 
 				console.log('Initial setup with URL:', tileUrl);
 

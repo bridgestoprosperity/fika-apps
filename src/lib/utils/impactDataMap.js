@@ -920,7 +920,7 @@ export const impactDataMap = {
 			hover_text: 'Market impact',
 			unit: 'people',
 			color_scale: 'rdylgn',
-			reverse_color_scale: false,
+			reverse_color_scale: true,
 			legend_labels: ['Shorter', 'Longer']
 		},
 		travel_time: {
