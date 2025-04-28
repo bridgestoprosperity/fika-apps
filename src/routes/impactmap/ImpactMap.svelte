@@ -6,113 +6,195 @@
 	import { impactDataMap } from '$lib/utils/impactDataMap';
 	import { palettes } from '$lib/utils/colorPalettes';
 	
-	// Debug state changes
-	$effect(() => {
-		console.log('State tracking - current dataMapKey:', impactMapState.dataMapKey);
-	});
-
 	let map;
 	let mapContainer;
+	let mapLoaded = $state(false);
+	let styleLoaded = $state(false);
+	let currentDataKey = $state('');
+	
+	// Log state changes so we can debug
+	$effect(() => {
+		console.log('Map tracking state change:', impactMapState.dataMapKey, '(current:', currentDataKey, ')');
+	});
 
-	// Get the current palette explicitly, NOT using $derived
-	function getPalette() {
+	// Track when both map and style are loaded
+	let mapReady = $derived(mapLoaded && styleLoaded);
+	
+	// Helper function to get the tile URL
+	function getTileUrl() {
 		const dataKey = impactMapState.dataMapKey;
-		if (!dataKey || !impactDataMap[dataKey]) return palettes.viridis;
-		
-		const colorScale = impactDataMap[dataKey].meta_info.color_scale;
-		const reverse = impactDataMap[dataKey].meta_info.reverse_color_scale;
-		
-		if (reverse) {
-			console.log('Reversing color scale:', colorScale, [...palettes[colorScale]].reverse(), palettes[colorScale]);
-			return [...palettes[colorScale]].reverse();
-		} else {
-			return palettes[colorScale];
+		if (!dataKey || !impactDataMap[dataKey]) {
+			console.warn('No valid data key:', dataKey);
+			return null;
 		}
+		
+		const dataName = impactDataMap[dataKey].meta_info.data_name;
+		const baseUrl = 'https://public-b2p-geodata.s3.us-east-1.amazonaws.com/impact-map-raster-tiles/';
+		const url = `${baseUrl}all_countries_merged_hex8_${dataName}/{z}/{x}/{y}.png`;
+		
+		console.log('Tile URL:', url);
+		return url;
 	}
 	
-	// Create the reactive variable using the function
-	let currentPalette = getPalette();
-	
-	// Log the actual palette array
-	console.log('colorScale', impactDataMap[impactMapState.dataMapKey].meta_info.color_scale);
-	console.log('currentPalette', currentPalette);
-
-	// Function to update the map palette when data key changes
-	function updateMapPalette() {
-		if (!map || !map.isStyleLoaded()) return;
-
-		try {
-			// Make sure we have a valid data key first
-			const dataKey = impactMapState.dataMapKey;
-			if (!dataKey || !impactDataMap[dataKey]) {
-				console.warn('Cannot update palette - invalid data key');
-				return;
-			}
-			
-			// Get the current style stops and palette
-			const styleStops = impactDataMap[dataKey].data_info.style_stops;
-			
-			// Refresh our palette (just to be sure we have the latest)
-			currentPalette = getPalette();
-			
-			console.log('Updating map with palette:', currentPalette);
-			console.log('Using style stops:', styleStops);
-			
-			map.setPaintProperty('raster-layer', 'raster-color', [
-				'interpolate',
-				['linear'],
-				['raster-value'],
-				styleStops[0], currentPalette[0],
-				styleStops[1], currentPalette[1],
-				styleStops[2], currentPalette[2],
-				styleStops[3], currentPalette[3],
-				styleStops[4], currentPalette[4]
-			]);
-		} catch (error) {
-			console.error('Error updating map palette:', error);
+	// Helper function to get the raster color expression
+	function getRasterColorExpression() {
+		const dataKey = impactMapState.dataMapKey;
+		if (!dataKey || !impactDataMap[dataKey]) {
+			console.warn('No valid data key for color expression:', dataKey);
+			return null;
 		}
+		
+		const data = impactDataMap[dataKey];
+		const styleStops = data.data_info.style_stops;
+		
+		// Get appropriate palette
+		const colorScale = data.meta_info.color_scale;
+		const reverse = data.meta_info.reverse_color_scale;
+		const palette = reverse ? [...palettes[colorScale]].reverse() : palettes[colorScale];
+		
+		console.log('Color expression using palette:', colorScale, 'reverse:', reverse);
+		
+		return [
+			'interpolate',
+			['linear'],
+			['raster-value'],
+			styleStops[0], palette[0],
+			styleStops[1], palette[1],
+			styleStops[2], palette[2],
+			styleStops[3], palette[3],
+			styleStops[4], palette[4]
+		];
 	}
-
-	// Function to update the map source when data key changes
-	function updateMapSource() {
-		if (!map || !map.isStyleLoaded()) {
-			console.warn('Cannot update source - map not ready');
+	function getHexColorExpression() {
+		const dataKey = impactMapState.dataMapKey;
+		if (!dataKey || !impactDataMap[dataKey]) {
+			console.warn('No valid data key for color expression:', dataKey);
+			return null;
+		}
+		
+		const data = impactDataMap[dataKey];
+		const styleStops = data.data_info.style_stops;
+		
+		// Get appropriate palette
+		const colorScale = data.meta_info.color_scale;
+		const reverse = data.meta_info.reverse_color_scale;
+		const palette = reverse ? [...palettes[colorScale]].reverse() : palettes[colorScale];
+		
+		console.log('Color expression using palette:', colorScale, 'reverse:', reverse);
+		
+		return [
+			'interpolate',
+			['linear'],
+			['coalesce', ['to-number', ['get', impactMapState.dataName]], 0],
+			styleStops[0], palette[0],
+			styleStops[1], palette[1],
+			styleStops[2], palette[2],
+			styleStops[3], palette[3],
+			styleStops[4], palette[4]
+		];
+	}
+	
+	// Function to initialize hex layers with PMTiles
+	async function initializeHexLayer() {
+		if (!map) {
+			console.warn('Map not available for initializing hex layers');
 			return;
 		}
-
+		
 		try {
-			// Make sure we have a valid data key first
-			const dataKey = impactMapState.dataMapKey;
-			console.log('updateMapSource called with dataKey:', dataKey);
+			console.log('Initializing hex layers with PMTiles');
+						
+			// Add hex8 source for zoom levels 7-22
+			// const hex8Url = 'https://public-b2p-geodata.s3.us-east-1.amazonaws.com/general-pmtiles/all_countries_merged_hex8.pmtiles';
+			const hex8Url = 'https://public-b2p-geodata.s3.us-east-1.amazonaws.com/general-pmtiles/all_countries_merged_hex8.pmtiles';
+
+
+			const hex8Header = await PmTilesSource.getHeader(hex8Url);
+			const hex8Bounds = [hex8Header.minLon, hex8Header.minLat, hex8Header.maxLon, hex8Header.maxLat];
 			
-			if (!dataKey || !impactDataMap[dataKey]) {
-				console.warn('Cannot update source - invalid data key');
+			const hexColorExpression = getHexColorExpression();
+			if (!hexColorExpression) {
+				console.warn('No valid hex color expression');
+				return;
+			}
+
+			map.addSource('hex-source', {
+				type: PmTilesSource.SOURCE_TYPE,
+				url: hex8Url,
+				minzoom: 0,
+				maxzoom: hex8Header.maxZoom,
+				bounds: hex8Bounds
+			});
+			
+			// Add hex8 fill layer (for zoom 7.5+)
+			map.addLayer({
+				id: 'hex-layer',
+				type: 'fill',
+				source: 'hex-source',
+				'source-layer': 'hex8-impact-data',
+				minzoom: 8,
+				maxzoom: 22,
+				paint: {
+					"fill-color": hexColorExpression,
+					'fill-opacity': 0.75,
+				}
+			});
+			
+			console.log('Hex layers initialized successfully');
+		} catch (error) {
+			console.error('Error initializing hex layers:', error);
+		}
+	}
+	
+	// Function to update the map visualization
+	function updateMapVisualization() {
+		if (!map || !mapReady) {
+			console.log('Map not ready yet, skipping update');
+			return;
+		}
+		
+		try {
+			console.log('Updating map visualization for dataKey:', impactMapState.dataMapKey);
+			
+			// Check if data key is valid
+			if (!impactMapState.dataMapKey || !impactDataMap[impactMapState.dataMapKey]) {
+				console.warn('Invalid data key:', impactMapState.dataMapKey);
 				return;
 			}
 			
-			console.log('Updating map source for data key:', dataKey);
-			console.log('Data available:', impactDataMap[dataKey]);
+			// Skip update if the data key hasn't changed
+			if (currentDataKey === impactMapState.dataMapKey) {
+				console.log('Data key unchanged, skipping update');
+				return;
+			}
+
+			const hexColorExpression = getHexColorExpression();
+			if (hexColorExpression) {
+				map.setPaintProperty('hex-layer', 'fill-color', hexColorExpression);
+			} else {
+				console.warn('No valid hex color expression for hex layer');
+			}
 			
-			// If the source already exists, remove it along with its layers
+			// Remove existing layer and source if they exist
+			if (map.getLayer('raster-layer')) {
+				console.log('Removing existing raster layer');
+				map.removeLayer('raster-layer');
+			}
+			
 			if (map.getSource('raster-source')) {
-				console.log('Removing existing layer and source');
-				if (map.getLayer('raster-layer')) {
-					map.removeLayer('raster-layer');
-				}
+				console.log('Removing existing raster source');
 				map.removeSource('raster-source');
 			}
 			
-			// Get the data name from the selected data key's meta info
-			const dataName = impactDataMap[dataKey].meta_info.data_name;
-			console.log('Using data name from meta_info:', dataName);
+			// Get tile URL
+			const tileUrl = getTileUrl();
+			if (!tileUrl) {
+				console.warn('No valid tile URL');
+				return;
+			}
 			
-			// Construct new tile URL based on actual data name from the selected data
-			const baseUrl = 'https://public-b2p-geodata.s3.us-east-1.amazonaws.com/impact-map-raster-tiles/';
-			const tileUrl = `${baseUrl}all_countries_merged_hex8_${dataName}/{z}/{x}/{y}.png`;
-
-			console.log('Using tile URL:', tileUrl);
-
 			// Add new source
+			console.log('Adding source with URL:', tileUrl);
 			map.addSource('raster-source', {
 				type: 'raster',
 				tiles: [tileUrl],
@@ -121,82 +203,64 @@
 				minzoom: 0,
 				maxzoom: 10
 			});
-
-			// Get style stops and refresh palette
-			const styleStops = impactDataMap[dataKey].data_info.style_stops;
-			currentPalette = getPalette();
 			
-			console.log('Adding layer with palette:', currentPalette);
-			console.log('Using style stops:', styleStops);
-
-			// Add layer with raster-color interpolation
+			// Get raster color expression
+			const rasterColorExpression = getRasterColorExpression();
+			if (!rasterColorExpression) {
+				console.warn('No valid raster color expression');
+				return;
+			}
+			
+			// Add new layer
+			console.log('Adding raster layer');
 			map.addLayer({
 				id: 'raster-layer',
 				type: 'raster',
 				source: 'raster-source',
 				minzoom: 0,
-				maxzoom: 22,
+				maxzoom: 8,
 				paint: {
-					'raster-color': [
-						'interpolate',
-						['linear'],
-						['raster-value'],
-						styleStops[0], currentPalette[0],
-						styleStops[1], currentPalette[1],
-						styleStops[2], currentPalette[2],
-						styleStops[3], currentPalette[3],
-						styleStops[4], currentPalette[4]
-					],
+					'raster-color': rasterColorExpression,
 					'raster-color-mix': [255, 0, 0, 0],
 					'raster-color-range': [0, 255]
 				}
 			});
 			
-			console.log('Map source and layer updated successfully');
+			// Update current data key to track changes
+			currentDataKey = impactMapState.dataMapKey;
+			console.log('Update complete, currentDataKey is now:', currentDataKey);
 		} catch (error) {
-			console.error('Error updating map source:', error);
-			console.error('Error details:', error.stack || error.message);
+			console.error('Error updating map visualization:', error);
 		}
 	}
-
-	// Update currentPalette when dataMapKey changes
+	
+	// Watch for changes to impactMapState.dataMapKey
 	$effect(() => {
-		// Store the key in a variable to ensure reactivity
-		const newKey = impactMapState.dataMapKey;
-		console.log('Effect tracking dataMapKey:', newKey);
+		const dataKey = impactMapState.dataMapKey;
 		
-		// Only update if the key is valid
-		if (newKey && impactDataMap[newKey]) {
-			// Update our palette
-			currentPalette = getPalette();
-			console.log('Effect updated palette to:', currentPalette);
+		// Only proceed if data key is valid and different from current
+		if (dataKey && dataKey !== currentDataKey && impactDataMap[dataKey]) {
+			console.log('Data key changed to:', dataKey);
 			
-			// Update the map if it's ready
-			if (map && map.isStyleLoaded() && map.getLayer('raster-layer')) {
-				updateMapPalette();
+			// Update map if it's ready
+			if (mapReady) {
+				console.log('Map ready, updating visualization');
+				// Use setTimeout to ensure this runs after current execution
+				setTimeout(updateMapVisualization, 0);
+			} else {
+				console.log('Map not ready yet, update will happen when map loads');
 			}
 		}
 	});
-
-	// Update map source when dataMapKey changes
-	$effect(() => {
-		// Explicitly access the dataMapKey to make sure the effect tracks it
-		const currentDataKey = impactMapState.dataMapKey;
-		console.log('Effect detected dataMapKey change to:', currentDataKey);
-		
-		if (map && map.isStyleLoaded() && currentDataKey) {
-			// Log that we're about to update the source
-			console.log('Updating map source due to dataMapKey change');
-			updateMapSource();
-		}
-	});
-
+	
+	// Initialize map on mount
 	onMount(() => {
+		console.log('Mounting map component');
 		mapboxgl.Style.setSourceType(PmTilesSource.SOURCE_TYPE, PmTilesSource);
-
-		mapboxgl.accessToken =
+		
+		mapboxgl.accessToken = 
 			'pk.eyJ1IjoiYnJpZGdlc3RvcHJvc3Blcml0eSIsImEiOiJjbTVyaGcweGswYWpzMnhxMjRyZHhtMGh0In0.4YOL9xCKxxQ0u2wZ7AlNMg';
-
+		
 		map = new mapboxgl.Map({
 			container: mapContainer,
 			style: 'mapbox://styles/bridgestoprosperity/cm5rdpyp800it01rd4zgy7l5t',
@@ -204,74 +268,34 @@
 			zoom: 3,
 			hash: true
 		});
-
+		
+		// Track when map loads
 		map.on('load', () => {
-			try {
-				// Make sure we have a valid data key first
-				const dataKey = impactMapState.dataMapKey;
-				if (!dataKey || !impactDataMap[dataKey]) {
-					console.warn('Cannot initialize map - invalid data key');
-					return;
-				}
-				
-				// Get the data name from the selected data key's meta info
-				const dataName = impactDataMap[dataKey].meta_info.data_name;
-				
-				// Initial map setup
-				const baseUrl = 'https://public-b2p-geodata.s3.us-east-1.amazonaws.com/impact-map-raster-tiles/';
-				const tileUrl = `${baseUrl}all_countries_merged_hex8_${dataName}/{z}/{x}/{y}.png`;
-
-				console.log('Initial setup with URL:', tileUrl);
-
-				// Add source
-				map.addSource('raster-source', {
-					type: 'raster',
-					tiles: [tileUrl],
-					tileSize: 256,
-					scheme: 'tms',
-					minzoom: 0,
-					maxzoom: 10
-				});
-
-				// Get style stops and fresh palette
-				const styleStops = impactDataMap[dataKey].data_info.style_stops;
-				currentPalette = getPalette();
-				
-				console.log('Initial setup with palette:', currentPalette);
-				console.log('Initial setup with stops:', styleStops);
-
-				// Add layer with raster-color interpolation
-				map.addLayer({
-					id: 'raster-layer',
-					type: 'raster',
-					source: 'raster-source',
-					minzoom: 0,
-					maxzoom: 22,
-					paint: {
-						'raster-color': [
-							'interpolate',
-							['linear'],
-							['raster-value'],
-							styleStops[0], currentPalette[0],
-							styleStops[1], currentPalette[1],
-							styleStops[2], currentPalette[2],
-							styleStops[3], currentPalette[3],
-							styleStops[4], currentPalette[4]
-						],
-						'raster-color-mix': [255, 0, 0, 0],
-						'raster-color-range': [0, 255]
-					}
-				});
-				
-				console.log('Initial map setup complete');
-			} catch (error) {
-				console.error('Error in map load:', error);
+			console.log('Map loaded');
+			mapLoaded = true;
+		});
+		
+		// Track when style loads
+		map.on('style.load', async () => {
+			console.log('Style loaded');
+			styleLoaded = true;
+			
+			// Initialize hex layers first
+			
+			await initializeHexLayer();
+			// Initial setup once style is loaded
+			if (impactMapState.dataMapKey) {
+				console.log('Setting up initial visualization with dataKey:', impactMapState.dataMapKey);
+				setTimeout(updateMapVisualization, 100);
 			}
+			
 		});
 	});
-
+	
+	// Clean up on destroy
 	onDestroy(() => {
 		if (map) {
+			console.log('Cleaning up map');
 			map.remove();
 		}
 	});
