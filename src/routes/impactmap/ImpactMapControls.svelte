@@ -1,184 +1,103 @@
 <script>
 	import { impactMapState } from '$lib/utils/state.svelte.js';
-	import { impactDataMap } from '$lib/utils/impactDataMap';
+	import { impactMenus } from '$lib/utils/impactmap/impactMenus.js';
 	import { onMount } from 'svelte';
 
-	// Simple state variables
-	let selectedCategory = $state('Travel Time');
-	let selectedOverlay = $state('with bridges');
-	let selectedDestinationType = $state('All Education');
-
-	// Computed properties (non-reactive for simplicity)
-	function getCategories() {
-		const categories = new Set();
-		for (const key in impactDataMap) {
-			categories.add(impactDataMap[key].meta_info.category);
+	// State for menu selections
+	let selectedCategory = $state(Object.keys(impactMenus)[0]);
+	let selectedOverlay = $state('');
+	let selectedDestination = $state('');
+	
+	// Update overlay when category changes
+	$effect(() => {
+		if (selectedCategory) {
+			const menuData = impactMenus[selectedCategory];
+			
+			if (selectedCategory === 'Travel Time') {
+				selectedOverlay = 'With Bridges';
+				selectedDestination = Object.keys(menuData['With Bridges'])[0];
+			} else {
+				selectedOverlay = '';
+				const firstKey = Object.keys(menuData)[0];
+				if (typeof menuData[firstKey] === 'string') {
+					// This is a simple category (Demographics/Population/Impact)
+					selectedDestination = firstKey;
+				}
+			}
 		}
-		return Array.from(categories);
-	}
-
-	function getOverlayOptions() {
-		const options = new Set();
+	});
+	
+	// Update the state when selections change
+	$effect(() => {
+		if (!selectedCategory) return;
+		
+		const menuData = impactMenus[selectedCategory];
+		let dataKey = '';
 		
 		if (selectedCategory === 'Travel Time') {
-			return ['with bridges', 'without bridges'];
-		}
-		
-		for (const key in impactDataMap) {
-			if (impactDataMap[key].meta_info.category === selectedCategory) {
-				if (selectedCategory === 'Population' || selectedCategory === 'Demographics') {
-					options.add(impactDataMap[key].meta_info.name);
-				}
-			}
-		}
-		
-		return Array.from(options);
-	}
-
-	function getDestinationTypeOptions() {
-		const options = new Set();
-		
-		if (selectedCategory === 'Travel Time' || selectedCategory === 'Impact') {
-			for (const key in impactDataMap) {
-				if (impactDataMap[key].meta_info.category === selectedCategory) {
-					options.add(impactDataMap[key].meta_info.name);
-				}
-			}
-		}
-		
-		return Array.from(options);
-	}
-
-	// UI-derived properties
-	function getShowDestinationType() {
-		return selectedCategory === 'Travel Time' || selectedCategory === 'Impact';
-	}
-
-	function getOverlayDisabled() {
-		return selectedCategory === 'Impact';
-	}
-
-	// Initialize the component
-	function initializeComponent() {
-		// Set category first
-		let initialCategory = '';
-		
-		if (impactMapState.dataMapKey && impactDataMap[impactMapState.dataMapKey]) {
-			initialCategory = impactDataMap[impactMapState.dataMapKey].meta_info.category;
+			dataKey = menuData[selectedOverlay]?.[selectedDestination];
 		} else {
-			initialCategory = getCategories()[0] || '';
+			dataKey = menuData[selectedDestination];
 		}
 		
-		selectedCategory = initialCategory;
-		console.log('Initial category:', selectedCategory);
-		
-		// Set submenus based on the category
-		if (selectedCategory) {
-			// For Travel Time or Impact, set destination type
-			if (selectedCategory === 'Travel Time' || selectedCategory === 'Impact') {
-				const options = getDestinationTypeOptions();
-				if (options.length > 0) {
-					selectedDestinationType = options[0];
-				}
-			} 
-			// For other categories, set overlay
-			else {
-				const options = getOverlayOptions();
-				if (options.length > 0) {
-					selectedOverlay = options[0];
-				}
-			}
+		if (dataKey) {
+			impactMapState.dataMapKey = dataKey;
+			impactMapState.dataName = selectedDestination;
+			impactMapState.menuState = selectedCategory;
 		}
-		
-		console.log('Initial values:', {
-			category: selectedCategory,
-			overlay: selectedOverlay,
-			destinationType: selectedDestinationType
-		});
-		
-		// Update the map state
-		updateMapState();
-	}
-
-	// Function to update the map state
-	function updateMapState() {
-		console.log('Updating map state with:', {
-			category: selectedCategory,
-			overlay: selectedOverlay,
-			destinationType: selectedDestinationType
-		});
-		
-		// Find the matching key in impactDataMap
-		for (const key in impactDataMap) {
-			const data = impactDataMap[key];
-			
-			// Match by category and name
-			if (data.meta_info.category === selectedCategory) {
-				// For Travel Time or Impact, match by destination type
-				if (selectedCategory === 'Travel Time' || selectedCategory === 'Impact') {
-					if (data.meta_info.name === selectedDestinationType) {
-						// We found a match - update the state
-						console.log('Found matching data:', key, data.meta_info.name);
-						impactMapState.dataMapKey = key;
-						impactMapState.dataName = data.meta_info.data_name;
-						impactMapState.menuState = data.meta_info.name;
-						return; // Exit after finding a match
-					}
-				} 
-				// For other categories, match by overlay
-				else {
-					if (data.meta_info.name === selectedOverlay) {
-						// We found a match - update the state
-						console.log('Found matching data:', key, data.meta_info.name);
-						impactMapState.dataMapKey = key;
-						impactMapState.dataName = data.meta_info.data_name;
-						impactMapState.menuState = data.meta_info.name;
-						return; // Exit after finding a match
-					}
-				}
-			}
-		}
-		
-		console.warn('No matching data found for the current selection');
+	});
+	
+	// Get available overlays for current category
+	function getOverlayOptions() {
+		if (selectedCategory !== 'Travel Time') return [];
+		return Object.keys(impactMenus['Travel Time']);
 	}
 	
-	// Event handlers
-	function handleCategoryChange(event) {
-		const newCategory = event.target.value;
-		console.log('Category changed to:', newCategory);
+	// Get destinations for current selection
+	function getDestinationOptions() {
+		if (!selectedCategory) return [];
 		
-		// Update category
-		selectedCategory = newCategory;
+		const menuData = impactMenus[selectedCategory];
 		
-		// Reset submenus
-		if (getShowDestinationType()) {
-			const options = getDestinationTypeOptions();
-			selectedDestinationType = options.length > 0 ? options[0] : '';
-			selectedOverlay = '';
+		if (selectedCategory === 'Travel Time' && selectedOverlay) {
+			return Object.keys(menuData[selectedOverlay] || {});
 		} else {
-			const options = getOverlayOptions();
-			selectedOverlay = options.length > 0 ? options[0] : '';
-			selectedDestinationType = '';
+			return Object.keys(menuData || {});
 		}
-		
-		// Update map state
-		updateMapState();
 	}
 	
-	function handleOverlayChange(event) {
-		selectedOverlay = event.target.value;
-		console.log('Overlay changed to:', selectedOverlay);
-		updateMapState();
-	}
+	// Check if we should show the overlay menu
+	let showOverlay = $derived(selectedCategory === 'Travel Time');
 	
-	function handleDestinationTypeChange(event) {
-		selectedDestinationType = event.target.value;
-		console.log('Destination type changed to:', selectedDestinationType);
-		updateMapState();
-	}
-	
-	// Run initialization on mount
-	onMount(initializeComponent);
+	// Initialize from state
+	onMount(() => {
+		// Set initial selections from state if available
+		if (impactMapState.dataMapKey) {
+			// Find the matching key in impactMenus
+			Object.entries(impactMenus).forEach(([category, data]) => {
+				if (category === 'Travel Time') {
+					Object.entries(data).forEach(([overlay, destinations]) => {
+						Object.entries(destinations).forEach(([dest, key]) => {
+							if (key === impactMapState.dataMapKey) {
+								selectedCategory = category;
+								selectedOverlay = overlay;
+								selectedDestination = dest;
+								return;
+							}
+						});
+					});
+				} else {
+					Object.entries(data).forEach(([dest, key]) => {
+						if (key === impactMapState.dataMapKey) {
+							selectedCategory = category;
+							selectedDestination = dest;
+							return;
+						}
+					});
+				}
+			});
+		}
+	});
 </script>
 
 <div class="space-y-4">
@@ -188,9 +107,8 @@
 		<div class="form-control mt-3">
 			<select
 				class="select select-bordered select-secondary bg-transparent p-1 font-mono"
-				value={selectedCategory}
-				on:change={handleCategoryChange}>
-				{#each getCategories() as category}
+				bind:value={selectedCategory}>
+				{#each Object.keys(impactMenus) as category}
 					<option value={category}>
 						{category}
 					</option>
@@ -199,46 +117,45 @@
 		</div>
 	</div>
 
-	<!-- Data Overlay Details Menu -->
-	<div>
-		<p class="font-bold">Data Overlay Details</p>
-		<div class="form-control mt-3">
-			<select
-				class="select select-bordered select-secondary bg-transparent p-1 font-mono"
-				value={selectedOverlay}
-				on:change={handleOverlayChange}
-				disabled={getOverlayDisabled()}>
-				{#each getOverlayOptions() as overlay}
-					<option value={overlay}>
-						{overlay}
-					</option>
-				{/each}
-				{#if getOverlayOptions().length === 0}
-					<option value="" disabled>No options available</option>
-				{/if}
-			</select>
-		</div>
-	</div>
-
-	<!-- Destination Type Menu (conditionally displayed) -->
-	{#if getShowDestinationType()}
+	<!-- Data Overlay Details Menu (only for Travel Time) -->
+	{#if showOverlay}
 		<div>
-			<p class="font-bold">Destination Type</p>
+			<p class="font-bold">Bridge Status</p>
 			<div class="form-control mt-3">
 				<select
 					class="select select-bordered select-secondary bg-transparent p-1 font-mono"
-					value={selectedDestinationType}
-					on:change={handleDestinationTypeChange}>
-					{#each getDestinationTypeOptions() as destinationType}
-						<option value={destinationType}>
-							{destinationType}
+					bind:value={selectedOverlay}>
+					{#each getOverlayOptions() as overlay}
+						<option value={overlay}>
+							{overlay}
 						</option>
 					{/each}
-					{#if getDestinationTypeOptions().length === 0}
-						<option value="" disabled>No options available</option>
-					{/if}
 				</select>
 			</div>
 		</div>
 	{/if}
+
+	<!-- Destination Type Menu -->
+	<div>
+		<p class="font-bold">
+			{#if selectedCategory === 'Travel Time' || selectedCategory === 'Impact'}
+				Destination Type
+			{:else if selectedCategory === 'Demographics'}
+				Demographic Data
+			{:else if selectedCategory === 'Population'}
+				Population Data
+			{/if}
+		</p>
+		<div class="form-control mt-3">
+			<select
+				class="select select-bordered select-secondary bg-transparent p-1 font-mono"
+				bind:value={selectedDestination}>
+				{#each getDestinationOptions() as destination}
+					<option value={destination}>
+						{destination}
+					</option>
+				{/each}
+			</select>
+		</div>
+	</div>
 </div>

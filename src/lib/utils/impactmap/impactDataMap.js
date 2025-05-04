@@ -1,5 +1,5 @@
 export const impactDataMap = {
-	'Population': {
+	population: {
 		data_info: {
 			min: 1,
 			max: 113340,
@@ -30,7 +30,7 @@ export const impactDataMap = {
 			destination: false
 		}
 	},
-	'Population 0-4': {
+	population_0_4: {
 		data_info: {
 			min: 0,
 			max: 12801,
@@ -61,7 +61,7 @@ export const impactDataMap = {
 			destination: false
 		}
 	},
-	'Females 0-4': {
+	females_0_4: {
 		data_info: {
 			min: 0,
 			max: 6412,
@@ -92,7 +92,7 @@ export const impactDataMap = {
 			destination: false
 		}
 	},
-	'Males 0-4': {
+	males_0_4: {
 		data_info: {
 			min: 0,
 			max: 6389,
@@ -108,7 +108,7 @@ export const impactDataMap = {
 		},
 		meta_info: {
 			category: 'Population',
-			data_name: 'population_5_9',
+			data_name: 'males_0_4',
 			name: 'Males 0-4',
 			info_text: 'Male population between 0-4 years old',
 			hover_text: 'Males 0-4',
@@ -123,7 +123,7 @@ export const impactDataMap = {
 			destination: false
 		}
 	},
-	'Population 5-9': {
+	pop_5_9: {
 		data_info: {
 			min: 0,
 			max: 9674,
@@ -154,7 +154,7 @@ export const impactDataMap = {
 			destination: false
 		}
 	},
-	'Females 5-9': {
+	females_5_9: {
 		data_info: {
 			min: 0,
 			max: 4920,
@@ -185,7 +185,7 @@ export const impactDataMap = {
 			destination: false
 		}
 	},
-	'Males 5-9': {
+	males_5_9: {
 		data_info: {
 			min: 0,
 			max: 4753,
@@ -216,7 +216,7 @@ export const impactDataMap = {
 			destination: false
 		}
 	},
-	'Population 10-14': {
+	pop_10_14: {
 		data_info: {
 			min: 0,
 			max: 8353,
@@ -247,7 +247,7 @@ export const impactDataMap = {
 			destination: false
 		}
 	},
-	'Females 10-14': {
+	females_10_14: {
 		data_info: {
 			min: 0,
 			max: 4380,
@@ -278,7 +278,7 @@ export const impactDataMap = {
 			destination: false
 		}
 	},
-	'Males 10-14': {
+	males_10_14: {
 		data_info: {
 			min: 0,
 			max: 3973,
@@ -309,7 +309,7 @@ export const impactDataMap = {
 			destination: false
 		}
 	},
-	'Population 0-9': {
+	pop_0_9: {
 		data_info: {
 			min: 0,
 			max: 22476,
@@ -340,7 +340,7 @@ export const impactDataMap = {
 			destination: false
 		}
 	},
-	'Females 0-9': {
+	females_0_9: {
 		data_info: {
 			min: 0,
 			max: 11332,
@@ -371,7 +371,7 @@ export const impactDataMap = {
 			destination: false
 		}
 	},
-	'Males 0-9': {
+	males_0_9: {
 		data_info: {
 			min: 0,
 			max: 11143,
@@ -402,7 +402,7 @@ export const impactDataMap = {
 			destination: false
 		}
 	},
-	'Population 15-49': {
+	pop_15_49: {
 		data_info: {
 			min: 0,
 			max: 76642,
@@ -433,7 +433,7 @@ export const impactDataMap = {
 			destination: false
 		}
 	},
-	'Females 15-49': {
+	females_15_49: {
 		data_info: {
 			min: 0,
 			max: 35529,
@@ -464,7 +464,7 @@ export const impactDataMap = {
 			destination: false
 		}
 	},
-	'Males 15-49': {
+	males_15_49: {
 		data_info: {
 			min: 0,
 			max: 41112,
@@ -495,7 +495,7 @@ export const impactDataMap = {
 			destination: false
 		}
 	},
-	'Population 50-64': {
+	pop_50_64: {
 		data_info: {
 			min: 0,
 			max: 4857,
@@ -526,7 +526,7 @@ export const impactDataMap = {
 			destination: false
 		}
 	},
-	'Females 50-64': {
+	females_50_64: {
 		data_info: {
 			min: 0,
 			max: 2016,
@@ -557,7 +557,7 @@ export const impactDataMap = {
 			destination: false
 		}
 	},
-	'Males 50-64': {
+	males_50_64: {
 		data_info: {
 			min: 0,
 			max: 2907,
@@ -588,7 +588,7 @@ export const impactDataMap = {
 			destination: false
 		}
 	},
-	'Population 65+': {
+	pop_65_plus: {
 		data_info: {
 			min: 0,
 			max: 2009,
@@ -619,7 +619,7 @@ export const impactDataMap = {
 			destination: false
 		}
 	},
-	'Females 65+': {
+	females_65_plus: {
 		data_info: {
 			min: 0,
 			max: 1098,
@@ -650,7 +650,7 @@ export const impactDataMap = {
 			destination: false
 		}
 	},
-	'Males 65+': {
+	males_65_plus: {
 		data_info: {
 			min: 0,
 			max: 911,
@@ -681,7 +681,7 @@ export const impactDataMap = {
 			destination: false
 		}
 	},
-	'Births': {
+	births: {
 		data_info: {
 			min: 0,
 			max: 2792,
@@ -712,7 +712,7 @@ export const impactDataMap = {
 			destination: false
 		}
 	},
-	'Pregnancies': {
+	pregnancies: {
 		data_info: {
 			min: 0,
 			max: 3953,
@@ -724,7 +724,7 @@ export const impactDataMap = {
 			'99th_percentile': 51.0,
 			'2_percentile': 0.0,
 			'1_percentile': 0.0,
-			style_stops: [1, 2, 2, 4, 33]
+			style_stops: [1, 2, 3, 4, 33]
 		},
 		meta_info: {
 			category: 'Demographics',
@@ -743,7 +743,7 @@ export const impactDataMap = {
 			destination: false
 		}
 	},
-	'Relative Wealth Index': {
+	rwi: {
 		data_info: {
 			min: -1.397,
 			max: 1.89,
@@ -756,6 +756,8 @@ export const impactDataMap = {
 			'2_percentile': -0.778,
 			'1_percentile': -0.832,
 			style_stops: [-0.778, -0.389, 0, 0.166, 0.332]
+			// raster_style_stops: [40, 75, 110, 125, 140]
+
 		},
 		meta_info: {
 			category: 'Demographics',
@@ -774,7 +776,7 @@ export const impactDataMap = {
 			destination: false
 		}
 	},
-	'Underweight Percentage': {
+	underweight: {
 		data_info: {
 			min: 0.044,
 			max: 0.486,
@@ -805,7 +807,7 @@ export const impactDataMap = {
 			destination: false
 		}
 	},
-	'Average Female Educational Attainment': {
+	female_educational_attainment_mean: {
 		data_info: {
 			min: 0.1,
 			max: 11.8,
@@ -822,7 +824,7 @@ export const impactDataMap = {
 		meta_info: {
 			category: 'Demographics',
 			data_name: 'female_educational_attainment_mean',
-			name: 'Average Female Educational Attainment',
+			name: 'Female Education',
 			info_text: 'Average years of education for females in selected polygon',
 			hover_text: 'Female Education',
 			unit: 'years',
@@ -836,7 +838,7 @@ export const impactDataMap = {
 			destination: false
 		}
 	},
-	'Average Male Educational Attainment': {
+	male_educational_attainment_mean: {
 		data_info: {
 			min: 0.5,
 			max: 12.4,
@@ -853,9 +855,9 @@ export const impactDataMap = {
 		meta_info: {
 			category: 'Demographics',
 			data_name: 'male_educational_attainment_mean',
-			name: 'Average Male Educational Attainment',
+			name: 'Male Education',
 			info_text: 'Average years of education for males in selected polygon',
-			hover_text: 'male Education',
+			hover_text: 'Male Education',
 			unit: 'years',
 			color_scale: 'rdbu',
 			reverse_color_scale: false,
@@ -867,7 +869,7 @@ export const impactDataMap = {
 			destination: false
 		}
 	},
-	'without bridges All Health': {
+	travel_time_no_sites_all_health: {
 		data_info: {
 			min: 0.0,
 			max: 2868.0,
@@ -898,7 +900,7 @@ export const impactDataMap = {
 			destination: 'hospital'
 		}
 	},
-	'without bridges Major Market': {
+	time_delta_no_sites_semi_dense_urban: {
 		data_info: {
 			min: 0.0,
 			max: 1487.0,
@@ -929,7 +931,7 @@ export const impactDataMap = {
 			destination: 'Major Market'
 		}
 	},
-	'with bridges Health Posts': {
+	travel_time_health_posts: {
 		data_info: {
 			min: 0,
 			max: 3188,
@@ -960,7 +962,7 @@ export const impactDataMap = {
 			destination: 'health posts'
 		}
 	},
-	'with bridges Major Roads': {
+	travel_time_major_roads: {
 		data_info: {
 			min: 0,
 			max: 2851,
@@ -991,7 +993,7 @@ export const impactDataMap = {
 			destination: 'major roads'
 		}
 	},
-	'without bridges Secondary Schools': {
+	travel_time_no_sites_secondary_schools: {
 		data_info: {
 			min: 0.0,
 			max: 3189.0,
@@ -1022,7 +1024,7 @@ export const impactDataMap = {
 			destination: 'secondary schools'
 		}
 	},
-	'with bridges Secondary Schools': {
+	travel_time_secondary_schools: {
 		data_info: {
 			min: 0,
 			max: 3189,
@@ -1053,7 +1055,7 @@ export const impactDataMap = {
 			destination: 'secondary schools'
 		}
 	},
-	'without bridges Health Centers': {
+	travel_time_no_sites_health_centers: {
 		data_info: {
 			min: 0.0,
 			max: 2868.0,
@@ -1084,7 +1086,7 @@ export const impactDataMap = {
 			destination: 'health centers'
 		}
 	},
-	'without bridges Major Roads': {
+	travel_time_no_sites_major_roads: {
 		data_info: {
 			min: 0.0,
 			max: 2851.0,
@@ -1115,7 +1117,7 @@ export const impactDataMap = {
 			destination: 'major roads'
 		}
 	},
-	'Secondary Schools': {
+	time_delta_no_sites_secondary_schools: {
 		data_info: {
 			min: 0.0,
 			max: 1470.0,
@@ -1146,7 +1148,7 @@ export const impactDataMap = {
 			destination: 'secondary schools'
 		}
 	},
-	'All Health': {
+	time_delta_no_sites_all_health: {
 		data_info: {
 			min: 0.0,
 			max: 1497.0,
@@ -1178,7 +1180,7 @@ export const impactDataMap = {
 			destination: 'hospital'
 		}
 	},
-	'with bridges Health Centers': {
+	travel_time_health_centers: {
 		data_info: {
 			min: 0,
 			max: 2868,
@@ -1209,7 +1211,7 @@ export const impactDataMap = {
 			destination: 'health centers'
 		}
 	},
-	'Health Centers': {
+	time_delta_no_sites_health_centers: {
 		data_info: {
 			min: 0.0,
 			max: 1497.0,
@@ -1240,7 +1242,7 @@ export const impactDataMap = {
 			destination: 'health centers'
 		}
 	},
-	'Major Roads': {
+	time_delta_no_sites_major_roads: {
 		data_info: {
 			min: 0.0,
 			max: 1607.0,
@@ -1271,7 +1273,7 @@ export const impactDataMap = {
 			destination: 'major roads'
 		}
 	},
-	'with bridges Major Market': {
+	travel_time_semi_dense_urban: {
 		data_info: {
 			min: 0,
 			max: 3077,
@@ -1302,7 +1304,7 @@ export const impactDataMap = {
 			destination: 'Major Market'
 		}
 	},
-	'Major Hospitals': {
+	time_delta_no_sites_major_hospitals: {
 		data_info: {
 			min: 0.0,
 			max: 1323.0,
@@ -1333,7 +1335,7 @@ export const impactDataMap = {
 			destination: 'major hospitals'
 		}
 	},
-	'with bridges All Health': {
+	travel_time_all_health: {
 		data_info: {
 			min: 0,
 			max: 2868,
@@ -1364,7 +1366,7 @@ export const impactDataMap = {
 			destination: 'hospital'
 		}
 	},
-	'without bridges Primary Schools': {
+	travel_time_no_sites_primary_schools: {
 		data_info: {
 			min: 0.0,
 			max: 2880.0,
@@ -1395,7 +1397,7 @@ export const impactDataMap = {
 			destination: 'primary schools'
 		}
 	},
-	'without bridges Major Market': {
+	travel_time_no_sites_semi_dense_urban: {
 		data_info: {
 			min: 0.0,
 			max: 3077.0,
@@ -1426,7 +1428,7 @@ export const impactDataMap = {
 			destination: 'Major Market'
 		}
 	},
-	'Health Posts': {
+	time_delta_no_sites_health_posts: {
 		data_info: {
 			min: 0.0,
 			max: 1616.0,
@@ -1457,7 +1459,7 @@ export const impactDataMap = {
 			destination: 'health posts'
 		}
 	},
-	'without bridges All Education': {
+	travel_time_no_sites_all_education: {
 		data_info: {
 			min: 0.0,
 			max: 2880.0,
@@ -1488,7 +1490,7 @@ export const impactDataMap = {
 			destination: 'all education'
 		}
 	},
-	'with bridges Major Hospitals': {
+	travel_time_major_hospitals: {
 		data_info: {
 			min: 0,
 			max: 3030,
@@ -1519,7 +1521,7 @@ export const impactDataMap = {
 			destination: 'major hospitals'
 		}
 	},
-	'without bridges Major Hospitals': {
+	travel_time_no_sites_major_hospitals: {
 		data_info: {
 			min: 0.0,
 			max: 3030.0,
@@ -1550,7 +1552,7 @@ export const impactDataMap = {
 			destination: 'major hospitals'
 		}
 	},
-	'with bridges Primary Schools': {
+	travel_time_primary_schools: {
 		data_info: {
 			min: 0,
 			max: 2880,
@@ -1581,7 +1583,7 @@ export const impactDataMap = {
 			destination: 'primary schools'
 		}
 	},
-	'Primary Schools': {
+	time_delta_no_sites_primary_schools: {
 		data_info: {
 			min: 0.0,
 			max: 1717.0,
@@ -1612,7 +1614,7 @@ export const impactDataMap = {
 			destination: 'primary schools'
 		}
 	},
-	'with bridges All Education': {
+	travel_time_all_education: {
 		data_info: {
 			min: 0,
 			max: 2880,
@@ -1643,7 +1645,7 @@ export const impactDataMap = {
 			destination: 'all education'
 		}
 	},
-	'All Education': {
+	time_delta_no_sites_all_education: {
 		data_info: {
 			min: 0.0,
 			max: 1717.0,
@@ -1675,7 +1677,7 @@ export const impactDataMap = {
 			destination: 'all education'
 		}
 	},
-	'without bridges Health Posts': {
+	travel_time_no_sites_health_posts: {
 		data_info: {
 			min: 0.0,
 			max: 3188.0,
