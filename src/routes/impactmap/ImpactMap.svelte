@@ -1,7 +1,6 @@
 <script>
 	import { onMount, onDestroy } from 'svelte';
 	import mapboxgl from 'mapbox-gl';
-	import { PmTilesSource } from 'mapbox-pmtiles';
 	import { impactMapState } from '$lib/utils/state.svelte';
 	import { impactDataMap } from '$lib/utils/impactmap/impactDataMap';
 	import { palettes } from '$lib/utils/colorPalettes';
@@ -51,6 +50,11 @@
 		for (let i = 0; i < float32Array.length; i++) {
 			const transformed = (float32Array[i] - min) * scale;
 			uint8Array[i] = Math.round(Math.max(0, Math.min(255, transformed)));
+
+			// Ensure strictly ascending order
+			if (i > 0 && uint8Array[i] <= uint8Array[i - 1]) {
+				uint8Array[i] = uint8Array[i - 1] + 1;
+			}
 		}
 
 		return uint8Array;
@@ -64,8 +68,12 @@
 		}
 
 		const data = impactDataMap[dataKey];
-		
-		const styleStops = float32To8Bit(data.data_info.style_stops, data.data_info.min, data.data_info.max);
+
+		const styleStops = float32To8Bit(
+			data.data_info.style_stops,
+			data.data_info.min,
+			data.data_info.max
+		);
 
 		// Get appropriate palette
 		const colorScale = data.meta_info.color_scale;
@@ -93,6 +101,7 @@
 
 		return colorExpression;
 	}
+	
 	function getHexColorExpression() {
 		const dataKey = impactMapState.dataMapKey;
 		if (!dataKey || !impactDataMap[dataKey]) {
@@ -132,7 +141,7 @@
 		return colorExpression;
 	}
 
-	// Function to initialize hex layers with PMTiles
+	// Function to initialize hex layers with Mapbox Vector Tiles
 	async function initializeHexLayer() {
 		if (!map) {
 			console.warn('Map not available for initializing hex layers');
@@ -140,20 +149,7 @@
 		}
 
 		try {
-			console.log('Initializing hex layers with PMTiles');
-
-			// Add hex8 source for zoom levels 7-22
-			// const hex8Url = 'https://public-b2p-geodata.s3.us-east-1.amazonaws.com/general-pmtiles/all_countries_merged_hex8.pmtiles';
-			const hex8Url =
-				'https://public-b2p-geodata.s3.us-east-1.amazonaws.com/general-pmtiles/all_countries_merged_hex8.pmtiles';
-
-			const hex8Header = await PmTilesSource.getHeader(hex8Url);
-			const hex8Bounds = [
-				hex8Header.minLon,
-				hex8Header.minLat,
-				hex8Header.maxLon,
-				hex8Header.maxLat
-			];
+			console.log('Initializing hex layers with Mapbox Vector Tiles');
 
 			const hexColorExpression = getHexColorExpression();
 			if (!hexColorExpression) {
@@ -161,12 +157,12 @@
 				return;
 			}
 
+			// Add vector tile source using Mapbox tileset
 			map.addSource('hex-source', {
-				type: PmTilesSource.SOURCE_TYPE,
-				url: hex8Url,
+				type: 'vector',
+				url: 'mapbox://bridgestoprosperity.hex8-demographic',
 				minzoom: 0,
-				maxzoom: hex8Header.maxZoom,
-				bounds: hex8Bounds
+				maxzoom: 22
 			});
 
 			// Add hex8 fill layer (for zoom 7.5+)
@@ -174,12 +170,12 @@
 				id: 'hex-layer',
 				type: 'fill',
 				source: 'hex-source',
-				'source-layer': 'hex8-impact-data',
-				minzoom: 8,
+				'source-layer': 'hex8-impact-data-no-pop', // Make sure this matches your tileset's source layer name
+				minzoom: 0,
 				maxzoom: 22,
 				paint: {
 					'fill-color': hexColorExpression,
-					'fill-opacity': 0.75
+					'fill-opacity': ['interpolate', ['linear'], ['zoom'], 8, 0, 8.2, 0.8]
 				}
 			});
 
@@ -276,11 +272,12 @@
 				type: 'raster',
 				source: 'raster-source',
 				minzoom: 0,
-				maxzoom: 8,
+				maxzoom: 22,
 				paint: {
 					'raster-color': rasterColorExpression,
 					'raster-color-mix': [255, 0, 0, 0],
-					'raster-color-range': [0, 255]
+					'raster-color-range': [0, 255],
+					'raster-opacity': ['interpolate', ['linear'], ['zoom'], 0, .8, 8, 0.8, 8.2, 0]
 				}
 			});
 
@@ -314,7 +311,6 @@
 	// Initialize map on mount
 	onMount(() => {
 		console.log('Mounting map component');
-		mapboxgl.Style.setSourceType(PmTilesSource.SOURCE_TYPE, PmTilesSource);
 
 		mapboxgl.accessToken =
 			'pk.eyJ1IjoiYnJpZGdlc3RvcHJvc3Blcml0eSIsImEiOiJjbTVyaGcweGswYWpzMnhxMjRyZHhtMGh0In0.4YOL9xCKxxQ0u2wZ7AlNMg';
@@ -339,13 +335,14 @@
 			styleLoaded = true;
 
 			// Initialize hex layers first
-
 			await initializeHexLayer();
+			
 			// Initial setup once style is loaded
 			if (impactMapState.dataMapKey) {
 				console.log('Setting up initial visualization with dataKey:', impactMapState.dataMapKey);
 				setTimeout(updateMapVisualization, 100);
 			}
+			
 			map.on('click', 'hex-layer', (e) => {
 				getHexData(e);
 			});
