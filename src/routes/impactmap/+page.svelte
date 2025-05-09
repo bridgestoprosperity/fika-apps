@@ -1,6 +1,6 @@
 <script>
-	import ImpactMap from './ImpactMap.svelte';
-	import ImpactMapControls from './ImpactMapControls.svelte';
+	import ImpactMap from '$lib/components/impactmap/ImpactMap.svelte';
+	import ImpactMapControls from '$lib/components/impactmap/ImpactMapControls.svelte';
 	import SideNav from '$lib/components/SideNav.svelte';
 	import ControlPanel from '$lib/components/ControlPanel.svelte';
 
@@ -10,7 +10,7 @@
 	<title>Impact Map</title>
 	<meta
 		name="description"
-		content="An application to explore waterways data created with Waternet" />
+		content="Explore the impact that trail bridges have on communities across 6 countries in Africa" />
 	<meta property="og:image" content="https://apps.fikamap.com/waternet-magma-5.png" />
 	<meta name="twitter:image" content="https://apps.fikamap.com/waternet-magma-5.png" />
 	<meta property="og:image:width" content="1200" />
