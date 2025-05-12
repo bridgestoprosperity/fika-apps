@@ -24,6 +24,7 @@
 	import bridgeSitesAppImage from '$lib/images/sites-zoom-sat.png';
 	import waternetAppImage from '$lib/images/waternet-magma-4.png';
 	import bridgeDesignToolImage from '$lib/images/bridge-design-tool.jpg';
+	import hexDataExplorerImage from '$lib/images/civ-dash-all.png';
 
 	let isLoaded = $state(false);
 
@@ -109,7 +110,7 @@
 			alt: "Côte d'Ivoire",
 			title: "Côte d'Ivoire Bridge Impact Assessment",
 			description:
-				'Analysis done to determine where bridges are needed to support new schools built in Côte d’Ivoire',
+				"Analysis done to determine where bridges are needed to support new schools built in Côte d'Ivoire",
 			href: 'https://bridgestoprosperity.github.io/civ-map/home/',
 			learn:''
 		},
@@ -127,6 +128,14 @@
 			title: 'Safe Access Index Proof of Concept',
 			description: 'Proof of concept application visualizing the travel time of communities to their nearest major road',
 			href: '/saipoc',
+			learn:''
+		},
+		{
+			image: hexDataExplorerImage,
+			alt: 'Hex Data Explorer',
+			title: 'Hex Data Explorer',
+			description: 'Interactive visualization of hexagonal grid data with population, travel time, and other analytics',
+			href: '/hexmap',
 			learn:''
 		},
 		{
