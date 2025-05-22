@@ -94,7 +94,8 @@
 			title: 'Waterways Data Explorer App',
 			description: 'An application allowing you to explore waterways data created by Waternet',
 			href: '/waternet',
-			learn:'https://medium.com/fika-blog/waternet-ai-powered-global-water-mapping-triples-known-waterways-bc3095783661'
+			learn:
+				'https://medium.com/fika-blog/waternet-ai-powered-global-water-mapping-triples-known-waterways-bc3095783661'
 		},
 		{
 			image: fikaMapAppImage,
@@ -103,7 +104,7 @@
 			description:
 				'Prototype of a map application allowing user to visualize impact of trail bridges on communities around Rwanda',
 			href: 'https://map.fikamap.com/',
-			learn:''
+			learn: ''
 		},
 		{
 			image: civAppImage,
@@ -112,7 +113,7 @@
 			description:
 				"Analysis done to determine where bridges are needed to support new schools built in Côte d'Ivoire",
 			href: 'https://bridgestoprosperity.github.io/civ-map/home/',
-			learn:''
+			learn: ''
 		},
 		{
 			image: bridgeSitesAppImage,
@@ -120,23 +121,25 @@
 			title: 'Bridges Built Worldwide',
 			description: 'Locations of bridges built by Bridges to Prosperity around the world',
 			href: 'https://bridge-locations-map.vercel.app/',
-			learn:'https://bridgestoprosperity.org/our-impact/'
+			learn: 'https://bridgestoprosperity.org/our-impact/'
 		},
 		{
 			image: waternetVectorEthiopia,
 			alt: 'map of ethiopia',
 			title: 'Safe Access Index Proof of Concept',
-			description: 'Proof of concept application visualizing the travel time of communities to their nearest major road',
+			description:
+				'Proof of concept application visualizing the travel time of communities to their nearest major road',
 			href: '/saipoc',
-			learn:''
+			learn: ''
 		},
 		{
 			image: hexDataExplorerImage,
 			alt: 'Hex Data Explorer',
 			title: 'Hex Data Explorer',
-			description: 'Interactive visualization of hexagonal grid data with population, travel time, and other analytics',
+			description:
+				'Interactive visualization of hexagonal grid data with population, travel time, and other analytics',
 			href: '/hexmap',
-			learn:''
+			learn: ''
 		},
 		{
 			image: bridgeDesignToolImage,
@@ -144,7 +147,7 @@
 			title: 'Bridge Design Tools',
 			description: 'A suite of tools designed to support the building and design of trailbridges',
 			href: 'https://bridgedesignv3.streamlit.app/Updated_Bridge_Design_Helper',
-			learn:'',
+			learn: ''
 		}
 	];
 

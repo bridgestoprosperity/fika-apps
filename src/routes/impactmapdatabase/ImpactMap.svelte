@@ -59,33 +59,35 @@
 		try {
 			// Set loading state
 			impactMapDatabaseState.loadingData = true;
-			
-			console.log("Loading hex data from API...");
-			
+
+			console.log('Loading hex data from API...');
+
 			// Query the database for hex data
-			const response = await fetch(`/api/hexdata?column=${impactMapDatabaseState.hexDataViz}&limit=1000000`);
-			
+			const response = await fetch(
+				`/api/hexdata?column=${impactMapDatabaseState.hexDataViz}&limit=1000000`
+			);
+
 			if (!response.ok) {
 				throw new Error(`Failed to fetch hex data: ${response.status} ${response.statusText}`);
 			}
-			
+
 			const data = await response.json();
-			console.log("Received data from API, length:", data.length);
-			
+			console.log('Received data from API, length:', data.length);
+
 			// Check if we received data with geometry
 			if (!data || data.length === 0) {
 				throw new Error('No hex data returned from API');
 			}
-			
+
 			// Debug the first item to see what we have
-			console.log("Sample hex data item:", data[0]);
-			
+			console.log('Sample hex data item:', data[0]);
+
 			// Check for geojson field
-			if (!data.some(hex => hex.geojson)) {
+			if (!data.some((hex) => hex.geojson)) {
 				console.warn('Hex data missing GeoJSON geometry, using sample shapes instead');
-				
+
 				// Create a modified dataset with generated shapes based on centroids
-				hexData = data.map(hex => ({
+				hexData = data.map((hex) => ({
 					...hex,
 					// Add generated polygon coordinates based on centroids
 					generatedShape: true
@@ -95,13 +97,13 @@
 				hexData = data;
 			}
 			console.log(`Processed ${hexData.length} hex items`);
-			
+
 			// If map is loaded, update the hex layer
 			if (map && mapLoaded) {
-				console.log("Updating hex layer...");
+				console.log('Updating hex layer...');
 				updateHexLayer();
 			} else {
-				console.log("Map not yet loaded, will update layer later");
+				console.log('Map not yet loaded, will update layer later');
 			}
 		} catch (error) {
 			console.error(`Error loading hex data: ${error.message}`);
@@ -191,76 +193,78 @@
 	function hexDataToGeoJSON(data) {
 		return {
 			type: 'FeatureCollection',
-			features: data.map(hex => {
-				try {
-					// Extract basic properties
-					const properties = {
-						id: hex.id || `hex-${Math.random().toString(36).substring(2, 10)}`
-					};
-					
-					// Add any other available properties
-					if (hex.population !== undefined) {
-						properties.population = hex.population;
-					}
-					
-					if (hex.travel_time !== undefined) {
-						properties.travel_time = hex.travel_time;
-					}
-					
-					// If we have real GeoJSON from the database
-					if (hex.geojson) {
-						try {
-							// Try to parse the GeoJSON
-							const geometry = JSON.parse(hex.geojson);
-							
-							return {
-								type: 'Feature',
-								properties: properties,
-								geometry: geometry
-							};
-						} catch (e) {
-							console.warn("Failed to parse GeoJSON:", e);
+			features: data
+				.map((hex) => {
+					try {
+						// Extract basic properties
+						const properties = {
+							id: hex.id || `hex-${Math.random().toString(36).substring(2, 10)}`
+						};
+
+						// Add any other available properties
+						if (hex.population !== undefined) {
+							properties.population = hex.population;
 						}
-					}
-					
-					// If we have a generated shape flag or need to fall back
-					if (hex.generatedShape || !hex.geojson) {
-						if (hex.longitude && hex.latitude) {
-							// Create a simple hexagon shape around the center
-							const size = 0.015;
-							const center = [parseFloat(hex.longitude), parseFloat(hex.latitude)];
-							
-							// Create a regular hexagon
-							const coordinates = [];
-							for (let i = 0; i < 6; i++) {
-								const angle = (Math.PI / 3) * i;
-								// Adjust longitude more to account for the earth's curvature
-								const x = center[0] + size * 1.5 * Math.cos(angle);
-								const y = center[1] + size * Math.sin(angle);
-								coordinates.push([x, y]);
+
+						if (hex.travel_time !== undefined) {
+							properties.travel_time = hex.travel_time;
+						}
+
+						// If we have real GeoJSON from the database
+						if (hex.geojson) {
+							try {
+								// Try to parse the GeoJSON
+								const geometry = JSON.parse(hex.geojson);
+
+								return {
+									type: 'Feature',
+									properties: properties,
+									geometry: geometry
+								};
+							} catch (e) {
+								console.warn('Failed to parse GeoJSON:', e);
 							}
-							
-							// Close the polygon by repeating the first point
-							coordinates.push([...coordinates[0]]);
-							
-							return {
-								type: 'Feature',
-								properties: properties,
-								geometry: {
-									type: 'Polygon',
-									coordinates: [coordinates]
-								}
-							};
 						}
+
+						// If we have a generated shape flag or need to fall back
+						if (hex.generatedShape || !hex.geojson) {
+							if (hex.longitude && hex.latitude) {
+								// Create a simple hexagon shape around the center
+								const size = 0.015;
+								const center = [parseFloat(hex.longitude), parseFloat(hex.latitude)];
+
+								// Create a regular hexagon
+								const coordinates = [];
+								for (let i = 0; i < 6; i++) {
+									const angle = (Math.PI / 3) * i;
+									// Adjust longitude more to account for the earth's curvature
+									const x = center[0] + size * 1.5 * Math.cos(angle);
+									const y = center[1] + size * Math.sin(angle);
+									coordinates.push([x, y]);
+								}
+
+								// Close the polygon by repeating the first point
+								coordinates.push([...coordinates[0]]);
+
+								return {
+									type: 'Feature',
+									properties: properties,
+									geometry: {
+										type: 'Polygon',
+										coordinates: [coordinates]
+									}
+								};
+							}
+						}
+
+						// Skip this item if we couldn't create a valid feature
+						return null;
+					} catch (e) {
+						console.error('Error creating GeoJSON for hex:', e);
+						return null;
 					}
-					
-					// Skip this item if we couldn't create a valid feature
-					return null;
-				} catch (e) {
-					console.error("Error creating GeoJSON for hex:", e);
-					return null;
-				}
-			}).filter(Boolean) // Remove any features that couldn't be created
+				})
+				.filter(Boolean) // Remove any features that couldn't be created
 		};
 	}
 
@@ -270,21 +274,21 @@
 
 		// Create GeoJSON from hex data
 		const geojsonData = hexDataToGeoJSON(hexData);
-		
-		console.log("Hex features count:", geojsonData.features.length);
+
+		console.log('Hex features count:', geojsonData.features.length);
 
 		// Add or update the hex data source
 		if (map.getSource('hex-data')) {
-			console.log("Updating existing hex layer source");
+			console.log('Updating existing hex layer source');
 			map.getSource('hex-data').setData(geojsonData);
-			
+
 			// Set visibility based on showHexLayer
 			map.setLayoutProperty(
 				'hex-fill',
 				'visibility',
 				impactMapDatabaseState.showHexLayer ? 'visible' : 'none'
 			);
-			
+
 			map.setLayoutProperty(
 				'hex-outline',
 				'visibility',
@@ -292,7 +296,7 @@
 			);
 		} else {
 			// Add source
-			console.log("Creating new hex layer source and layers");
+			console.log('Creating new hex layer source and layers');
 			map.addSource('hex-data', {
 				type: 'geojson',
 				data: geojsonData
@@ -307,11 +311,11 @@
 					visibility: impactMapDatabaseState.showHexLayer ? 'visible' : 'none'
 				},
 				paint: {
-					'fill-color': '#ff3388',  // Changed to more visible magenta
-					'fill-opacity': 0.5      // Increased opacity
+					'fill-color': '#ff3388', // Changed to more visible magenta
+					'fill-opacity': 0.5 // Increased opacity
 				}
 			});
-			
+
 			// Add outline layer to highlight hex boundaries
 			map.addLayer({
 				id: 'hex-outline',
@@ -321,12 +325,12 @@
 					visibility: impactMapDatabaseState.showHexLayer ? 'visible' : 'none'
 				},
 				paint: {
-					'line-color': '#ff3388',  // Changed to more visible magenta
-					'line-width': 2,          // Thicker lines
-					'line-opacity': 1         // Full opacity
+					'line-color': '#ff3388', // Changed to more visible magenta
+					'line-width': 2, // Thicker lines
+					'line-opacity': 1 // Full opacity
 				}
 			});
-			
+
 			// Add click interaction for debugging
 			map.on('click', 'hex-fill', (e) => {
 				if (e.features.length > 0) {
@@ -363,7 +367,9 @@
 		// Filter by bridge type if not "all bridges"
 		if (impactMapDatabaseState.selectedLayer !== 'bridges') {
 			filteredData = filteredData.filter((item) =>
-				(item.bridge_type || '').toLowerCase().includes(impactMapDatabaseState.selectedLayer.toLowerCase())
+				(item.bridge_type || '')
+					.toLowerCase()
+					.includes(impactMapDatabaseState.selectedLayer.toLowerCase())
 			);
 		}
 
@@ -516,7 +522,7 @@
 				if (e.features.length > 0) {
 					impactMapDatabaseState.highlightedFeature = e.features[0].properties;
 					// console.log map style sheet
-					console.log("Map style sheet:", map.getStyle());
+					console.log('Map style sheet:', map.getStyle());
 				}
 			});
 
@@ -561,7 +567,11 @@
 
 	// Effect to update data when filter changes
 	$effect(() => {
-		const _ = [impactMapDatabaseState.filterByYear, impactMapDatabaseState.yearRange, impactMapDatabaseState.selectedLayer];
+		const _ = [
+			impactMapDatabaseState.filterByYear,
+			impactMapDatabaseState.yearRange,
+			impactMapDatabaseState.selectedLayer
+		];
 
 		if (map && mapLoaded) {
 			updateMapData();
@@ -570,14 +580,14 @@
 
 	// Effect to toggle hex layer visibility
 	$effect(() => {
-		console.log("Hex layer visibility changed:", impactMapDatabaseState.showHexLayer);
+		console.log('Hex layer visibility changed:', impactMapDatabaseState.showHexLayer);
 		if (map && mapLoaded) {
 			try {
 				if (map.getLayer('hex-fill')) {
 					const hexVisibility = impactMapDatabaseState.showHexLayer ? 'visible' : 'none';
-					console.log("Setting hex-fill visibility to:", hexVisibility);
+					console.log('Setting hex-fill visibility to:', hexVisibility);
 					map.setLayoutProperty('hex-fill', 'visibility', hexVisibility);
-					
+
 					if (map.getLayer('hex-outline')) {
 						map.setLayoutProperty('hex-outline', 'visibility', hexVisibility);
 					}
@@ -585,22 +595,27 @@
 					console.log("Hex fill layer doesn't exist yet");
 					// If hexData is loaded but layer doesn't exist, try to create it
 					if (hexData.length > 0) {
-						console.log("Have hex data but no layer - creating layer now");
+						console.log('Have hex data but no layer - creating layer now');
 						updateHexLayer();
 					} else if (impactMapDatabaseState.showHexLayer) {
-						console.log("No hex data yet - trying to load it now");
+						console.log('No hex data yet - trying to load it now');
 						loadHexData();
 					}
 				}
 			} catch (e) {
-				console.error("Error toggling hex layer visibility:", e);
+				console.error('Error toggling hex layer visibility:', e);
 			}
 		}
 	});
 
 	// Effect to reload hex data when visualization changes
 	$effect(() => {
-		if (impactMapDatabaseState.showHexLayer && impactMapDatabaseState.hexDataViz && map && mapLoaded) {
+		if (
+			impactMapDatabaseState.showHexLayer &&
+			impactMapDatabaseState.hexDataViz &&
+			map &&
+			mapLoaded
+		) {
 			loadHexData();
 		}
 	});
@@ -644,7 +659,7 @@
 		map.on('load', () => {
 			// Set mapLoaded flag
 			mapLoaded = true;
-			console.log("Map loaded and ready");
+			console.log('Map loaded and ready');
 
 			// Add navigation controls
 			map.addControl(new mapboxgl.NavigationControl(), 'top-right');
@@ -667,10 +682,10 @@
 
 			// Load bridge data from PostgreSQL
 			loadPostgresData();
-			
+
 			// Load hex data after a short delay to ensure map is fully initialized
 			setTimeout(() => {
-				console.log("Loading hex data after map initialization");
+				console.log('Loading hex data after map initialization');
 				loadHexData();
 			}, 1000);
 		});

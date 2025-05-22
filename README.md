@@ -22,6 +22,7 @@ A suite of interactive mapping applications for Bridges to Prosperity (B2P).
 ## Database Setup
 
 The Impact Map requires a PostgreSQL database connection. The database should have a `bridges` table with the following fields:
+
 - `id`: Bridge ID
 - `name`: Bridge name
 - `bridge_type`: Type of bridge (e.g., suspended, trail bridge)
@@ -56,4 +57,5 @@ Preview the production build with `npm run preview`.
 ## Deployment
 
 The application is configured for Vercel deployment. Add the following environment variables in Vercel:
+
 - `DATABASE_URL`: PostgreSQL connection string

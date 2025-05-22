@@ -22,7 +22,7 @@
 		{
 			icon: CircleInfoSolid,
 			label: 'Info',
-			action: () => {} 
+			action: () => {}
 		}
 	];
 
