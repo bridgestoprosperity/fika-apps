@@ -7,9 +7,7 @@
 
 <svelte:head>
 	<title>Hex Data Explorer</title>
-	<meta
-		name="description"
-		content="An application to explore hexagonal grid data and analytics" />
+	<meta name="description" content="An application to explore hexagonal grid data and analytics" />
 	<meta property="og:image" content="https://apps.fikamap.com/waternet-magma-5.png" />
 	<meta name="twitter:image" content="https://apps.fikamap.com/waternet-magma-5.png" />
 	<meta property="og:image:width" content="1200" />

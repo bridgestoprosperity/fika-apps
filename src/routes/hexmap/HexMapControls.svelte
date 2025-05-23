@@ -57,7 +57,7 @@
 
 	<!-- Reverse Palette Toggle -->
 	<div class="form-control mt-0">
-		<label class="label cursor-pointer mt-0 pt-0">
+		<label class="label mt-0 cursor-pointer pt-0">
 			<span class="font-normal">Reverse</span>
 			<input
 				type="checkbox"
