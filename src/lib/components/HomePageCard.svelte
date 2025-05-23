@@ -8,7 +8,7 @@
 	}
 </script>
 
-<div class="perspective-[1000px] mx-auto w-full max-w-[448px] back-color">
+<div class="perspective-[1000px] back-color mx-auto w-full max-w-[448px]">
 	<div
 		class="group card w-full bg-base-100 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl">
 		<figure class="relative overflow-hidden">
@@ -21,15 +21,14 @@
 			</div>
 		</figure>
 
-		<div class="card-body rounded-b-lg bg-base-100/80 backdrop-blur-sm back-color">
+		<div class="back-color card-body rounded-b-lg bg-base-100/80 backdrop-blur-sm">
 			<h2
 				class="card-title text-xl font-bold transition-colors duration-300 group-hover:text-primary">
 				{title}
 			</h2>
 			<p class="text-base-content/80">{description}</p>
 
-			<div
-				class="card-actions mt-4 flex justify-between gap-2 buttons-container">
+			<div class="buttons-container card-actions mt-4 flex justify-between gap-2">
 				<button class="btn btn-primary flex-1" onclick={() => navigate(href)}>Explore</button>
 				<button class="btn btn-accent flex-1" onclick={() => navigate(learn, '_blank')}
 					>Learn More</button>
@@ -43,19 +42,19 @@
 		background-color: #fcfaf2;
 		/* background-image: url('https://www.transparenttextures.com/patterns/bedge-grunge.png'); */
 	}
-  
+
 	/* Desktop: Buttons hidden by default, visible on hover */
 	@media (min-width: 768px) {
 		.buttons-container {
 			opacity: 0;
 			transition: opacity 300ms;
 		}
-		
+
 		:global(.group:hover) .buttons-container {
 			opacity: 1;
 		}
 	}
-	
+
 	/* Mobile: Buttons always visible */
 	@media (max-width: 767px) {
 		.buttons-container {

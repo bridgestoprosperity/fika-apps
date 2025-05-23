@@ -1,7 +1,5 @@
 <script>
-
-import SideNav from '$lib/components/SideNav.svelte';
-
+	import SideNav from '$lib/components/SideNav.svelte';
 </script>
 
 <SideNav />

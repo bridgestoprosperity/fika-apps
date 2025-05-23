@@ -3,7 +3,6 @@
 	import ImpactMapControls from '$lib/components/impactmap/ImpactMapControls.svelte';
 	import SideNav from '$lib/components/SideNav.svelte';
 	import ControlPanel from '$lib/components/ControlPanel.svelte';
-
 </script>
 
 <svelte:head>

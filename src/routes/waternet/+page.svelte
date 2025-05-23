@@ -1,6 +1,6 @@
 <script>
 	import WaternetMap from './WaternetMap.svelte';
-    import ControlPanel from '$lib/components/ControlPanel.svelte';
+	import ControlPanel from '$lib/components/ControlPanel.svelte';
 	import WaternetMapControls from './WaternetMapControls.svelte';
 	import SideNav from '$lib/components/SideNav.svelte';
 </script>

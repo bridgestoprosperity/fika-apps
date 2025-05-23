@@ -1,6 +1,6 @@
 import typography from '@tailwindcss/typography';
 import { MoonRegular } from 'svelte-awesome-icons';
-const tailwind_theme = require('tailwindcss/defaultTheme')
+const tailwind_theme = require('tailwindcss/defaultTheme');
 
 /** @type {import('tailwindcss').Config} */
 export default {
@@ -11,7 +11,7 @@ export default {
 			fontFamily: {
 				sans: ['Kumbh Sans', ...tailwind_theme.fontFamily.sans],
 				mono: ['Source Code', ...tailwind_theme.fontFamily.mono]
-			  }
+			}
 		}
 	},
 

@@ -757,7 +757,6 @@ export const impactDataMap = {
 			'1_percentile': -0.832,
 			style_stops: [-0.778, -0.389, 0, 0.166, 0.332]
 			// raster_style_stops: [40, 75, 110, 125, 140]
-
 		},
 		meta_info: {
 			category: 'Demographics',

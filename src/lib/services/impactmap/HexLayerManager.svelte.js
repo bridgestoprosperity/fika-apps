@@ -5,6 +5,8 @@ export class HexLayerManager {
 	constructor(map) {
 		this.map = map;
 		this.colorUtils = new ColorUtils();
+		this.hoverTimeout = null;
+		this.currentHoveredId = null;
 	}
 
 	async initialize() {
@@ -30,21 +32,37 @@ export class HexLayerManager {
 				maxzoom: 22
 			});
 
-			// Add hex8 fill layer (for zoom 7.5+)
+			// Add hex8 fill layer (for zoom 7.5+) behind waterway layer
 			this.map.addLayer({
 				id: 'hex-layer',
 				type: 'fill',
 				source: 'hex-source',
-				'source-layer': 'hex8-impact-data-no-pop', // Make sure this matches your tileset's source layer name
+				'source-layer': 'hex8-demographic', // Default to demographic source layer
 				minzoom: 0,
 				maxzoom: 22,
+				filter: ['!=', ['get', 'population'], 0], // Default filter, will be updated when layer updates
 				paint: {
 					'fill-color': hexColorExpression,
 					'fill-opacity': ['interpolate', ['linear'], ['zoom'], 8, 0, 8.2, 0.8]
 				}
-			});
+			}, 'waterway');
 
-			console.log('Hex layers initialized successfully');
+			// Add hex hover outline layer - initially hidden
+			this.map.addLayer({
+				id: 'hex-hover-layer',
+				type: 'line',
+				source: 'hex-source',
+				'source-layer': 'hex8-demographic',
+				minzoom: 0,
+				maxzoom: 22,
+				paint: {
+					'line-color': '#249EA0',
+					'line-width': 3,
+					'line-opacity': 1
+				},
+				filter: ['==', ['id'], null] // Initially hide all hexes
+			}, 'waterway');
+
 		} catch (error) {
 			console.error('Error initializing hex layers:', error);
 		}
@@ -56,57 +74,71 @@ export class HexLayerManager {
 			return;
 		}
 
-		// Define the tilesets and their corresponding data keys
+		// Define the tilesets and their corresponding data keys with unique source layers
 		const tilesets = {
-			'mapbox://bridgestoprosperity.hex8-demographic': [
-				'population',
-				'births',
-				'pregnancies',
-				'rwi',
-				'underweight',
-				'female_educational_attainment_mean',
-				'male_educational_attainment_mean'
-			],
-			'mapbox://bridgestoprosperity.hex8-travel-time': [
-				// Fixed the URL
-				'travel_time_no_sites_all_health',
-				'travel_time_health_posts',
-				'travel_time_major_roads',
-				'travel_time_no_sites_secondary_schools',
-				'travel_time_secondary_schools',
-				'travel_time_no_sites_health_centers',
-				'travel_time_no_sites_major_roads',
-				'travel_time_health_centers',
-				'travel_time_semi_dense_urban',
-				'travel_time_all_health',
-				'travel_time_no_sites_primary_schools',
-				'travel_time_no_sites_semi_dense_urban',
-				'travel_time_no_sites_all_education',
-				'travel_time_major_hospitals',
-				'travel_time_no_sites_major_hospitals',
-				'travel_time_primary_schools',
-				'travel_time_no_sites_health_posts',
-				'travel_time_all_education'
-			],
-			'mapbox://bridgestoprosperity.hex8-time-delta': [
-				// Fixed the URL
-				'time_delta_no_sites_all_education',
-				'time_delta_no_sites_semi_dense_urban',
-				'time_delta_no_sites_secondary_schools',
-				'time_delta_no_sites_all_health',
-				'time_delta_no_sites_health_centers',
-				'time_delta_no_sites_major_roads',
-				'time_delta_no_sites_major_hospitals',
-				'time_delta_no_sites_health_posts',
-				'time_delta_no_sites_primary_schools'
-			]
+			'mapbox://bridgestoprosperity.demographic_hex_tiles_may2025': {
+				sourceLayer: 'hex8-demographic',
+				dataKeys: [
+					'population',
+					'births',
+					'pregnancies',
+					'rwi',
+					'underweight',
+					'female_educational_attainment_mean',
+					'male_educational_attainment_mean'
+				]
+			},
+			'mapbox://bridgestoprosperity.travel_time_hex_tiles_may2025': {
+				sourceLayer: 'hex8-travel-time',
+				dataKeys: [
+					'travel_time_health_posts',
+					'travel_time_major_roads',
+					'travel_time_secondary_schools',
+					'travel_time_health_centers',
+					'travel_time_semi_dense_urban',
+					'travel_time_all_health',
+					'travel_time_major_hospitals',
+					'travel_time_primary_schools',
+					'travel_time_all_education'
+				]
+			},
+			'mapbox://bridgestoprosperity.tt_no_bridges_hex_tiles_may2025': {
+				sourceLayer: 'hex8-travel-time-no-bridges',
+				dataKeys: [
+					'travel_time_no_sites_all_health',
+					'travel_time_no_sites_secondary_schools',
+					'travel_time_no_sites_health_centers',
+					'travel_time_no_sites_major_roads',
+					'travel_time_no_sites_primary_schools',
+					'travel_time_no_sites_semi_dense_urban',
+					'travel_time_no_sites_all_education',
+					'travel_time_no_sites_major_hospitals',
+					'travel_time_no_sites_health_posts'
+				]
+			},
+			'mapbox://bridgestoprosperity.time_delta_hex_tiles_may2025': {
+				sourceLayer: 'hex8-time-delta',
+				dataKeys: [
+					'time_delta_no_sites_all_education',
+					'time_delta_no_sites_semi_dense_urban',
+					'time_delta_no_sites_secondary_schools',
+					'time_delta_no_sites_all_health',
+					'time_delta_no_sites_health_centers',
+					'time_delta_no_sites_major_roads',
+					'time_delta_no_sites_major_hospitals',
+					'time_delta_no_sites_health_posts',
+					'time_delta_no_sites_primary_schools'
+				]
+			}
 		};
 
 		// Find which tileset contains this dataKey
 		let hexSource = null;
-		for (const [url, dataKeys] of Object.entries(tilesets)) {
-			if (dataKeys.includes(dataKey)) {
+		let sourceLayer = null;
+		for (const [url, tilesetInfo] of Object.entries(tilesets)) {
+			if (tilesetInfo.dataKeys.includes(dataKey)) {
 				hexSource = url;
+				sourceLayer = tilesetInfo.sourceLayer;
 				break;
 			}
 		}
@@ -134,21 +166,6 @@ export class HexLayerManager {
 				maxzoom: 22
 			});
 
-			console.log('Added new source with URL:', hexSource);
-
-			// Determine the correct source-layer name based on the tileset
-			let sourceLayer = 'hex8-impact-data-no-pop'; // default
-
-			// You may need to adjust these based on your actual tileset layer names
-			// if (hexSource.includes('demographic')) {
-			// 	sourceLayer = 'hex8-demographic'; // or whatever the actual layer name is
-			// } else if (hexSource.includes('travel-time')) {
-			// 	sourceLayer = 'hex8-travel-time'; // or whatever the actual layer name is
-			// } else if (hexSource.includes('time-delta')) {
-			// 	sourceLayer = 'hex8-time-delta'; // or whatever the actual layer name is
-			// }
-
-			// Add the layer
 			this.map.addLayer({
 				id: 'hex-layer',
 				type: 'fill',
@@ -156,15 +173,31 @@ export class HexLayerManager {
 				'source-layer': sourceLayer,
 				minzoom: 0,
 				maxzoom: 22,
+				// filter for any 0 values
+				filter: ['!=', ['get', dataKey], 0],
 				paint: {
 					'fill-color': this.colorUtils.getHexColorExpression(dataKey),
 					'fill-opacity': ['interpolate', ['linear'], ['zoom'], 8, 0, 8.2, 0.8]
 				}
-			});
+			}, 'waterway');
 
-			console.log(`Added hex layer with source-layer: ${sourceLayer}`);
+			// Add hex hover outline layer for new tileset
+			this.map.addLayer({
+				id: 'hex-hover-layer',
+				type: 'line',
+				source: 'hex-source',
+				'source-layer': sourceLayer,
+				minzoom: 0,
+				maxzoom: 22,
+				paint: {
+					'line-color': '#A4EED0',
+					'line-width': 3,
+					'line-opacity': 1
+				},
+				filter: ['==', ['id'], null] // Initially hide all hexes
+			}, 'waterway');
+
 		} else {
-			console.log('Updating existing hex layer color');
 			// Just update the paint property
 			this.map.setPaintProperty(
 				'hex-layer',
@@ -175,14 +208,66 @@ export class HexLayerManager {
 	}
 
 	cleanupExistingLayer() {
+		if (this.map.getLayer('hex-hover-layer')) {
+			this.map.removeLayer('hex-hover-layer');
+		}
+		
 		if (this.map.getLayer('hex-layer')) {
-			console.log('Removing existing raster layer');
 			this.map.removeLayer('hex-layer');
 		}
 
 		if (this.map.getSource('hex-source')) {
-			console.log('Removing existing raster source');
 			this.map.removeSource('hex-source');
+		}
+	}
+
+	handleHexHover(e) {
+		// Clear any existing timeout
+		if (this.hoverTimeout) {
+			clearTimeout(this.hoverTimeout);
+			this.hoverTimeout = null;
+		}
+
+		// Check if there are any bridge features at this location
+		const bridgeFeatures = this.map.queryRenderedFeatures(e.point, {
+			layers: ['bridge-layer', 'bridge-hover-layer']
+		});
+
+		// If bridges are being hovered, don't show hex hover
+		if (bridgeFeatures.length > 0) {
+			// Clear current hover if bridges take precedence
+			this.currentHoveredId = null;
+			this.map.setFilter('hex-hover-layer', ['==', ['id'], null]);
+			return;
+		}
+
+		const features = this.map.queryRenderedFeatures(e.point, {
+			layers: ['hex-layer', 'hex-hover-layer']
+		});
+
+		if (features.length > 0) {
+			// Change cursor immediately
+			this.map.getCanvas().style.cursor = 'pointer';
+			
+			const feature = features[0];
+			const featureId = feature.id;
+			
+			// Only update if it's a different hex
+			if (featureId !== this.currentHoveredId) {
+				// Debounce the hover effect - wait 50ms after mouse stops moving
+				this.hoverTimeout = setTimeout(() => {
+					this.currentHoveredId = featureId;
+					// Show outline for the hovered hex
+					this.map.setFilter('hex-hover-layer', ['==', ['id'], featureId]);
+				}, 50);
+			}
+		} else {
+			// Reset cursor immediately
+			this.map.getCanvas().style.cursor = '';
+			
+			// Clear current hover immediately when leaving hex area
+			this.currentHoveredId = null;
+			this.map.setFilter('hex-hover-layer', ['==', ['id'], null]);
 		}
 	}
 
@@ -198,6 +283,5 @@ export class HexLayerManager {
 
 		// Log the paint values
 		const paintValues = this.map.getPaintProperty('hex-layer', 'fill-color');
-		console.log('Hex layer paint values:', paintValues);
 	}
 }

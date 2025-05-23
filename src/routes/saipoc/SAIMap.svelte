@@ -14,7 +14,7 @@
 	let currentVizProps = $derived.by(() => {
 		const selectedViz = saiMapState.selectedViz;
 		let vizName = selectedViz;
-		
+
 		// Map visualization columns to their base property sets
 		if (selectedViz.startsWith('travel_time_no_sites_')) {
 			vizName = 'travel_time_no_sites';
@@ -23,7 +23,7 @@
 		} else if (selectedViz.startsWith('time_delta_no_sites_')) {
 			vizName = 'time_delta_no_sites';
 		}
-		
+
 		// Return the visualization properties or default to population if not found
 		return vizOptions[vizName] || vizOptions['population'];
 	});
@@ -42,10 +42,16 @@
 
 		try {
 			// Add hex6 source for zoom levels 0-6
-			const hex6Url = 'https://public-b2p-geodata.s3.us-east-1.amazonaws.com/general-pmtiles/all_countries_merged_hex6.pmtiles';
+			const hex6Url =
+				'https://public-b2p-geodata.s3.us-east-1.amazonaws.com/general-pmtiles/all_countries_merged_hex6.pmtiles';
 			const hex6Header = await PmTilesSource.getHeader(hex6Url);
-			const hex6Bounds = [hex6Header.minLon, hex6Header.minLat, hex6Header.maxLon, hex6Header.maxLat];
-			
+			const hex6Bounds = [
+				hex6Header.minLon,
+				hex6Header.minLat,
+				hex6Header.maxLon,
+				hex6Header.maxLat
+			];
+
 			map.addSource('sai-hex6', {
 				type: PmTilesSource.SOURCE_TYPE,
 				url: hex6Url,
@@ -53,12 +59,18 @@
 				maxzoom: hex6Header.maxZoom,
 				bounds: hex6Bounds
 			});
-			
+
 			// Add hex8 source for zoom levels 7-22
-			const hex8Url = 'https://public-b2p-geodata.s3.us-east-1.amazonaws.com/general-pmtiles/all_countries_merged_hex8.pmtiles';
+			const hex8Url =
+				'https://public-b2p-geodata.s3.us-east-1.amazonaws.com/general-pmtiles/all_countries_merged_hex8.pmtiles';
 			const hex8Header = await PmTilesSource.getHeader(hex8Url);
-			const hex8Bounds = [hex8Header.minLon, hex8Header.minLat, hex8Header.maxLon, hex8Header.maxLat];
-			
+			const hex8Bounds = [
+				hex8Header.minLon,
+				hex8Header.minLat,
+				hex8Header.maxLon,
+				hex8Header.maxLat
+			];
+
 			map.addSource('sai-hex8', {
 				type: PmTilesSource.SOURCE_TYPE,
 				url: hex8Url,
@@ -94,7 +106,7 @@
 					'fill-opacity': 0.7
 				}
 			});
-			
+
 			// Add hex8 fill layer (for zoom 7-22)
 			map.addLayer({
 				id: 'sai-fill-hex8',
@@ -130,7 +142,8 @@
 				source: 'sai-hex6',
 				'source-layer': 'hex6-impact-data',
 				maxzoom: 7,
-				filter: ['all', 
+				filter: [
+					'all',
 					['has', saiMapState.selectedViz],
 					['==', ['coalesce', ['to-number', ['get', saiMapState.selectedViz]], 0], 0]
 				],
@@ -141,7 +154,7 @@
 					'line-opacity': ['interpolate', ['linear'], ['zoom'], 5, 0, 6, 1]
 				}
 			});
-			
+
 			// Add line layer for zero values (hex8)
 			map.addLayer({
 				id: 'sai-line-hex8',
@@ -149,7 +162,8 @@
 				source: 'sai-hex8',
 				'source-layer': 'hex8-impact-data',
 				minzoom: 7,
-				filter: ['all', 
+				filter: [
+					'all',
 					['has', saiMapState.selectedViz],
 					['==', ['coalesce', ['to-number', ['get', saiMapState.selectedViz]], 0], 0]
 				],
@@ -206,7 +220,6 @@
 			map.on('mouseleave', 'sai-fill-hex8', () => {
 				map.getCanvas().style.cursor = '';
 			});
-
 		} catch (error) {
 			console.error('Error in initializeLayers:', error);
 		}
@@ -215,7 +228,7 @@
 	// Effect to update the map style when visualization or palette changes
 	$effect(() => {
 		const selectedViz = saiMapState.selectedViz;
-		
+
 		// Handle property names for visualization options
 		// For travel_time_* columns, use travel_time properties
 		// For travel_time_no_sites_* columns, use travel_time_no_sites properties
@@ -228,7 +241,7 @@
 		} else if (selectedViz.startsWith('time_delta_no_sites_')) {
 			vizName = 'time_delta_no_sites';
 		}
-		
+
 		// Fall back to population if the viz isn't defined
 		const vizProps = vizOptions[vizName] || vizOptions['population'];
 		saiMapState.selectedPalette = vizProps.defaultPalette;
@@ -239,15 +252,17 @@
 				// Update filters for both hex6 and hex8 layers
 				if (map.getLayer('sai-fill-hex6')) {
 					map.setFilter('sai-fill-hex6', ['has', selectedViz]);
-					map.setFilter('sai-line-hex6', ['all', 
+					map.setFilter('sai-line-hex6', [
+						'all',
 						['has', selectedViz],
 						['==', ['coalesce', ['to-number', ['get', selectedViz]], 0], 0]
 					]);
 				}
-				
+
 				if (map.getLayer('sai-fill-hex8')) {
 					map.setFilter('sai-fill-hex8', ['has', selectedViz]);
-					map.setFilter('sai-line-hex8', ['all', 
+					map.setFilter('sai-line-hex8', [
+						'all',
 						['has', selectedViz],
 						['==', ['coalesce', ['to-number', ['get', selectedViz]], 0], 0]
 					]);
@@ -289,7 +304,7 @@
 			vizName = 'time_delta_no_sites';
 		}
 		const vizProps = vizOptions[vizName] || vizOptions['population'];
-		
+
 		// Update hex6 layer if it exists
 		if (map.getLayer('sai-fill-hex6')) {
 			map.setPaintProperty('sai-fill-hex6', 'fill-color', [
@@ -309,7 +324,7 @@
 				currentPalette[4]
 			]);
 		}
-		
+
 		// Update hex8 layer if it exists
 		if (map.getLayer('sai-fill-hex8')) {
 			map.setPaintProperty('sai-fill-hex8', 'fill-color', [
@@ -362,5 +377,5 @@
 </script>
 
 <div class="relative h-full w-full">
-	<div bind:this={mapContainer} class="absolute inset-0 h-full w-full" ></div>
+	<div bind:this={mapContainer} class="absolute inset-0 h-full w-full"></div>
 </div>

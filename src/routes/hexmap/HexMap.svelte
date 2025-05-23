@@ -35,7 +35,7 @@
 	async function loadHexData() {
 		try {
 			hexData = await fetchHexData();
-			
+
 			if (hexData.length > 0 && map) {
 				addHexLayer();
 			}
@@ -56,7 +56,7 @@
 		// Create GeoJSON from hex data
 		const geojson = {
 			type: 'FeatureCollection',
-			features: hexData.map(hex => ({
+			features: hexData.map((hex) => ({
 				type: 'Feature',
 				properties: {
 					id: hex.id,
@@ -129,10 +129,18 @@
 		// This is a simplified implementation - in a real app, you would use a proper WKB parser
 		// For now, we'll create a mock polygon since we don't have access to a WKB parser
 		// In a real implementation, you would use a library like wkx or implement proper WKB parsing
-		
+
 		// For demo purposes, create a simple polygon centered at the feature's coordinates
 		// In production, replace this with actual WKB parsing
-		return [[[0, 0], [0, 1], [1, 1], [1, 0], [0, 0]]];
+		return [
+			[
+				[0, 0],
+				[0, 1],
+				[1, 1],
+				[1, 0],
+				[0, 0]
+			]
+		];
 	}
 
 	// Update the fill style when visualization or palette changes
@@ -159,11 +167,11 @@
 	// Effect to update the map when the selected visualization changes
 	$effect(() => {
 		const selectedViz = hexMapState.selectedViz;
-		
+
 		// Set default palette based on the selected visualization
 		hexMapState.selectedPalette = vizOptions[selectedViz].defaultPalette;
 		hexMapState.reversePalette = vizOptions[selectedViz].reversePalette;
-		
+
 		if (map && map.loaded()) {
 			loadHexData();
 		}

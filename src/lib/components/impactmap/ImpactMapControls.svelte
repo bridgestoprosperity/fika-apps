@@ -7,12 +7,12 @@
 	let selectedCategory = $state(Object.keys(impactMenus)[0]);
 	let selectedOverlay = $state('');
 	let selectedDestination = $state('');
-	
+
 	// Update overlay when category changes
 	$effect(() => {
 		if (selectedCategory) {
 			const menuData = impactMenus[selectedCategory];
-			
+
 			if (selectedCategory === 'Travel Time') {
 				selectedOverlay = 'With Bridges';
 				selectedDestination = Object.keys(menuData['With Bridges'])[0];
@@ -26,49 +26,49 @@
 			}
 		}
 	});
-	
+
 	// Update the state when selections change
 	$effect(() => {
 		if (!selectedCategory) return;
-		
+
 		const menuData = impactMenus[selectedCategory];
 		let dataKey = '';
-		
+
 		if (selectedCategory === 'Travel Time') {
 			dataKey = menuData[selectedOverlay]?.[selectedDestination];
 		} else {
 			dataKey = menuData[selectedDestination];
 		}
-		
+
 		if (dataKey) {
 			impactMapState.dataMapKey = dataKey;
 			impactMapState.dataName = selectedDestination;
 			impactMapState.menuState = selectedCategory;
 		}
 	});
-	
+
 	// Get available overlays for current category
 	function getOverlayOptions() {
 		if (selectedCategory !== 'Travel Time') return [];
 		return Object.keys(impactMenus['Travel Time']);
 	}
-	
+
 	// Get destinations for current selection
 	function getDestinationOptions() {
 		if (!selectedCategory) return [];
-		
+
 		const menuData = impactMenus[selectedCategory];
-		
+
 		if (selectedCategory === 'Travel Time' && selectedOverlay) {
 			return Object.keys(menuData[selectedOverlay] || {});
 		} else {
 			return Object.keys(menuData || {});
 		}
 	}
-	
+
 	// Check if we should show the overlay menu
 	let showOverlay = $derived(selectedCategory === 'Travel Time');
-	
+
 	// Initialize from state
 	onMount(() => {
 		// Set initial selections from state if available

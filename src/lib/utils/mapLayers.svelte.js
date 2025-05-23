@@ -125,7 +125,7 @@ export function createRasterLayer() {
 			type: 'raster',
 			tiles: ['https://public-b2p-geodata.s3.amazonaws.com/waternet-raster-tiles/{z}/{x}/{y}.png'],
 			tileSize: 256,
-			maxzoom: 10,
+			maxzoom: 10
 		},
 		layout: {
 			visibility: waternetMapState.visibility.rasterData ? 'visible' : 'none'
