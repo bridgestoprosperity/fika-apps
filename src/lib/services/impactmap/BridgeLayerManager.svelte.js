@@ -1,3 +1,5 @@
+import bridgeIcon from '$lib/images/map-icons/bridge-hex.png';
+
 export class BridgeLayerManager {
 	constructor(map) {
 		this.map = map;
@@ -21,7 +23,7 @@ export class BridgeLayerManager {
 			});
 
 			// Load bridge icon from static folder
-			this.map.loadImage('/bridge-hex.png', (error, image) => {
+			this.map.loadImage(bridgeIcon, (error, image) => {
 				if (error) {
 					console.error('Error loading bridge icon:', error);
 					return;
