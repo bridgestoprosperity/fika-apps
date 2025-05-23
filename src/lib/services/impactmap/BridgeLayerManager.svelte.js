@@ -20,8 +20,8 @@ export class BridgeLayerManager {
 				maxzoom: 22
 			});
 
-			// Load bridge icon from local file
-			this.map.loadImage('/src/lib/images/map-icons/bridge-hex.png', (error, image) => {
+			// Load bridge icon from static folder
+			this.map.loadImage('/bridge-hex.png', (error, image) => {
 				if (error) {
 					console.error('Error loading bridge icon:', error);
 					return;
