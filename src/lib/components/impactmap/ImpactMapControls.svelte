@@ -1,6 +1,8 @@
 <script>
 	import { impactMapState } from '$lib/utils/state.svelte.js';
 	import { impactMenus } from '$lib/utils/impactmap/impactMenus.js';
+	import { impactDataMap } from '$lib/utils/impactmap/impactDataMap.js';
+	import { palettes } from '$lib/utils/colorPalettes.js';
 	import { onMount } from 'svelte';
 
 	// State for menu selections
@@ -8,21 +10,15 @@
 	let selectedOverlay = $state('');
 	let selectedDestination = $state('');
 
-	// Update overlay when category changes
+	// Update destination when category changes
 	$effect(() => {
 		if (selectedCategory) {
 			const menuData = impactMenus[selectedCategory];
-
-			if (selectedCategory === 'Travel Time') {
-				selectedOverlay = 'With Bridges';
-				selectedDestination = Object.keys(menuData['With Bridges'])[0];
-			} else {
-				selectedOverlay = '';
-				const firstKey = Object.keys(menuData)[0];
-				if (typeof menuData[firstKey] === 'string') {
-					// This is a simple category (Demographics/Population/Impact)
-					selectedDestination = firstKey;
-				}
+			selectedOverlay = '';
+			const firstKey = Object.keys(menuData)[0];
+			if (typeof menuData[firstKey] === 'string') {
+				// This is a simple category (Demographics/Travel Time/Impact)
+				selectedDestination = firstKey;
 			}
 		}
 	});
@@ -32,13 +28,7 @@
 		if (!selectedCategory) return;
 
 		const menuData = impactMenus[selectedCategory];
-		let dataKey = '';
-
-		if (selectedCategory === 'Travel Time') {
-			dataKey = menuData[selectedOverlay]?.[selectedDestination];
-		} else {
-			dataKey = menuData[selectedDestination];
-		}
+		let dataKey = menuData[selectedDestination];
 
 		if (dataKey) {
 			impactMapState.dataMapKey = dataKey;
@@ -47,27 +37,42 @@
 		}
 	});
 
-	// Get available overlays for current category
-	function getOverlayOptions() {
-		if (selectedCategory !== 'Travel Time') return [];
-		return Object.keys(impactMenus['Travel Time']);
-	}
-
 	// Get destinations for current selection
 	function getDestinationOptions() {
 		if (!selectedCategory) return [];
-
 		const menuData = impactMenus[selectedCategory];
-
-		if (selectedCategory === 'Travel Time' && selectedOverlay) {
-			return Object.keys(menuData[selectedOverlay] || {});
-		} else {
-			return Object.keys(menuData || {});
-		}
+		return Object.keys(menuData || {});
 	}
 
-	// Check if we should show the overlay menu
-	let showOverlay = $derived(selectedCategory === 'Travel Time');
+	// Get legend data for current selection
+	function getLegendData() {
+		if (!impactMapState.dataMapKey || !impactDataMap[impactMapState.dataMapKey]) {
+			return null;
+		}
+		
+		const data = impactDataMap[impactMapState.dataMapKey];
+		const metaInfo = data.meta_info;
+		const styleStops = data.data_info.style_stops;
+		
+		if (!metaInfo.legend_labels || !styleStops) {
+			return null;
+		}
+		
+		// Get color palette
+		const colorScale = metaInfo.color_scale;
+		const reverse = metaInfo.reverse_color_scale;
+		const palette = reverse ? [...palettes[colorScale]].reverse() : palettes[colorScale];
+		
+		return {
+			labels: metaInfo.legend_labels,
+			colors: palette,
+			stops: styleStops,
+			unit: metaInfo.unit || ''
+		};
+	}
+
+	// Reactive legend data
+	let legendData = $derived(getLegendData());
 
 	// Initialize from state
 	onMount(() => {
@@ -75,26 +80,13 @@
 		if (impactMapState.dataMapKey) {
 			// Find the matching key in impactMenus
 			Object.entries(impactMenus).forEach(([category, data]) => {
-				if (category === 'Travel Time') {
-					Object.entries(data).forEach(([overlay, destinations]) => {
-						Object.entries(destinations).forEach(([dest, key]) => {
-							if (key === impactMapState.dataMapKey) {
-								selectedCategory = category;
-								selectedOverlay = overlay;
-								selectedDestination = dest;
-								return;
-							}
-						});
-					});
-				} else {
-					Object.entries(data).forEach(([dest, key]) => {
-						if (key === impactMapState.dataMapKey) {
-							selectedCategory = category;
-							selectedDestination = dest;
-							return;
-						}
-					});
-				}
+				Object.entries(data).forEach(([dest, key]) => {
+					if (key === impactMapState.dataMapKey) {
+						selectedCategory = category;
+						selectedDestination = dest;
+						return;
+					}
+				});
 			});
 		}
 	});
@@ -117,23 +109,6 @@
 		</div>
 	</div>
 
-	<!-- Data Overlay Details Menu (only for Travel Time) -->
-	{#if showOverlay}
-		<div>
-			<p class="font-bold">Bridge Status</p>
-			<div class="form-control mt-3">
-				<select
-					class="select select-bordered select-secondary bg-transparent p-1 font-mono"
-					bind:value={selectedOverlay}>
-					{#each getOverlayOptions() as overlay}
-						<option value={overlay}>
-							{overlay}
-						</option>
-					{/each}
-				</select>
-			</div>
-		</div>
-	{/if}
 
 	<!-- Destination Type Menu -->
 	<div>
@@ -158,4 +133,31 @@
 			</select>
 		</div>
 	</div>
+
+	<!-- Legend -->
+	{#if legendData}
+		<div class="mt-6 pt-4 border-t border-gray-300">
+			<p class="font-bold mb-3">Legend</p>
+			<div class="space-y-2">
+				<!-- Legend gradient bar -->
+				<div class="relative h-6 rounded" style="background: linear-gradient(to right, {legendData.colors.join(', ')});">
+				</div>
+				
+				<!-- Legend labels -->
+				<div class="flex justify-between text-sm font-mono">
+					<span>{legendData.labels[0]}</span>
+					<span>{legendData.labels[1]}</span>
+				</div>
+				
+				<!-- Legend values (style stops) -->
+				<div class="flex justify-between text-xs text-gray-600 font-mono">
+					<span>{legendData.stops[0]}{legendData.unit}</span>
+					<span>{legendData.stops[1]}</span>
+					<span>{legendData.stops[2]}</span>
+					<span>{legendData.stops[3]}</span>
+					<span>{legendData.stops[4]}{legendData.unit}</span>
+				</div>
+			</div>
+		</div>
+	{/if}
 </div>

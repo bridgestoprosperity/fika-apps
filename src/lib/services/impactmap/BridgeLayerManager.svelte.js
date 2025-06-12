@@ -44,7 +44,7 @@ export class BridgeLayerManager {
 					maxzoom: 22,
 					layout: {
 						'icon-image': 'bridge-hex',
-						'icon-size': ['interpolate', ['exponential', 1.5], ['zoom'], 8, 0.04, 14.5, 0.5],
+						'icon-size': ['interpolate', ['exponential', 1.5], ['zoom'], 8, 0.02, 14.5, 0.3],
 						'icon-allow-overlap': true,
 						'icon-ignore-placement': true
 					},
@@ -63,7 +63,7 @@ export class BridgeLayerManager {
 					maxzoom: 22,
 					layout: {
 						'icon-image': 'bridge-hex',
-						'icon-size': ['interpolate', ['exponential', 1.5], ['zoom'], 8, 0.04, 14.5, 0.5],
+						'icon-size': ['interpolate', ['exponential', 1.5], ['zoom'], 8, 0.02, 14.5, 0.3],
 						'icon-allow-overlap': true,
 						'icon-ignore-placement': true
 					},

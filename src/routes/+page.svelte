@@ -256,6 +256,13 @@
 		line-height: 0.8;
 	}
 
+	/* .title-container {
+		background-color: #f5f2e8;
+		box-shadow:
+			0 4px 6px -1px rgba(0, 0, 0, 0.1),
+			0 2px 4px -1px rgba(0, 0, 0, 0.06);
+	} */
+
 	.background-texture {
 		background-color: #fcfaf2;
 		/* background-image: url('https://www.transparenttextures.com/patterns/bedge-grunge.png'); */

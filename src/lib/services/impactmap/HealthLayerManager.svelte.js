@@ -44,7 +44,7 @@ export class HealthLayerManager {
 					maxzoom: 22,
 					layout: {
 						'icon-image': 'health-hex',
-						'icon-size': ['interpolate', ['exponential', 1.5], ['zoom'], 8, 0.04, 14.5, 0.5],
+						'icon-size': ['interpolate', ['exponential', 1.5], ['zoom'], 8, 0.01, 14.5, 0.],
 						'icon-allow-overlap': true,
 						'icon-ignore-placement': true
 					},
