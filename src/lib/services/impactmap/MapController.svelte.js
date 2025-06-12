@@ -4,6 +4,8 @@ import { impactMapState } from '$lib/utils/state.svelte';
 import { HexLayerManager } from './HexLayerManager.svelte.js';
 import { RasterLayerManager } from './RasterLayerManager.svelte.js';
 import { BridgeLayerManager } from './BridgeLayerManager.svelte.js';
+import { HealthLayerManager } from './HealthLayerManager.svelte.js';
+import { EduLayerManager } from './EduLayerManager.svelte.js';
 
 export class MapController {
 	// Initialize state as class fields
@@ -18,6 +20,8 @@ export class MapController {
 	hexLayerManager = null;
 	rasterLayerManager = null;
 	bridgeLayerManager = null;
+	healthLayerManager = null;
+	eduLayerManager = null;
 
 	constructor(container) {
 		// Initialize map
@@ -37,6 +41,8 @@ export class MapController {
 		this.hexLayerManager = new HexLayerManager(this.map);
 		this.rasterLayerManager = new RasterLayerManager(this.map);
 		this.bridgeLayerManager = new BridgeLayerManager(this.map);
+		this.healthLayerManager = new HealthLayerManager(this.map);
+		this.eduLayerManager = new EduLayerManager(this.map);
 
 		// Setup event handlers
 		this.setupEventHandlers();
@@ -66,6 +72,12 @@ export class MapController {
 
 			// Initialize bridge layers
 			await this.bridgeLayerManager.initialize();
+
+			// Initialize health layers
+			await this.healthLayerManager.initialize();
+
+			// Initialize education layers
+			await this.eduLayerManager.initialize();
 
 			// Initial setup once style is loaded
 			if (impactMapState.dataMapKey) {
@@ -108,6 +120,58 @@ export class MapController {
 
 			this.map.on('mouseleave', 'bridge-hover-layer', (e) => {
 				this.bridgeLayerManager.handleBridgeHover(e);
+			});
+
+			// Setup click handlers for health facilities
+			this.map.on('click', 'health-layer', (e) => {
+				this.healthLayerManager.handleHealthClick(e);
+			});
+
+			this.map.on('click', 'health-hover-layer', (e) => {
+				this.healthLayerManager.handleHealthClick(e);
+			});
+
+			// Setup hover handlers for health facilities (both base and hover layers)
+			this.map.on('mousemove', 'health-layer', (e) => {
+				this.healthLayerManager.handleHealthHover(e);
+			});
+
+			this.map.on('mousemove', 'health-hover-layer', (e) => {
+				this.healthLayerManager.handleHealthHover(e);
+			});
+
+			this.map.on('mouseleave', 'health-layer', (e) => {
+				this.healthLayerManager.handleHealthHover(e);
+			});
+
+			this.map.on('mouseleave', 'health-hover-layer', (e) => {
+				this.healthLayerManager.handleHealthHover(e);
+			});
+
+			// Setup click handlers for education facilities
+			this.map.on('click', 'edu-layer', (e) => {
+				this.eduLayerManager.handleEduClick(e);
+			});
+
+			this.map.on('click', 'edu-hover-layer', (e) => {
+				this.eduLayerManager.handleEduClick(e);
+			});
+
+			// Setup hover handlers for education facilities (both base and hover layers)
+			this.map.on('mousemove', 'edu-layer', (e) => {
+				this.eduLayerManager.handleEduHover(e);
+			});
+
+			this.map.on('mousemove', 'edu-hover-layer', (e) => {
+				this.eduLayerManager.handleEduHover(e);
+			});
+
+			this.map.on('mouseleave', 'edu-layer', (e) => {
+				this.eduLayerManager.handleEduHover(e);
+			});
+
+			this.map.on('mouseleave', 'edu-hover-layer', (e) => {
+				this.eduLayerManager.handleEduHover(e);
 			});
 		});
 	}

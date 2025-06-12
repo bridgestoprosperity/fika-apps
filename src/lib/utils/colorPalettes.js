@@ -22,7 +22,7 @@ export const palettes = {
 	pubu: ['#f1eef6', '#bdc9e1', '#74a9cf', '#2b8cbe', '#045a8d'],
 	pubugn: ['#f6eff7', '#bdc9e1', '#67a9cf', '#1c9099', '#016c59'],
 	puor: ['#f1a340', '#f7f7f7', '#998ec3', '#762a83'],
-	purd: ['#e7e1ef', '#c994c7', '#dd1c77', '#980043'],
+	purd: ['#e7e1ef', '#c994c7', '#dd1c77', '#980043', '#980043'],
 	rdpu: ['#feebe2', '#fbb4b9', '#f768a1', '#c51b8a', '#7a0177'],
 	ylgn: ['#ffffe5', '#f7fcb9', '#d9f0a3', '#addd8e', '#31a354'],
 	ylgnbu: ['#ffffcc', '#a1dab4', '#41b6c4', '#2c7fb8', '#253494'],
@@ -38,55 +38,28 @@ export const palettes = {
 	rdylbu: ['#d7191c', '#fdae61', '#ffffbf', '#abd9e9', '#2c7bb6'],
 	rdylgn: ['#d7191c', '#fdae61', '#ffffbf', '#a6d96a', '#1a9641'],
 	spectral: ['#d7191c', '#fdae61', '#ffffbf', '#abdda4', '#2b83ba'],
+	// custom
+	salmonaqua: ["#e27c7c", "#6d4b4b", "#333333", "#466964", "#6cd4c5"],
+	orangepurple: ["#ffb400", "#a57c1b", "#363445", "#5e569b", "#9080ff"],
+	blueyellow: ["#115f9a", "#22a7f0", "#76c68f", "#c9e52f", "#d0f400"],
+	
+	// Modern matte sequential palettes
+	stoplight: ['#c85a5a', '#e07a56', '#e6b366', '#a8c470', '#5f8a5f'],
+	mattecoral: ['#f4e4e1', '#e8b4a0', '#d4795f', '#b85450', '#8b2f47'],
+	dustyrose: ['#f5ece8', '#e7c4c0', '#d49c9a', '#bd7575', '#9d4e4e'],
+	sage: ['#f0f2e8', '#d4dcc0', '#a8b894', '#7a9468', '#4d6b3c'],
+	clay: ['#f7f0ea', '#e6d0bf', '#d1a584', '#b5794c', '#8f5a2e'],
+	slate: ['#f4f5f7', '#d1d5db', '#9ca3af', '#6b7280', '#374151'],
+	terracotta: ['#faf6f3', '#f0ddd1', '#deb5a0', '#c8886f', '#a8573f'],
+	modernimpact: ['#7dd3c7', '#5bc5a8', '#42b883', '#2ca25f', '#1d7a3f'],
+
+
 	// cyclical
 	rainbow: ['#6e40aa', '#ff5e63', '#aff05b', '#1ac7c2', '#6e40aa'],
 	sinebow: ['#ff4040', '#7fee11', '#00bfbf', '#7f11ee', '#ff4040'],
 	// categorical
-	tableau10: [
-		'#4e79a7',
-		'#f28e2c',
-		'#e15759',
-		'#76b7b2',
-		'#59a14f',
-		'#edc949',
-		'#af7aa1',
-		'#ff9da7',
-		'#9c755f',
-		'#bab0ab'
-	],
-	category10: [
-		'#1f77b4',
-		'#ff7f0e',
-		'#2ca02c',
-		'#d62728',
-		'#9467bd',
-		'#8c564b',
-		'#e377c2',
-		'#7f7f7f',
-		'#bcbd22',
-		'#17becf'
-	],
-	pastel: [
-		'#fbb4ae',
-		'#b3cde3',
-		'#ccebc5',
-		'#decbe4',
-		'#fed9a6',
-		'#ffffcc',
-		'#e5d8bd',
-		'#fddaec',
-		'#f2f2f2'
-	],
-	violetocean: [
-		'#93ECDD',
-		'#7DD6E0',
-		'#6DC0DE',
-		'#66A9DA',
-		'#5493D9',
-		'#507CD4',
-		'#5E60C7',
-		'#6043C0',
-		'#6A11B1',
-		'#9F237E'
-	]
+	tableau10: [ '#4e79a7', '#f28e2c', '#e15759', '#76b7b2', '#59a14f', '#edc949', '#af7aa1', '#ff9da7', '#9c755f', '#bab0ab' ],
+	category10: [ '#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf' ],
+	pastel: [ '#fbb4ae', '#b3cde3', '#ccebc5', '#decbe4', '#fed9a6', '#ffffcc', '#e5d8bd', '#fddaec', '#f2f2f2' ],
+	violetocean: [ '#93ECDD', '#7DD6E0', '#6DC0DE', '#66A9DA', '#5493D9', '#507CD4', '#5E60C7', '#6043C0', '#6A11B1', '#9F237E' ]
 };

@@ -198,12 +198,60 @@ export class HexLayerManager {
 			}, 'waterway');
 
 		} else {
-			// Just update the paint property
-			this.map.setPaintProperty(
-				'hex-layer',
-				'fill-color',
-				this.colorUtils.getHexColorExpression(dataKey)
-			);
+			// Check if source layer has changed - if so, we need to recreate the layer
+			const currentLayer = this.map.getLayer('hex-layer');
+			if (currentLayer && currentLayer['source-layer'] !== sourceLayer) {
+				// Source layer changed, need to recreate the layer
+				this.cleanupExistingLayer();
+				
+				// Add new source (same URL but we need to ensure it's fresh)
+				this.map.addSource('hex-source', {
+					type: 'vector',
+					url: hexSource,
+					minzoom: 0,
+					maxzoom: 22
+				});
+
+				this.map.addLayer({
+					id: 'hex-layer',
+					type: 'fill',
+					source: 'hex-source',
+					'source-layer': sourceLayer,
+					minzoom: 0,
+					maxzoom: 22,
+					filter: ['!=', ['get', dataKey], 0],
+					paint: {
+						'fill-color': this.colorUtils.getHexColorExpression(dataKey),
+						'fill-opacity': ['interpolate', ['linear'], ['zoom'], 8, 0, 8.2, 0.8]
+					}
+				}, 'waterway');
+
+				// Add hex hover outline layer for new tileset
+				this.map.addLayer({
+					id: 'hex-hover-layer',
+					type: 'line',
+					source: 'hex-source',
+					'source-layer': sourceLayer,
+					minzoom: 0,
+					maxzoom: 22,
+					paint: {
+						'line-color': '#A4EED0',
+						'line-width': 3,
+						'line-opacity': 1
+					},
+					filter: ['==', ['id'], null] // Initially hide all hexes
+				}, 'waterway');
+			} else {
+				// Same source layer, just update paint and filter
+				this.map.setPaintProperty(
+					'hex-layer',
+					'fill-color',
+					this.colorUtils.getHexColorExpression(dataKey)
+				);
+				
+				// Apply appropriate filter based on data type
+				this.map.setFilter('hex-layer', ['!=', ['get', dataKey], 0]);
+			}
 		}
 	}
 

@@ -20,7 +20,7 @@ export const impactDataMap = {
 			info_text: 'Population within highlighted area',
 			hover_text: 'Population',
 			unit: 'people',
-			color_scale: 'magma',
+			color_scale: 'sage',
 			reverse_color_scale: false,
 			legend_labels: ['Less People', 'More People']
 		},
@@ -702,7 +702,7 @@ export const impactDataMap = {
 			info_text: 'Births per year in selected polygon',
 			hover_text: 'Births',
 			unit: 'births/yr',
-			color_scale: 'magma',
+			color_scale: 'slate',
 			reverse_color_scale: false,
 			legend_labels: ['Less Births', 'More Births']
 		},
@@ -733,7 +733,7 @@ export const impactDataMap = {
 			info_text: 'Pregnancies per year in selected polygon',
 			hover_text: 'Pregnancies',
 			unit: 'pregnancies/yr',
-			color_scale: 'magma',
+			color_scale: 'slate',
 			reverse_color_scale: false,
 			legend_labels: ['Less Pregnancies', 'More Pregnancies']
 		},
@@ -920,8 +920,8 @@ export const impactDataMap = {
 			info_text: 'Impact on travel time to major markets without bridges for the population.',
 			hover_text: 'Market impact',
 			unit: 'people',
-			color_scale: 'rdylgn',
-			reverse_color_scale: true,
+			color_scale: 'modernimpact',
+			reverse_color_scale: false,
 			legend_labels: ['Shorter', 'Longer']
 		},
 		travel_time: {
@@ -1169,7 +1169,7 @@ export const impactDataMap = {
 				'Impact on travel time to all health facilities without bridges for the population.',
 			hover_text: 'Health impact',
 			unit: 'people',
-			color_scale: 'rdylgn',
+			color_scale: 'modernimpact',
 			reverse_color_scale: false,
 			legend_labels: ['Shorter', 'Longer']
 		},
@@ -1262,7 +1262,7 @@ export const impactDataMap = {
 			info_text: 'Impact on travel time to major roads without bridges for the population.',
 			hover_text: 'Roads impact',
 			unit: 'people',
-			color_scale: 'rdylgn',
+			color_scale: 'modernimpact',
 			reverse_color_scale: false,
 			legend_labels: ['Shorter', 'Longer']
 		},
@@ -1666,7 +1666,7 @@ export const impactDataMap = {
 				'Impact on travel time to all education facilities without bridges for the population.',
 			hover_text: 'Education impact',
 			unit: 'people',
-			color_scale: 'rdylgn',
+			color_scale: 'modernimpact',
 			reverse_color_scale: false,
 			legend_labels: ['Shorter', 'Longer']
 		},

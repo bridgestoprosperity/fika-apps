@@ -32,38 +32,15 @@ export const impactMenus = {
 	//     "Males 65+": "males_65_plus"
 	// },
 	'Travel Time': {
-		'With Bridges': {
-			'Health Posts': 'travel_time_health_posts',
-			'Major Roads': 'travel_time_major_roads',
-			'Secondary Schools': 'travel_time_secondary_schools',
-			'Health Centers': 'travel_time_health_centers',
-			'Major Market': 'travel_time_semi_dense_urban',
-			'All Health': 'travel_time_all_health',
-			'Major Hospitals': 'travel_time_major_hospitals',
-			'Primary Schools': 'travel_time_primary_schools',
-			'All Education': 'travel_time_all_education'
-		},
-		'Without Bridges': {
-			'All Health': 'travel_time_no_sites_all_health',
-			'Major Market': 'travel_time_no_sites_semi_dense_urban',
-			'Secondary Schools': 'travel_time_no_sites_secondary_schools',
-			'Health Centers': 'travel_time_no_sites_health_centers',
-			'Major Roads': 'travel_time_no_sites_major_roads',
-			'Primary Schools': 'travel_time_no_sites_primary_schools',
-			'All Education': 'travel_time_no_sites_all_education',
-			'Major Hospitals': 'travel_time_no_sites_major_hospitals',
-			'Health Posts': 'travel_time_no_sites_health_posts'
-		}
+		'Major Market': 'travel_time_semi_dense_urban',
+		'All Health': 'travel_time_all_health',
+		'All Education': 'travel_time_all_education',
+		'Major Roads': 'travel_time_major_roads'
 	},
 	Impact: {
 		'Major Market': 'time_delta_no_sites_semi_dense_urban',
-		'Secondary Schools': 'time_delta_no_sites_secondary_schools',
 		'All Health': 'time_delta_no_sites_all_health',
-		'Health Centers': 'time_delta_no_sites_health_centers',
-		'Major Roads': 'time_delta_no_sites_major_roads',
-		'Major Hospitals': 'time_delta_no_sites_major_hospitals',
-		'Health Posts': 'time_delta_no_sites_health_posts',
-		'Primary Schools': 'time_delta_no_sites_primary_schools',
-		'All Education': 'time_delta_no_sites_all_education'
+		'All Education': 'time_delta_no_sites_all_education',
+		'Major Roads': 'time_delta_no_sites_major_roads'
 	}
 };

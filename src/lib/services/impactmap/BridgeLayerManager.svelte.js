@@ -1,3 +1,5 @@
+import bridgeIcon from '$lib/images/map-icons/bridge-hex.png';
+
 export class BridgeLayerManager {
 	constructor(map) {
 		this.map = map;
@@ -21,7 +23,7 @@ export class BridgeLayerManager {
 			});
 
 			// Load bridge icon from static folder
-			this.map.loadImage('/bridge-hex.png', (error, image) => {
+			this.map.loadImage(bridgeIcon, (error, image) => {
 				if (error) {
 					console.error('Error loading bridge icon:', error);
 					return;
@@ -42,7 +44,7 @@ export class BridgeLayerManager {
 					maxzoom: 22,
 					layout: {
 						'icon-image': 'bridge-hex',
-						'icon-size': ['interpolate', ['exponential', 1.5], ['zoom'], 8, 0.04, 14.5, 0.5],
+						'icon-size': ['interpolate', ['exponential', 1.5], ['zoom'], 8, 0.02, 14.5, 0.3],
 						'icon-allow-overlap': true,
 						'icon-ignore-placement': true
 					},
@@ -61,7 +63,7 @@ export class BridgeLayerManager {
 					maxzoom: 22,
 					layout: {
 						'icon-image': 'bridge-hex',
-						'icon-size': ['interpolate', ['exponential', 1.5], ['zoom'], 8, 0.04, 14.5, 0.5],
+						'icon-size': ['interpolate', ['exponential', 1.5], ['zoom'], 8, 0.02, 14.5, 0.3],
 						'icon-allow-overlap': true,
 						'icon-ignore-placement': true
 					},

@@ -5,26 +5,26 @@
 	import TiltCard from '$lib/components/TiltCard.svelte';
 
 	// Images for top header
-	import tile1 from '$lib/images/sites-bolivia.png';
-	import tile8 from '$lib/images/sites-sat-central-america.png';
-	import tile2 from '$lib/images/sites-single-sat.png';
-	import tile4 from '$lib/images/civ-map-only.png';
-	import tile3 from '$lib/images/fikamap-maponly.png';
-	import tile13 from '$lib/images/waternet-magma-7.png';
-	import tile6 from '$lib/images/waternet-blue-1.png';
-	import tile10 from '$lib/images/waternet-kenya.png';
-	import tile5 from '$lib/images/waternet-magma-1.png';
-	import tile11 from '$lib/images/waternet-viridis-1.png';
-	import tile9 from '$lib/images/waternet-magma-5.png';
-	import tile12 from '$lib/images/waternet-magma-6.png';
-	import tile7 from '$lib/images/waternet-vector-ethiopia.png';
-	import waternetVectorEthiopia from '$lib/images/waternet-vector-ethiopia.png';
-	import civAppImage from '$lib/images/civ-maponly-flood.png';
-	import fikaMapAppImage from '$lib/images/fikamap-maponly.png';
-	import bridgeSitesAppImage from '$lib/images/sites-zoom-sat.png';
-	import waternetAppImage from '$lib/images/waternet-magma-4.png';
-	import bridgeDesignToolImage from '$lib/images/bridge-design-tool.jpg';
-	import hexDataExplorerImage from '$lib/images/civ-dash-all.png';
+	import tile1 from '$lib/images/app-screenshots/sites-bolivia.png';
+	import tile8 from '$lib/images/app-screenshots/sites-sat-central-america.png';
+	import tile2 from '$lib/images/app-screenshots/sites-single-sat.png';
+	import tile4 from '$lib/images/app-screenshots/civ-map-only.png';
+	import tile3 from '$lib/images/app-screenshots/fikamap-maponly.png';
+	import tile13 from '$lib/images/app-screenshots/waternet-magma-7.png';
+	import tile6 from '$lib/images/app-screenshots/waternet-blue-1.png';
+	import tile10 from '$lib/images/app-screenshots/waternet-kenya.png';
+	import tile5 from '$lib/images/app-screenshots/waternet-magma-1.png';
+	import tile11 from '$lib/images/app-screenshots/waternet-viridis-1.png';
+	import tile9 from '$lib/images/app-screenshots/waternet-magma-5.png';
+	import tile12 from '$lib/images/app-screenshots/waternet-magma-6.png';
+	import tile7 from '$lib/images/app-screenshots/waternet-vector-ethiopia.png';
+	import waternetVectorEthiopia from '$lib/images/app-screenshots/waternet-vector-ethiopia.png';
+	import civAppImage from '$lib/images/app-screenshots/civ-maponly-flood.png';
+	import fikaMapAppImage from '$lib/images/app-screenshots/fikamap-maponly.png';
+	import bridgeSitesAppImage from '$lib/images/app-screenshots/sites-zoom-sat.png';
+	import waternetAppImage from '$lib/images/app-screenshots/waternet-magma-4.png';
+	import bridgeDesignToolImage from '$lib/images/app-screenshots/bridge-design-tool.jpg';
+	import hexDataExplorerImage from '$lib/images/app-screenshots/civ-dash-all.png';
 
 	let isLoaded = $state(false);
 
@@ -255,6 +255,13 @@
 		font-weight: 700;
 		line-height: 0.8;
 	}
+
+	/* .title-container {
+		background-color: #f5f2e8;
+		box-shadow:
+			0 4px 6px -1px rgba(0, 0, 0, 0.1),
+			0 2px 4px -1px rgba(0, 0, 0, 0.06);
+	} */
 
 	.background-texture {
 		background-color: #fcfaf2;
