@@ -13,7 +13,6 @@ export class BridgeLayerManager {
 		}
 
 		try {
-
 			// Add vector tile source using Mapbox tileset
 			this.map.addSource('bridge-source', {
 				type: 'vector',
@@ -35,44 +34,50 @@ export class BridgeLayerManager {
 				}
 
 				// Add bridge layer with icon behind waterway layer
-				this.map.addLayer({
-					id: 'bridge-layer',
-					type: 'symbol',
-					source: 'bridge-source',
-					'source-layer': 'all_bridges_tiny',
-					minzoom: 7.8,
-					maxzoom: 22,
-					layout: {
-						'icon-image': 'bridge-hex',
-						'icon-size': ['interpolate', ['exponential', 1.5], ['zoom'], 8, 0.02, 14.5, 0.3],
-						'icon-allow-overlap': true,
-						'icon-ignore-placement': true
+				this.map.addLayer(
+					{
+						id: 'bridge-layer',
+						type: 'symbol',
+						source: 'bridge-source',
+						'source-layer': 'all_bridges_tiny',
+						minzoom: 7.8,
+						maxzoom: 22,
+						layout: {
+							'icon-image': 'bridge-hex',
+							'icon-size': ['interpolate', ['exponential', 1.5], ['zoom'], 8, 0.02, 14.5, 0.3],
+							'icon-allow-overlap': true,
+							'icon-ignore-placement': true
+						},
+						paint: {
+							'icon-opacity': ['interpolate', ['linear'], ['zoom'], 7.8, 0, 8, 0.7, 14, 0.8]
+						}
 					},
-					paint: {
-						'icon-opacity': ['interpolate', ['linear'], ['zoom'], 7.8, 0, 8, 0.7, 14, 0.8]
-					}
-				}, 'waterway');
+					'waterway'
+				);
 
 				// Add hover layer - initially hidden, shows only the hovered bridge
-				this.map.addLayer({
-					id: 'bridge-hover-layer',
-					type: 'symbol',
-					source: 'bridge-source',
-					'source-layer': 'all_bridges_tiny',
-					minzoom: 7.8,
-					maxzoom: 22,
-					layout: {
-						'icon-image': 'bridge-hex',
-						'icon-size': ['interpolate', ['exponential', 1.5], ['zoom'], 8, 0.02, 14.5, 0.3],
-						'icon-allow-overlap': true,
-						'icon-ignore-placement': true
+				this.map.addLayer(
+					{
+						id: 'bridge-hover-layer',
+						type: 'symbol',
+						source: 'bridge-source',
+						'source-layer': 'all_bridges_tiny',
+						minzoom: 7.8,
+						maxzoom: 22,
+						layout: {
+							'icon-image': 'bridge-hex',
+							'icon-size': ['interpolate', ['exponential', 1.5], ['zoom'], 8, 0.02, 14.5, 0.3],
+							'icon-allow-overlap': true,
+							'icon-ignore-placement': true
+						},
+						paint: {
+							'icon-opacity': 1,
+							'icon-translate': [0, -5]
+						},
+						filter: ['==', 'bridge_index', ''] // Initially hide all bridges
 					},
-					paint: {
-						'icon-opacity': 1,
-						'icon-translate': [0, -5]
-					},
-					filter: ['==', 'bridge_index', ''] // Initially hide all bridges
-				}, 'waterway');
+					'waterway'
+				);
 			});
 		} catch (error) {
 			console.error('Error initializing bridge layers:', error);
@@ -83,7 +88,7 @@ export class BridgeLayerManager {
 		if (this.map.getLayer('bridge-hover-layer')) {
 			this.map.removeLayer('bridge-hover-layer');
 		}
-		
+
 		if (this.map.getLayer('bridge-layer')) {
 			this.map.removeLayer('bridge-layer');
 		}
@@ -101,22 +106,21 @@ export class BridgeLayerManager {
 		if (features.length > 0) {
 			// Change cursor to pointer
 			this.map.getCanvas().style.cursor = 'pointer';
-			
+
 			const bridgeIndex = features[0].properties.bridge_index;
-			
+
 			// Hide the hovered bridge from the base layer
 			this.map.setFilter('bridge-layer', ['!=', 'bridge_index', bridgeIndex]);
-			
+
 			// Show only the hovered bridge in the hover layer
 			this.map.setFilter('bridge-hover-layer', ['==', 'bridge_index', bridgeIndex]);
-			
 		} else {
 			// Reset cursor
 			this.map.getCanvas().style.cursor = '';
-			
+
 			// Show all bridges in base layer
 			this.map.setFilter('bridge-layer', null);
-			
+
 			// Hide all bridges in hover layer
 			this.map.setFilter('bridge-hover-layer', ['==', 'bridge_index', '']);
 		}
@@ -131,5 +135,47 @@ export class BridgeLayerManager {
 			const feature = features[0];
 			console.log('Clicked bridge feature:', feature.properties);
 		}
+	}
+
+	highlightBridges(bridgeIds) {
+		if (!this.map.getLayer('bridge-layer')) return;
+
+		if (bridgeIds && bridgeIds.length > 0) {
+			// Create filter expression for highlighted bridges using individual equality checks
+			// This avoids the argument limit issue with the 'in' operator
+			let highlightFilter;
+			if (bridgeIds.length === 1) {
+				highlightFilter = ['==', ['get', 'bridge_index'], bridgeIds[0]];
+			} else {
+				// Use 'any' with multiple equality checks for multiple bridge IDs
+				const equalityChecks = bridgeIds.map(id => ['==', ['get', 'bridge_index'], id]);
+				highlightFilter = ['any', ...equalityChecks];
+			}
+
+			// Fade out non-highlighted bridges
+			this.map.setPaintProperty('bridge-layer', 'icon-opacity', [
+				'case',
+				highlightFilter,
+				0.8, // Full opacity for highlighted
+				0.2  // Low opacity for others
+			]);
+		}
+	}
+
+	resetFilter() {
+		if (!this.map.getLayer('bridge-layer')) return;
+
+		// Reset to original opacity
+		this.map.setPaintProperty('bridge-layer', 'icon-opacity', [
+			'interpolate',
+			['linear'],
+			['zoom'],
+			7.8,
+			0,
+			8,
+			0.7,
+			14,
+			0.8
+		]);
 	}
 }

@@ -39,10 +39,10 @@ export const palettes = {
 	rdylgn: ['#d7191c', '#fdae61', '#ffffbf', '#a6d96a', '#1a9641'],
 	spectral: ['#d7191c', '#fdae61', '#ffffbf', '#abdda4', '#2b83ba'],
 	// custom
-	salmonaqua: ["#e27c7c", "#6d4b4b", "#333333", "#466964", "#6cd4c5"],
-	orangepurple: ["#ffb400", "#a57c1b", "#363445", "#5e569b", "#9080ff"],
-	blueyellow: ["#115f9a", "#22a7f0", "#76c68f", "#c9e52f", "#d0f400"],
-	
+	salmonaqua: ['#e27c7c', '#6d4b4b', '#333333', '#466964', '#6cd4c5'],
+	orangepurple: ['#ffb400', '#a57c1b', '#363445', '#5e569b', '#9080ff'],
+	blueyellow: ['#115f9a', '#22a7f0', '#76c68f', '#c9e52f', '#d0f400'],
+
 	// Modern matte sequential palettes
 	stoplight: ['#c85a5a', '#e07a56', '#e6b366', '#a8c470', '#5f8a5f'],
 	mattecoral: ['#f4e4e1', '#e8b4a0', '#d4795f', '#b85450', '#8b2f47'],
@@ -53,13 +53,55 @@ export const palettes = {
 	terracotta: ['#faf6f3', '#f0ddd1', '#deb5a0', '#c8886f', '#a8573f'],
 	modernimpact: ['#7dd3c7', '#5bc5a8', '#42b883', '#2ca25f', '#1d7a3f'],
 
-
 	// cyclical
 	rainbow: ['#6e40aa', '#ff5e63', '#aff05b', '#1ac7c2', '#6e40aa'],
 	sinebow: ['#ff4040', '#7fee11', '#00bfbf', '#7f11ee', '#ff4040'],
 	// categorical
-	tableau10: [ '#4e79a7', '#f28e2c', '#e15759', '#76b7b2', '#59a14f', '#edc949', '#af7aa1', '#ff9da7', '#9c755f', '#bab0ab' ],
-	category10: [ '#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf' ],
-	pastel: [ '#fbb4ae', '#b3cde3', '#ccebc5', '#decbe4', '#fed9a6', '#ffffcc', '#e5d8bd', '#fddaec', '#f2f2f2' ],
-	violetocean: [ '#93ECDD', '#7DD6E0', '#6DC0DE', '#66A9DA', '#5493D9', '#507CD4', '#5E60C7', '#6043C0', '#6A11B1', '#9F237E' ]
+	tableau10: [
+		'#4e79a7',
+		'#f28e2c',
+		'#e15759',
+		'#76b7b2',
+		'#59a14f',
+		'#edc949',
+		'#af7aa1',
+		'#ff9da7',
+		'#9c755f',
+		'#bab0ab'
+	],
+	category10: [
+		'#1f77b4',
+		'#ff7f0e',
+		'#2ca02c',
+		'#d62728',
+		'#9467bd',
+		'#8c564b',
+		'#e377c2',
+		'#7f7f7f',
+		'#bcbd22',
+		'#17becf'
+	],
+	pastel: [
+		'#fbb4ae',
+		'#b3cde3',
+		'#ccebc5',
+		'#decbe4',
+		'#fed9a6',
+		'#ffffcc',
+		'#e5d8bd',
+		'#fddaec',
+		'#f2f2f2'
+	],
+	violetocean: [
+		'#93ECDD',
+		'#7DD6E0',
+		'#6DC0DE',
+		'#66A9DA',
+		'#5493D9',
+		'#507CD4',
+		'#5E60C7',
+		'#6043C0',
+		'#6A11B1',
+		'#9F237E'
+	]
 };

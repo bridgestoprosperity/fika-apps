@@ -49,20 +49,20 @@
 		if (!impactMapState.dataMapKey || !impactDataMap[impactMapState.dataMapKey]) {
 			return null;
 		}
-		
+
 		const data = impactDataMap[impactMapState.dataMapKey];
 		const metaInfo = data.meta_info;
 		const styleStops = data.data_info.style_stops;
-		
+
 		if (!metaInfo.legend_labels || !styleStops) {
 			return null;
 		}
-		
+
 		// Get color palette
 		const colorScale = metaInfo.color_scale;
 		const reverse = metaInfo.reverse_color_scale;
 		const palette = reverse ? [...palettes[colorScale]].reverse() : palettes[colorScale];
-		
+
 		return {
 			labels: metaInfo.legend_labels,
 			colors: palette,
@@ -109,7 +109,6 @@
 		</div>
 	</div>
 
-
 	<!-- Destination Type Menu -->
 	<div>
 		<p class="font-bold">
@@ -136,21 +135,23 @@
 
 	<!-- Legend -->
 	{#if legendData}
-		<div class="mt-6 pt-4 border-t border-gray-300">
-			<p class="font-bold mb-3">Legend</p>
+		<div class="mt-6 border-t border-gray-300 pt-4">
+			<p class="mb-3 font-bold">Legend</p>
 			<div class="space-y-2">
 				<!-- Legend gradient bar -->
-				<div class="relative h-6 rounded" style="background: linear-gradient(to right, {legendData.colors.join(', ')});">
+				<div
+					class="relative h-6 rounded"
+					style="background: linear-gradient(to right, {legendData.colors.join(', ')});">
 				</div>
-				
+
 				<!-- Legend labels -->
-				<div class="flex justify-between text-sm font-mono">
+				<div class="flex justify-between font-mono text-sm">
 					<span>{legendData.labels[0]}</span>
 					<span>{legendData.labels[1]}</span>
 				</div>
-				
+
 				<!-- Legend values (style stops) -->
-				<div class="flex justify-between text-xs text-gray-600 font-mono">
+				<div class="flex justify-between font-mono text-xs text-gray-600">
 					<span>{legendData.stops[0]}{legendData.unit}</span>
 					<span>{legendData.stops[1]}</span>
 					<span>{legendData.stops[2]}</span>
