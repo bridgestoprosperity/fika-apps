@@ -15,6 +15,7 @@ export class HealthLayerManager {
 		try {
 
 			// Add vector tile source using Mapbox tileset
+			console.log('Adding health vector tile source');
 			this.map.addSource('health-source', {
 				type: 'vector',
 				url: 'mapbox://bridgestoprosperity.4gfnl483',
@@ -35,6 +36,7 @@ export class HealthLayerManager {
 				}
 
 				// Add health layer with icon behind waterway layer
+				// TODO: add variables for layout and paint for health layer and the other map layers
 				this.map.addLayer({
 					id: 'health-layer',
 					type: 'symbol',
@@ -44,7 +46,7 @@ export class HealthLayerManager {
 					maxzoom: 22,
 					layout: {
 						'icon-image': 'health-hex',
-						'icon-size': ['interpolate', ['exponential', 1.5], ['zoom'], 8, 0.01, 14.5, 0.],
+						'icon-size': ['interpolate', ['exponential', 1.5], ['zoom'], 8, 0.01, 14.5, 0.2],
 						'icon-allow-overlap': true,
 						'icon-ignore-placement': true
 					},
@@ -131,5 +133,47 @@ export class HealthLayerManager {
 			const feature = features[0];
 			console.log('Clicked health facility feature:', feature.properties);
 		}
+	}
+
+	highlightHealthFacilities(facilityIds) {
+		if (!this.map.getLayer('health-layer')) return;
+
+		if (facilityIds && facilityIds.length > 0) {
+			// Create filter expression for highlighted health facilities using individual equality checks
+			// This avoids the argument limit issue with the 'in' operator
+			let highlightFilter;
+			if (facilityIds.length === 1) {
+				highlightFilter = ['==', ['get', 'all_health_facilities_index'], facilityIds[0]];
+			} else {
+				// Use 'any' with multiple equality checks for multiple facility IDs
+				const equalityChecks = facilityIds.map(id => ['==', ['get', 'all_health_facilities_index'], id]);
+				highlightFilter = ['any', ...equalityChecks];
+			}
+
+			// Fade out non-highlighted health facilities
+			this.map.setPaintProperty('health-layer', 'icon-opacity', [
+				'case',
+				highlightFilter,
+				0.8, // Full opacity for highlighted
+				0.2  // Low opacity for others
+			]);
+		}
+	}
+
+	resetFilter() {
+		if (!this.map.getLayer('health-layer')) return;
+
+		// Reset to original opacity
+		this.map.setPaintProperty('health-layer', 'icon-opacity', [
+			'interpolate',
+			['linear'],
+			['zoom'],
+			7.8,
+			0,
+			8,
+			0.7,
+			14,
+			0.8
+		]);
 	}
 }

@@ -54,7 +54,12 @@ const impactMapState = $state({
 	dataName: 'rwi',
 	satelliteImagery: false,
 	clickedData: {},
-	dataMapKey: 'Relative Wealth Index' // Key to the selected data in impactDataMap
+	dataMapKey: 'Relative Wealth Index', // Key to the selected data in impactDataMap
+	selectedHexData: null, // Currently selected hex data from API
+	filterMode: false, // Whether infrastructure filtering is active
+	highlightedBridges: [], // Array of bridge IDs to highlight
+	highlightedHealthFacilities: [], // Array of health facility IDs to highlight
+	highlightedEducationFacilities: [] // Array of education facility IDs to highlight
 });
 
 export {

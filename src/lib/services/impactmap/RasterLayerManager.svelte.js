@@ -43,19 +43,22 @@ export class RasterLayerManager {
 
 		// Add new layer behind waterway layer
 		console.log('Adding raster layer');
-		this.map.addLayer({
-			id: 'raster-layer',
-			type: 'raster',
-			source: 'raster-source',
-			minzoom: 0,
-			maxzoom: 22,
-			paint: {
-				'raster-color': colorExpression,
-				'raster-color-mix': [255, 0, 0, 0],
-				'raster-color-range': [0, 255],
-				'raster-opacity': ['interpolate', ['linear'], ['zoom'], 0, 0.8, 8, 0.8, 8.2, 0]
-			}
-		}, 'waterway');
+		this.map.addLayer(
+			{
+				id: 'raster-layer',
+				type: 'raster',
+				source: 'raster-source',
+				minzoom: 0,
+				maxzoom: 22,
+				paint: {
+					'raster-color': colorExpression,
+					'raster-color-mix': [255, 0, 0, 0],
+					'raster-color-range': [0, 255],
+					'raster-opacity': ['interpolate', ['linear'], ['zoom'], 0, 0.8, 8, 0.8, 8.2, 0]
+				}
+			},
+			'waterway'
+		);
 	}
 
 	cleanupExistingLayer() {

@@ -1,12 +1,18 @@
 import { impactDataMap } from '$lib/utils/impactmap/impactDataMap';
 import { ColorUtils } from './ColorUtils.svelte.js';
+import { impactMapState } from '$lib/utils/state.svelte';
 
 export class HexLayerManager {
-	constructor(map) {
+	constructor(map, layerManagers = {}) {
 		this.map = map;
 		this.colorUtils = new ColorUtils();
 		this.hoverTimeout = null;
 		this.currentHoveredId = null;
+
+		// Store references to other layer managers for filtering
+		this.bridgeLayerManager = layerManagers.bridgeLayerManager;
+		this.healthLayerManager = layerManagers.healthLayerManager;
+		this.eduLayerManager = layerManagers.eduLayerManager;
 	}
 
 	async initialize() {
@@ -33,36 +39,41 @@ export class HexLayerManager {
 			});
 
 			// Add hex8 fill layer (for zoom 7.5+) behind waterway layer
-			this.map.addLayer({
-				id: 'hex-layer',
-				type: 'fill',
-				source: 'hex-source',
-				'source-layer': 'hex8-demographic', // Default to demographic source layer
-				minzoom: 0,
-				maxzoom: 22,
-				filter: ['!=', ['get', 'population'], 0], // Default filter, will be updated when layer updates
-				paint: {
-					'fill-color': hexColorExpression,
-					'fill-opacity': ['interpolate', ['linear'], ['zoom'], 8, 0, 8.2, 0.8]
-				}
-			}, 'waterway');
+			this.map.addLayer(
+				{
+					id: 'hex-layer',
+					type: 'fill',
+					source: 'hex-source',
+					'source-layer': 'hex8-demographic', // Default to demographic source layer
+					minzoom: 0,
+					maxzoom: 22,
+					filter: ['!=', ['get', 'population'], 0], // Default filter, will be updated when layer updates
+					paint: {
+						'fill-color': hexColorExpression,
+						'fill-opacity': ['interpolate', ['linear'], ['zoom'], 8, 0, 8.2, 0.8]
+					}
+				},
+				'waterway'
+			);
 
 			// Add hex hover outline layer - initially hidden
-			this.map.addLayer({
-				id: 'hex-hover-layer',
-				type: 'line',
-				source: 'hex-source',
-				'source-layer': 'hex8-demographic',
-				minzoom: 0,
-				maxzoom: 22,
-				paint: {
-					'line-color': '#249EA0',
-					'line-width': 3,
-					'line-opacity': 1
+			this.map.addLayer(
+				{
+					id: 'hex-hover-layer',
+					type: 'line',
+					source: 'hex-source',
+					'source-layer': 'hex8-demographic',
+					minzoom: 0,
+					maxzoom: 22,
+					paint: {
+						'line-color': '#249EA0',
+						'line-width': 3,
+						'line-opacity': 1
+					},
+					filter: ['==', ['id'], null] // Initially hide all hexes
 				},
-				filter: ['==', ['id'], null] // Initially hide all hexes
-			}, 'waterway');
-
+				'waterway'
+			);
 		} catch (error) {
 			console.error('Error initializing hex layers:', error);
 		}
@@ -166,68 +177,27 @@ export class HexLayerManager {
 				maxzoom: 22
 			});
 
-			this.map.addLayer({
-				id: 'hex-layer',
-				type: 'fill',
-				source: 'hex-source',
-				'source-layer': sourceLayer,
-				minzoom: 0,
-				maxzoom: 22,
-				// filter for any 0 values
-				filter: ['!=', ['get', dataKey], 0],
-				paint: {
-					'fill-color': this.colorUtils.getHexColorExpression(dataKey),
-					'fill-opacity': ['interpolate', ['linear'], ['zoom'], 8, 0, 8.2, 0.8]
-				}
-			}, 'waterway');
-
-			// Add hex hover outline layer for new tileset
-			this.map.addLayer({
-				id: 'hex-hover-layer',
-				type: 'line',
-				source: 'hex-source',
-				'source-layer': sourceLayer,
-				minzoom: 0,
-				maxzoom: 22,
-				paint: {
-					'line-color': '#A4EED0',
-					'line-width': 3,
-					'line-opacity': 1
-				},
-				filter: ['==', ['id'], null] // Initially hide all hexes
-			}, 'waterway');
-
-		} else {
-			// Check if source layer has changed - if so, we need to recreate the layer
-			const currentLayer = this.map.getLayer('hex-layer');
-			if (currentLayer && currentLayer['source-layer'] !== sourceLayer) {
-				// Source layer changed, need to recreate the layer
-				this.cleanupExistingLayer();
-				
-				// Add new source (same URL but we need to ensure it's fresh)
-				this.map.addSource('hex-source', {
-					type: 'vector',
-					url: hexSource,
-					minzoom: 0,
-					maxzoom: 22
-				});
-
-				this.map.addLayer({
+			this.map.addLayer(
+				{
 					id: 'hex-layer',
 					type: 'fill',
 					source: 'hex-source',
 					'source-layer': sourceLayer,
 					minzoom: 0,
 					maxzoom: 22,
+					// filter for any 0 values
 					filter: ['!=', ['get', dataKey], 0],
 					paint: {
 						'fill-color': this.colorUtils.getHexColorExpression(dataKey),
 						'fill-opacity': ['interpolate', ['linear'], ['zoom'], 8, 0, 8.2, 0.8]
 					}
-				}, 'waterway');
+				},
+				'waterway'
+			);
 
-				// Add hex hover outline layer for new tileset
-				this.map.addLayer({
+			// Add hex hover outline layer for new tileset
+			this.map.addLayer(
+				{
 					id: 'hex-hover-layer',
 					type: 'line',
 					source: 'hex-source',
@@ -240,7 +210,59 @@ export class HexLayerManager {
 						'line-opacity': 1
 					},
 					filter: ['==', ['id'], null] // Initially hide all hexes
-				}, 'waterway');
+				},
+				'waterway'
+			);
+		} else {
+			// Check if source layer has changed - if so, we need to recreate the layer
+			const currentLayer = this.map.getLayer('hex-layer');
+			if (currentLayer && currentLayer['source-layer'] !== sourceLayer) {
+				// Source layer changed, need to recreate the layer
+				this.cleanupExistingLayer();
+
+				// Add new source (same URL but we need to ensure it's fresh)
+				this.map.addSource('hex-source', {
+					type: 'vector',
+					url: hexSource,
+					minzoom: 0,
+					maxzoom: 22
+				});
+
+				this.map.addLayer(
+					{
+						id: 'hex-layer',
+						type: 'fill',
+						source: 'hex-source',
+						'source-layer': sourceLayer,
+						minzoom: 0,
+						maxzoom: 22,
+						filter: ['!=', ['get', dataKey], 0],
+						paint: {
+							'fill-color': this.colorUtils.getHexColorExpression(dataKey),
+							'fill-opacity': ['interpolate', ['linear'], ['zoom'], 8, 0, 8.2, 0.8]
+						}
+					},
+					'waterway'
+				);
+
+				// Add hex hover outline layer for new tileset
+				this.map.addLayer(
+					{
+						id: 'hex-hover-layer',
+						type: 'line',
+						source: 'hex-source',
+						'source-layer': sourceLayer,
+						minzoom: 0,
+						maxzoom: 22,
+						paint: {
+							'line-color': '#A4EED0',
+							'line-width': 3,
+							'line-opacity': 1
+						},
+						filter: ['==', ['id'], null] // Initially hide all hexes
+					},
+					'waterway'
+				);
 			} else {
 				// Same source layer, just update paint and filter
 				this.map.setPaintProperty(
@@ -248,7 +270,7 @@ export class HexLayerManager {
 					'fill-color',
 					this.colorUtils.getHexColorExpression(dataKey)
 				);
-				
+
 				// Apply appropriate filter based on data type
 				this.map.setFilter('hex-layer', ['!=', ['get', dataKey], 0]);
 			}
@@ -259,7 +281,7 @@ export class HexLayerManager {
 		if (this.map.getLayer('hex-hover-layer')) {
 			this.map.removeLayer('hex-hover-layer');
 		}
-		
+
 		if (this.map.getLayer('hex-layer')) {
 			this.map.removeLayer('hex-layer');
 		}
@@ -296,10 +318,10 @@ export class HexLayerManager {
 		if (features.length > 0) {
 			// Change cursor immediately
 			this.map.getCanvas().style.cursor = 'pointer';
-			
+
 			const feature = features[0];
 			const featureId = feature.id;
-			
+
 			// Only update if it's a different hex
 			if (featureId !== this.currentHoveredId) {
 				// Debounce the hover effect - wait 50ms after mouse stops moving
@@ -312,24 +334,173 @@ export class HexLayerManager {
 		} else {
 			// Reset cursor immediately
 			this.map.getCanvas().style.cursor = '';
-			
+
 			// Clear current hover immediately when leaving hex area
 			this.currentHoveredId = null;
 			this.map.setFilter('hex-hover-layer', ['==', ['id'], null]);
 		}
 	}
 
-	handleHexClick(e) {
+	async handleHexClick(e) {
 		const features = this.map.queryRenderedFeatures(e.point, {
 			layers: ['hex-layer']
 		});
 
 		if (features.length) {
 			const feature = features[0];
+			let hexID = feature.properties.h3_index;
+			console.log('Clicked hex feature ID:', hexID);
 			console.log('Clicked hex feature:', feature.properties);
+
+			// Query the database for this hex
+			try {
+				const response = await fetch(`/api/hex-areas?hexID=${encodeURIComponent(hexID)}`);
+
+				if (!response.ok) {
+					const errorData = await response.json();
+					console.error('Error fetching hex data:', errorData);
+					return;
+				}
+
+				const hexData = await response.json();
+				console.log('Hex area data from database:', hexData);
+
+				// Update global state
+				impactMapState.selectedHexData = hexData;
+				impactMapState.filterMode = true;
+
+				// Extract infrastructure IDs from hex data
+				this.applyInfrastructureFilter(hexData);
+			} catch (error) {
+				console.error('Failed to fetch hex data:', error);
+			}
+		} else {
+			// Clicked on empty area - reset filters
+			this.resetInfrastructureFilter();
 		}
 
 		// Log the paint values
 		const paintValues = this.map.getPaintProperty('hex-layer', 'fill-color');
+	}
+
+	applyInfrastructureFilter(hexData) {
+		// Extract all bridge IDs from various bridge usage arrays
+		const bridgeIds = new Set();
+
+		// Collect bridge IDs from all the bridge usage arrays
+		Object.keys(hexData).forEach((key) => {
+			if (key.startsWith('bridges_used_for_') && Array.isArray(hexData[key])) {
+				hexData[key].forEach((bridgeId) => {
+					// Convert to number since bridge_index in the map data is a number
+					const numericId = parseInt(bridgeId, 10);
+					if (!isNaN(numericId)) {
+						bridgeIds.add(numericId);
+					}
+				});
+			}
+		});
+
+		// Convert bridge IDs to array
+		const bridgeIdsArray = Array.from(bridgeIds);
+
+		// Extract health and education facility IDs and convert to numbers
+		const healthIds = (hexData.health_destinations || []).map(id => {
+			const numericId = parseInt(id, 10);
+			return isNaN(numericId) ? id : numericId;
+		});
+		const eduIds = (hexData.edu_destinations || []).map(id => {
+			const numericId = parseInt(id, 10);
+			return isNaN(numericId) ? id : numericId;
+		});
+
+		console.log('Filtering infrastructure:', {
+			bridges: bridgeIdsArray,
+			health: healthIds,
+			education: eduIds
+		});
+
+
+		// Update state
+		impactMapState.highlightedBridges = bridgeIdsArray;
+		impactMapState.highlightedHealthFacilities = healthIds;
+		impactMapState.highlightedEducationFacilities = eduIds;
+
+		// Apply filters to layer managers
+		if (this.bridgeLayerManager) {
+			this.bridgeLayerManager.highlightBridges(bridgeIdsArray);
+		}
+
+		if (this.healthLayerManager) {
+			this.healthLayerManager.highlightHealthFacilities(healthIds);
+		}
+
+		if (this.eduLayerManager) {
+			this.eduLayerManager.highlightEducationFacilities(eduIds);
+		}
+
+		// Highlight the selected hex
+		this.highlightSelectedHex(hexData.h3_index);
+	}
+
+	resetInfrastructureFilter() {
+		console.log('Resetting infrastructure filters');
+
+		// Reset state
+		impactMapState.selectedHexData = null;
+		impactMapState.filterMode = false;
+		impactMapState.highlightedBridges = [];
+		impactMapState.highlightedHealthFacilities = [];
+		impactMapState.highlightedEducationFacilities = [];
+
+		// Reset filters on layer managers
+		if (this.bridgeLayerManager) {
+			this.bridgeLayerManager.resetFilter();
+		}
+
+		if (this.healthLayerManager) {
+			this.healthLayerManager.resetFilter();
+		}
+
+		if (this.eduLayerManager) {
+			this.eduLayerManager.resetFilter();
+		}
+
+		// Reset hex layer styling
+		this.resetHexHighlight();
+	}
+
+	highlightSelectedHex(hexId) {
+		if (!this.map.getLayer('hex-layer')) return;
+
+		// Fade all hexes to 20% opacity and highlight the selected one
+		this.map.setPaintProperty('hex-layer', 'fill-opacity', [
+			'case',
+			['==', ['get', 'h3_index'], hexId],
+			0.6, // Selected hex more visible
+			0.2  // Other hexes faded
+		]);
+
+		// Fill the selected hex with the hover outline color
+		const originalColorExpression = this.map.getPaintProperty('hex-layer', 'fill-color');
+		this.map.setPaintProperty('hex-layer', 'fill-color', [
+			'case',
+			['==', ['get', 'h3_index'], hexId],
+			'#A4EED0', // Same color as hex hover outline
+			originalColorExpression // Keep original color for other hexes
+		]);
+	}
+
+	resetHexHighlight() {
+		if (!this.map.getLayer('hex-layer')) return;
+
+		// Reset hex opacity to original
+		this.map.setPaintProperty('hex-layer', 'fill-opacity', [
+			'interpolate', ['linear'], ['zoom'], 8, 0, 8.2, 0.8
+		]);
+
+		// Reset hex color to original
+		this.map.setPaintProperty('hex-layer', 'fill-color', 
+			this.colorUtils.getHexColorExpression(impactMapState.dataName)
+		);
 	}
 }

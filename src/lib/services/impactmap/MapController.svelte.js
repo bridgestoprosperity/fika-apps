@@ -38,11 +38,17 @@ export class MapController {
 		});
 
 		// Setup layer managers
-		this.hexLayerManager = new HexLayerManager(this.map);
 		this.rasterLayerManager = new RasterLayerManager(this.map);
 		this.bridgeLayerManager = new BridgeLayerManager(this.map);
 		this.healthLayerManager = new HealthLayerManager(this.map);
 		this.eduLayerManager = new EduLayerManager(this.map);
+
+		// Initialize hex layer manager with references to other managers for filtering
+		this.hexLayerManager = new HexLayerManager(this.map, {
+			bridgeLayerManager: this.bridgeLayerManager,
+			healthLayerManager: this.healthLayerManager,
+			eduLayerManager: this.eduLayerManager
+		});
 
 		// Setup event handlers
 		this.setupEventHandlers();
@@ -86,6 +92,19 @@ export class MapController {
 			// Setup click handlers
 			this.map.on('click', 'hex-layer', (e) => {
 				this.hexLayerManager.handleHexClick(e);
+			});
+
+			// Reset filters when clicking outside of hex areas
+			this.map.on('click', (e) => {
+				// Check if we're clicking on a hex
+				const hexFeatures = this.map.queryRenderedFeatures(e.point, {
+					layers: ['hex-layer']
+				});
+
+				// If no hex was clicked and we're in filter mode, reset filters
+				if (hexFeatures.length === 0 && impactMapState.filterMode) {
+					this.hexLayerManager.resetInfrastructureFilter();
+				}
 			});
 
 			// Setup hover handlers for hex
