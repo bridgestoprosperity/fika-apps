@@ -347,6 +347,12 @@ export class HexLayerManager {
 		});
 
 		if (features.length) {
+			// Check if we're in reverse filter mode - if so, reset it
+			if (impactMapState.reverseFilterMode) {
+				this.resetReverseInfrastructureFilter();
+				return;
+			}
+
 			const feature = features[0];
 			let hexID = feature.properties.h3_index;
 			console.log('Clicked hex feature ID:', hexID);
@@ -500,7 +506,182 @@ export class HexLayerManager {
 
 		// Reset hex color to original
 		this.map.setPaintProperty('hex-layer', 'fill-color', 
-			this.colorUtils.getHexColorExpression(impactMapState.dataName)
+			this.colorUtils.getHexColorExpression(impactMapState.dataMapKey)
 		);
+	}
+
+	// Reverse filtering: highlight hexes that are served by selected infrastructure
+	applyReverseInfrastructureFilter(infrastructureData, infrastructureType) {
+		// Extract H3 indices based on infrastructure type
+		let h3_indices = [];
+		
+		if (infrastructureType === 'bridge') {
+			// For bridges, combine the specified categories into one array
+			const categories = [
+				'used_by_h3_for_semi_dense_urban_optimal',
+				'used_by_h3_for_all_health_facilities_optimal',
+				'used_by_h3_for_all_education_facilities_fixed'
+			];
+			
+			categories.forEach(category => {
+				if (infrastructureData[category] && Array.isArray(infrastructureData[category])) {
+					h3_indices = h3_indices.concat(infrastructureData[category]);
+				}
+			});
+			
+			// Remove duplicates
+			h3_indices = [...new Set(h3_indices)];
+		} else {
+			// For health and education facilities, use the existing h3_indices field
+			h3_indices = infrastructureData.h3_indices || [];
+		}
+
+		// Update state
+		impactMapState.selectedInfrastructureData = infrastructureData;
+		impactMapState.selectedInfrastructureType = infrastructureType;
+		impactMapState.reverseFilterMode = true;
+		impactMapState.highlightedHexes = h3_indices;
+
+		// Apply visual filtering to hexes
+		if (h3_indices && h3_indices.length > 0) {
+			this.highlightServedHexes(h3_indices);
+		}
+
+		// Apply filtering to infrastructure layers
+		this.applyReverseInfrastructureFiltering(infrastructureData, infrastructureType);
+	}
+
+	highlightServedHexes(hexIds) {
+		if (!this.map.getLayer('hex-layer')) return;
+
+		if (hexIds && hexIds.length > 0) {
+			// Create filter expression for highlighted hexes using match
+			const highlightFilter = [
+				'match',
+				['get', 'h3_index'],
+				hexIds,
+				true,
+				false
+			];
+
+			// Fade all hexes except highlighted ones
+			this.map.setPaintProperty('hex-layer', 'fill-opacity', [
+				'case',
+				highlightFilter,
+				0.8, // Highlighted hexes more visible
+				0.1  // Other hexes faded
+			]);
+
+			// Keep original color for highlighted hexes, fade others
+			const originalColorExpression = this.colorUtils.getHexColorExpression(impactMapState.dataMapKey);
+			this.map.setPaintProperty('hex-layer', 'fill-color', [
+				'case',
+				highlightFilter,
+				originalColorExpression, // Keep original color for highlighted hexes
+				'#cccccc' // Gray out other hexes
+			]);
+		}
+	}
+
+	applyReverseInfrastructureFiltering(infrastructureData, infrastructureType) {
+		// Convert bridges_used array to numbers if they exist
+		const bridgesUsed = (infrastructureData.bridges_used || []).map(id => {
+			const numericId = parseInt(id, 10);
+			return isNaN(numericId) ? id : numericId;
+		});
+
+		switch (infrastructureType) {
+			case 'bridge':
+				// Highlight selected bridge (convert to number if needed)
+				if (this.bridgeLayerManager) {
+					const bridgeId = parseInt(infrastructureData.bridge_index, 10);
+					this.bridgeLayerManager.highlightSelectedBridge([bridgeId]);
+				}
+				
+				// Highlight health destinations served by this bridge
+				const healthDestinations = (infrastructureData.health_destinations || []).map(id => {
+					const numericId = parseInt(id, 10);
+					return isNaN(numericId) ? id : numericId;
+				});
+				
+				if (healthDestinations.length > 0 && this.healthLayerManager) {
+					this.healthLayerManager.highlightSelectedHealthFacility(healthDestinations);
+				} else if (this.healthLayerManager) {
+					this.healthLayerManager.fadeAllFacilities();
+				}
+				
+				// Highlight education destinations served by this bridge
+				const eduDestinations = (infrastructureData.edu_destinations || []).map(id => {
+					const numericId = parseInt(id, 10);
+					return isNaN(numericId) ? id : numericId;
+				});
+				
+				if (eduDestinations.length > 0 && this.eduLayerManager) {
+					this.eduLayerManager.highlightSelectedEducationFacility(eduDestinations);
+				} else if (this.eduLayerManager) {
+					this.eduLayerManager.fadeAllFacilities();
+				}
+				break;
+				
+			case 'health':
+				// Fade all education facilities first
+				if (this.eduLayerManager) {
+					this.eduLayerManager.fadeAllFacilities();
+				}
+				// Highlight selected health facility (convert to number if needed)
+				if (this.healthLayerManager) {
+					const facilityId = parseInt(infrastructureData.all_health_facilities_index, 10);
+					this.healthLayerManager.highlightSelectedHealthFacility([facilityId]);
+				}
+				// Highlight associated bridges if any
+				if (bridgesUsed.length > 0 && this.bridgeLayerManager) {
+					this.bridgeLayerManager.highlightBridges(bridgesUsed);
+				} else if (this.bridgeLayerManager) {
+					this.bridgeLayerManager.fadeAllBridges();
+				}
+				break;
+				
+			case 'education':
+				// Fade all health facilities first
+				if (this.healthLayerManager) {
+					this.healthLayerManager.fadeAllFacilities();
+				}
+				// Highlight selected education facility (convert to number if needed)
+				if (this.eduLayerManager) {
+					const facilityId = parseInt(infrastructureData.all_education_facilities_index, 10);
+					this.eduLayerManager.highlightSelectedEducationFacility([facilityId]);
+				}
+				// Highlight associated bridges if any
+				if (bridgesUsed.length > 0 && this.bridgeLayerManager) {
+					this.bridgeLayerManager.highlightBridges(bridgesUsed);
+				} else if (this.bridgeLayerManager) {
+					this.bridgeLayerManager.fadeAllBridges();
+				}
+				break;
+		}
+	}
+
+	resetReverseInfrastructureFilter() {
+		console.log('Resetting reverse infrastructure filters');
+
+		// Reset state
+		impactMapState.selectedInfrastructureData = null;
+		impactMapState.selectedInfrastructureType = null;
+		impactMapState.reverseFilterMode = false;
+		impactMapState.highlightedHexes = [];
+
+		// Reset hex styling
+		this.resetHexHighlight();
+
+		// Reset infrastructure highlighting
+		if (this.bridgeLayerManager) {
+			this.bridgeLayerManager.resetFilter();
+		}
+		if (this.healthLayerManager) {
+			this.healthLayerManager.resetFilter();
+		}
+		if (this.eduLayerManager) {
+			this.eduLayerManager.resetFilter();
+		}
 	}
 }

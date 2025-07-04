@@ -39,22 +39,26 @@ export class MapController {
 
 		// Setup layer managers
 		this.rasterLayerManager = new RasterLayerManager(this.map);
-		this.bridgeLayerManager = new BridgeLayerManager(this.map);
-		this.healthLayerManager = new HealthLayerManager(this.map);
-		this.eduLayerManager = new EduLayerManager(this.map);
+		
+		// Initialize hex layer manager first
+		this.hexLayerManager = new HexLayerManager(this.map);
+		
+		// Initialize other layer managers with references to hex layer manager for reverse filtering
+		this.bridgeLayerManager = new BridgeLayerManager(this.map, this.hexLayerManager);
+		this.healthLayerManager = new HealthLayerManager(this.map, this.hexLayerManager);
+		this.eduLayerManager = new EduLayerManager(this.map, this.hexLayerManager);
 
-		// Initialize hex layer manager with references to other managers for filtering
-		this.hexLayerManager = new HexLayerManager(this.map, {
-			bridgeLayerManager: this.bridgeLayerManager,
-			healthLayerManager: this.healthLayerManager,
-			eduLayerManager: this.eduLayerManager
-		});
+		// Set references to other managers in hex layer manager for forward filtering
+		this.hexLayerManager.bridgeLayerManager = this.bridgeLayerManager;
+		this.hexLayerManager.healthLayerManager = this.healthLayerManager;
+		this.hexLayerManager.eduLayerManager = this.eduLayerManager;
 
 		// Setup event handlers
 		this.setupEventHandlers();
 
 		// Setup reactivity
 		this.setupReactivity();
+		// console.log the map style sheet from the map box map
 	}
 
 	get mapReady() {
@@ -64,7 +68,6 @@ export class MapController {
 	setupEventHandlers() {
 		// Track when map loads
 		this.map.on('load', () => {
-			console.log('Map loaded');
 			this.mapLoaded = true;
 		});
 
@@ -89,21 +92,54 @@ export class MapController {
 			if (impactMapState.dataMapKey) {
 				setTimeout(() => this.updateLayers(), 100);
 			}
-			// Setup click handlers
-			this.map.on('click', 'hex-layer', (e) => {
-				this.hexLayerManager.handleHexClick(e);
-			});
-
-			// Reset filters when clicking outside of hex areas
+			// Global click handler that prioritizes infrastructure over hex
 			this.map.on('click', (e) => {
-				// Check if we're clicking on a hex
+				// Check for infrastructure clicks first (in order of priority)
+				const bridgeFeatures = this.map.queryRenderedFeatures(e.point, {
+					layers: ['bridge-layer', 'bridge-hover-layer']
+				});
+				
+				const healthFeatures = this.map.queryRenderedFeatures(e.point, {
+					layers: ['health-layer', 'health-hover-layer']
+				});
+				
+				const eduFeatures = this.map.queryRenderedFeatures(e.point, {
+					layers: ['edu-layer', 'edu-hover-layer']
+				});
+
+				// Handle infrastructure clicks (prevent hex handling)
+				if (bridgeFeatures.length > 0) {
+					console.log('Bridge clicked - preventing hex handler');
+					this.bridgeLayerManager.handleBridgeClick(e);
+					return; // Stop here, don't handle hex
+				}
+				
+				if (healthFeatures.length > 0) {
+					console.log('Health facility clicked - preventing hex handler');
+					this.healthLayerManager.handleHealthClick(e);
+					return; // Stop here, don't handle hex
+				}
+				
+				if (eduFeatures.length > 0) {
+					console.log('Education facility clicked - preventing hex handler');
+					this.eduLayerManager.handleEduClick(e);
+					return; // Stop here, don't handle hex
+				}
+
+				// No infrastructure clicked, check for hex
 				const hexFeatures = this.map.queryRenderedFeatures(e.point, {
 					layers: ['hex-layer']
 				});
 
-				// If no hex was clicked and we're in filter mode, reset filters
-				if (hexFeatures.length === 0 && impactMapState.filterMode) {
+				if (hexFeatures.length > 0) {
+					console.log('Hex clicked');
+					this.hexLayerManager.handleHexClick(e);
+				} else if (impactMapState.filterMode) {
+					// Clicked on empty area while in filter mode - reset filters
 					this.hexLayerManager.resetInfrastructureFilter();
+				} else if (impactMapState.reverseFilterMode) {
+					// Clicked on empty area while in reverse filter mode - reset reverse filters
+					this.hexLayerManager.resetReverseInfrastructureFilter();
 				}
 			});
 
@@ -116,13 +152,6 @@ export class MapController {
 				this.hexLayerManager.handleHexHover(e);
 			});
 
-			this.map.on('click', 'bridge-layer', (e) => {
-				this.bridgeLayerManager.handleBridgeClick(e);
-			});
-
-			this.map.on('click', 'bridge-hover-layer', (e) => {
-				this.bridgeLayerManager.handleBridgeClick(e);
-			});
 
 			// Setup hover handlers for bridges (both base and hover layers)
 			this.map.on('mousemove', 'bridge-layer', (e) => {
@@ -141,14 +170,6 @@ export class MapController {
 				this.bridgeLayerManager.handleBridgeHover(e);
 			});
 
-			// Setup click handlers for health facilities
-			this.map.on('click', 'health-layer', (e) => {
-				this.healthLayerManager.handleHealthClick(e);
-			});
-
-			this.map.on('click', 'health-hover-layer', (e) => {
-				this.healthLayerManager.handleHealthClick(e);
-			});
 
 			// Setup hover handlers for health facilities (both base and hover layers)
 			this.map.on('mousemove', 'health-layer', (e) => {
@@ -167,14 +188,6 @@ export class MapController {
 				this.healthLayerManager.handleHealthHover(e);
 			});
 
-			// Setup click handlers for education facilities
-			this.map.on('click', 'edu-layer', (e) => {
-				this.eduLayerManager.handleEduClick(e);
-			});
-
-			this.map.on('click', 'edu-hover-layer', (e) => {
-				this.eduLayerManager.handleEduClick(e);
-			});
 
 			// Setup hover handlers for education facilities (both base and hover layers)
 			this.map.on('mousemove', 'edu-layer', (e) => {
@@ -245,6 +258,7 @@ export class MapController {
 		} catch (error) {
 			console.error('Error updating map visualization:', error);
 		}
+		console.log('Current map style:', this.map.getStyle());
 	}
 
 	cleanup() {
