@@ -6,6 +6,7 @@ export class BridgeLayerManager {
 		this.map = map;
 		this.hoveredBridgeId = null;
 		this.hexLayerManager = hexLayerManager;
+		this.pathLayerManager = null; // Will be set by MapController
 	}
 
 	async initialize() {
@@ -110,7 +111,10 @@ export class BridgeLayerManager {
 
 			const bridgeIndex = features[0].properties.bridge_index;
 
-			if ((impactMapState.filterMode && impactMapState.highlightedBridges.length > 0) || impactMapState.reverseFilterMode) {
+			if (
+				(impactMapState.filterMode && impactMapState.highlightedBridges.length > 0) ||
+				impactMapState.reverseFilterMode
+			) {
 				// In filter mode or reverse filter mode: don't change existing bridge filtering
 				// Just keep the current state - bridges should stay as pins if they're already highlighted
 				return;
@@ -123,7 +127,10 @@ export class BridgeLayerManager {
 			// Reset cursor
 			this.map.getCanvas().style.cursor = '';
 
-			if ((impactMapState.filterMode && impactMapState.highlightedBridges.length > 0) || impactMapState.reverseFilterMode) {
+			if (
+				(impactMapState.filterMode && impactMapState.highlightedBridges.length > 0) ||
+				impactMapState.reverseFilterMode
+			) {
 				// In filter mode or reverse filter mode: don't change existing bridge filtering
 				// Keep the current state
 				return;
@@ -147,7 +154,9 @@ export class BridgeLayerManager {
 
 			// Query the database for this bridge and its served hexes
 			try {
-				const response = await fetch(`/api/bridge-details?bridgeIndex=${encodeURIComponent(bridgeIndex)}`);
+				const response = await fetch(
+					`/api/bridge-details?bridgeIndex=${encodeURIComponent(bridgeIndex)}`
+				);
 
 				if (!response.ok) {
 					const errorData = await response.json();
@@ -161,6 +170,14 @@ export class BridgeLayerManager {
 				// Trigger reverse filtering through HexLayerManager
 				if (this.hexLayerManager) {
 					this.hexLayerManager.applyReverseInfrastructureFilter(bridgeData, 'bridge');
+				}
+
+				// Display paths for selected bridge
+				if (this.pathLayerManager && bridgeIndex) {
+					await this.pathLayerManager.displayPathsForDestination(bridgeIndex);
+					this.pathLayerManager.updatePathStyling('bridge');
+					impactMapState.pathsVisible = true;
+					impactMapState.pathDestinationType = 'bridge';
 				}
 			} catch (error) {
 				console.error('Failed to fetch bridge data:', error);
@@ -181,10 +198,9 @@ export class BridgeLayerManager {
 				highlightFilter = ['==', ['get', 'bridge_index'], bridgeIds[0]];
 			} else {
 				// Use 'any' with multiple equality checks for multiple bridge IDs
-				const equalityChecks = bridgeIds.map(id => ['==', ['get', 'bridge_index'], id]);
+				const equalityChecks = bridgeIds.map((id) => ['==', ['get', 'bridge_index'], id]);
 				highlightFilter = ['any', ...equalityChecks];
 			}
-
 
 			// Hide circles for highlighted bridges, fade others
 			this.map.setPaintProperty('bridge-layer', 'circle-opacity', [
@@ -193,7 +209,7 @@ export class BridgeLayerManager {
 				0, // Hide circles for highlighted bridges (showing as pins)
 				0.2 // Fade other circles
 			]);
-			
+
 			// Also fade the circle strokes
 			this.map.setPaintProperty('bridge-layer', 'circle-stroke-opacity', [
 				'case',
@@ -216,7 +232,7 @@ export class BridgeLayerManager {
 			if (bridgeIds.length === 1) {
 				selectFilter = ['==', ['get', 'bridge_index'], bridgeIds[0]];
 			} else {
-				const equalityChecks = bridgeIds.map(id => ['==', ['get', 'bridge_index'], id]);
+				const equalityChecks = bridgeIds.map((id) => ['==', ['get', 'bridge_index'], id]);
 				selectFilter = ['any', ...equalityChecks];
 			}
 
@@ -227,7 +243,7 @@ export class BridgeLayerManager {
 				0, // Hide circles for selected bridge (showing as pin)
 				0.3 // Fade other circles
 			]);
-			
+
 			// Also fade the circle strokes
 			this.map.setPaintProperty('bridge-layer', 'circle-stroke-opacity', [
 				'case',
@@ -265,7 +281,7 @@ export class BridgeLayerManager {
 			11,
 			1
 		]);
-		
+
 		// Reset circle strokes to original opacity
 		this.map.setPaintProperty('bridge-layer', 'circle-stroke-opacity', [
 			'interpolate',

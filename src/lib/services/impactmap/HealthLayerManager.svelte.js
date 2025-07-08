@@ -6,6 +6,7 @@ export class HealthLayerManager {
 		this.map = map;
 		this.hoveredHealthId = null;
 		this.hexLayerManager = hexLayerManager;
+		this.pathLayerManager = null; // Will be set by MapController
 	}
 
 	async initialize() {
@@ -15,7 +16,6 @@ export class HealthLayerManager {
 		}
 
 		try {
-
 			// Add vector tile source using Mapbox tileset
 			console.log('Adding health vector tile source');
 			this.map.addSource('health-source', {
@@ -38,52 +38,58 @@ export class HealthLayerManager {
 				}
 
 				// Add health layer with circles behind waterway layer
-				this.map.addLayer({
-					id: 'health-layer',
-					type: 'circle',
-					source: 'health-source',
-					'source-layer': 'health_facilities',
-					minzoom: 7.8,
-					maxzoom: 22,
-					layout: {},
-					paint: {
-						'circle-color': [
-							'match',
-							['get', 'category'],
-							['district hospital', 'reference hospital', 'provincial hospital'],
-							'#b43d2d',
-							['family health posts', 'health post'],
-							'rgba(255, 255, 255, 0)',
-							'#d76e61'
-						],
-						'circle-radius': ['interpolate', ['exponential', 1.2], ['zoom'], 3, 0.1, 15, 5],
-						'circle-opacity': ['interpolate', ['linear'], ['zoom'], 9, 0.1, 11, 1],
-						'circle-stroke-width': ['interpolate', ['linear'], ['zoom'], 8, 0.1, 15, 5],
-						'circle-stroke-opacity': ['interpolate', ['linear'], ['zoom'], 9, 0.1, 11, 1],
-						'circle-stroke-color': '#b43d2d'
-					}
-				}, 'waterway');
+				this.map.addLayer(
+					{
+						id: 'health-layer',
+						type: 'circle',
+						source: 'health-source',
+						'source-layer': 'health_facilities',
+						minzoom: 7.8,
+						maxzoom: 22,
+						layout: {},
+						paint: {
+							'circle-color': [
+								'match',
+								['get', 'category'],
+								['district hospital', 'reference hospital', 'provincial hospital'],
+								'#b43d2d',
+								['family health posts', 'health post'],
+								'rgba(255, 255, 255, 0)',
+								'#d76e61'
+							],
+							'circle-radius': ['interpolate', ['exponential', 1.2], ['zoom'], 3, 0.1, 15, 5],
+							'circle-opacity': ['interpolate', ['linear'], ['zoom'], 9, 0.1, 11, 1],
+							'circle-stroke-width': ['interpolate', ['linear'], ['zoom'], 8, 0.1, 15, 5],
+							'circle-stroke-opacity': ['interpolate', ['linear'], ['zoom'], 9, 0.1, 11, 1],
+							'circle-stroke-color': '#b43d2d'
+						}
+					},
+					'waterway'
+				);
 
 				// Add hover layer - initially hidden, shows only the hovered health facility
-				this.map.addLayer({
-					id: 'health-hover-layer',
-					type: 'symbol',
-					source: 'health-source',
-					'source-layer': 'health_facilities',
-					minzoom: 7.8,
-					maxzoom: 22,
-					layout: {
-						'icon-image': 'health-icon-bubble',
-						'icon-size': ['interpolate', ['exponential', 1.5], ['zoom'], 8, 0.02, 14.5, 0.15],
-						'icon-allow-overlap': true,
-						'icon-ignore-placement': true
+				this.map.addLayer(
+					{
+						id: 'health-hover-layer',
+						type: 'symbol',
+						source: 'health-source',
+						'source-layer': 'health_facilities',
+						minzoom: 7.8,
+						maxzoom: 22,
+						layout: {
+							'icon-image': 'health-icon-bubble',
+							'icon-size': ['interpolate', ['exponential', 1.5], ['zoom'], 8, 0.02, 14.5, 0.15],
+							'icon-allow-overlap': true,
+							'icon-ignore-placement': true
+						},
+						paint: {
+							'icon-opacity': 1,
+							'icon-translate': [0, 5]
+						},
+						filter: ['==', 'all_health_facilities_index', ''] // Initially hide all health facilities
 					},
-					paint: {
-						'icon-opacity': 1,
-						'icon-translate': [0, 5]
-					},
-					filter: ['==', 'all_health_facilities_index', ''] // Initially hide all health facilities
-				}, 'waterway');
+					'waterway'
+				);
 			});
 		} catch (error) {
 			console.error('Error initializing health layers:', error);
@@ -94,7 +100,7 @@ export class HealthLayerManager {
 		if (this.map.getLayer('health-hover-layer')) {
 			this.map.removeLayer('health-hover-layer');
 		}
-		
+
 		if (this.map.getLayer('health-layer')) {
 			this.map.removeLayer('health-layer');
 		}
@@ -112,10 +118,13 @@ export class HealthLayerManager {
 		if (features.length > 0) {
 			// Change cursor to pointer
 			this.map.getCanvas().style.cursor = 'pointer';
-			
+
 			const healthId = features[0].properties.all_health_facilities_index;
 
-			if ((impactMapState.filterMode && impactMapState.highlightedHealthFacilities.length > 0) || impactMapState.reverseFilterMode) {
+			if (
+				(impactMapState.filterMode && impactMapState.highlightedHealthFacilities.length > 0) ||
+				impactMapState.reverseFilterMode
+			) {
 				// In filter mode or reverse filter mode: don't change existing health facility filtering
 				// Just keep the current state - health facilities should stay as pins if they're already highlighted
 				return;
@@ -128,7 +137,10 @@ export class HealthLayerManager {
 			// Reset cursor
 			this.map.getCanvas().style.cursor = '';
 
-			if ((impactMapState.filterMode && impactMapState.highlightedHealthFacilities.length > 0) || impactMapState.reverseFilterMode) {
+			if (
+				(impactMapState.filterMode && impactMapState.highlightedHealthFacilities.length > 0) ||
+				impactMapState.reverseFilterMode
+			) {
 				// In filter mode or reverse filter mode: don't change existing health facility filtering
 				// Keep the current state
 				return;
@@ -152,7 +164,9 @@ export class HealthLayerManager {
 
 			// Query the database for this health facility and its served hexes
 			try {
-				const response = await fetch(`/api/health-facility-details?facilityIndex=${encodeURIComponent(facilityIndex)}`);
+				const response = await fetch(
+					`/api/health-facility-details?facilityIndex=${encodeURIComponent(facilityIndex)}`
+				);
 
 				if (!response.ok) {
 					const errorData = await response.json();
@@ -166,6 +180,14 @@ export class HealthLayerManager {
 				// Trigger reverse filtering through HexLayerManager
 				if (this.hexLayerManager) {
 					this.hexLayerManager.applyReverseInfrastructureFilter(facilityData, 'health');
+				}
+
+				// Display paths for selected health facility
+				if (this.pathLayerManager && facilityIndex) {
+					await this.pathLayerManager.displayPathsForDestination(facilityIndex);
+					this.pathLayerManager.updatePathStyling('health');
+					impactMapState.pathsVisible = true;
+					impactMapState.pathDestinationType = 'health';
 				}
 			} catch (error) {
 				console.error('Failed to fetch health facility data:', error);
@@ -184,7 +206,11 @@ export class HealthLayerManager {
 				highlightFilter = ['==', ['get', 'all_health_facilities_index'], facilityIds[0]];
 			} else {
 				// Use 'any' with multiple equality checks for multiple facility IDs
-				const equalityChecks = facilityIds.map(id => ['==', ['get', 'all_health_facilities_index'], id]);
+				const equalityChecks = facilityIds.map((id) => [
+					'==',
+					['get', 'all_health_facilities_index'],
+					id
+				]);
 				highlightFilter = ['any', ...equalityChecks];
 			}
 
@@ -195,7 +221,7 @@ export class HealthLayerManager {
 				0, // Hide circles for highlighted health facilities (showing as pins)
 				0.2 // Fade other circles
 			]);
-			
+
 			// Also fade the circle strokes
 			this.map.setPaintProperty('health-layer', 'circle-stroke-opacity', [
 				'case',
@@ -218,7 +244,11 @@ export class HealthLayerManager {
 			if (facilityIds.length === 1) {
 				selectFilter = ['==', ['get', 'all_health_facilities_index'], facilityIds[0]];
 			} else {
-				const equalityChecks = facilityIds.map(id => ['==', ['get', 'all_health_facilities_index'], id]);
+				const equalityChecks = facilityIds.map((id) => [
+					'==',
+					['get', 'all_health_facilities_index'],
+					id
+				]);
 				selectFilter = ['any', ...equalityChecks];
 			}
 
@@ -229,7 +259,7 @@ export class HealthLayerManager {
 				0, // Hide circles for selected health facility (showing as pin)
 				0.3 // Fade other circles
 			]);
-			
+
 			// Also fade the circle strokes
 			this.map.setPaintProperty('health-layer', 'circle-stroke-opacity', [
 				'case',
@@ -267,7 +297,7 @@ export class HealthLayerManager {
 			11,
 			1
 		]);
-		
+
 		// Reset circle strokes to original opacity
 		this.map.setPaintProperty('health-layer', 'circle-stroke-opacity', [
 			'interpolate',

@@ -64,7 +64,12 @@ const impactMapState = $state({
 	reverseFilterMode: false, // Whether reverse infrastructure filtering is active
 	selectedInfrastructureData: null, // Currently selected infrastructure data from API
 	selectedInfrastructureType: null, // 'bridge', 'health', or 'education'
-	highlightedHexes: [] // Array of hex IDs to highlight when infrastructure is selected
+	highlightedHexes: [], // Array of hex IDs to highlight when infrastructure is selected
+	// Path visualization
+	pathsVisible: false, // Whether paths are currently displayed
+	selectedPaths: [], // Array of current path data
+	pathHighlightId: null, // ID of currently highlighted path
+	pathDestinationType: 'default' // Type of destination for path styling ('health', 'education', 'bridge', 'default')
 });
 
 export {

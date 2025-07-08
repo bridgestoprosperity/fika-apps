@@ -6,6 +6,7 @@ import { RasterLayerManager } from './RasterLayerManager.svelte.js';
 import { BridgeLayerManager } from './BridgeLayerManager.svelte.js';
 import { HealthLayerManager } from './HealthLayerManager.svelte.js';
 import { EduLayerManager } from './EduLayerManager.svelte.js';
+import { PathLayerManager } from './PathLayerManager.svelte.js';
 
 export class MapController {
 	// Initialize state as class fields
@@ -22,6 +23,7 @@ export class MapController {
 	bridgeLayerManager = null;
 	healthLayerManager = null;
 	eduLayerManager = null;
+	pathLayerManager = null;
 
 	constructor(container) {
 		// Initialize map
@@ -39,10 +41,13 @@ export class MapController {
 
 		// Setup layer managers
 		this.rasterLayerManager = new RasterLayerManager(this.map);
-		
+
 		// Initialize hex layer manager first
 		this.hexLayerManager = new HexLayerManager(this.map);
-		
+
+		// Initialize path layer manager
+		this.pathLayerManager = new PathLayerManager(this.map);
+
 		// Initialize other layer managers with references to hex layer manager for reverse filtering
 		this.bridgeLayerManager = new BridgeLayerManager(this.map, this.hexLayerManager);
 		this.healthLayerManager = new HealthLayerManager(this.map, this.hexLayerManager);
@@ -52,6 +57,12 @@ export class MapController {
 		this.hexLayerManager.bridgeLayerManager = this.bridgeLayerManager;
 		this.hexLayerManager.healthLayerManager = this.healthLayerManager;
 		this.hexLayerManager.eduLayerManager = this.eduLayerManager;
+		this.hexLayerManager.pathLayerManager = this.pathLayerManager;
+
+		// Set path layer manager references in infrastructure managers
+		this.bridgeLayerManager.pathLayerManager = this.pathLayerManager;
+		this.healthLayerManager.pathLayerManager = this.pathLayerManager;
+		this.eduLayerManager.pathLayerManager = this.pathLayerManager;
 
 		// Setup event handlers
 		this.setupEventHandlers();
@@ -79,6 +90,9 @@ export class MapController {
 			// Initialize hex layers first
 			await this.hexLayerManager.initialize();
 
+			// Initialize path layers
+			await this.pathLayerManager.initialize();
+
 			// Initialize bridge layers
 			await this.bridgeLayerManager.initialize();
 
@@ -98,11 +112,11 @@ export class MapController {
 				const bridgeFeatures = this.map.queryRenderedFeatures(e.point, {
 					layers: ['bridge-layer', 'bridge-hover-layer']
 				});
-				
+
 				const healthFeatures = this.map.queryRenderedFeatures(e.point, {
 					layers: ['health-layer', 'health-hover-layer']
 				});
-				
+
 				const eduFeatures = this.map.queryRenderedFeatures(e.point, {
 					layers: ['edu-layer', 'edu-hover-layer']
 				});
@@ -113,13 +127,13 @@ export class MapController {
 					this.bridgeLayerManager.handleBridgeClick(e);
 					return; // Stop here, don't handle hex
 				}
-				
+
 				if (healthFeatures.length > 0) {
 					console.log('Health facility clicked - preventing hex handler');
 					this.healthLayerManager.handleHealthClick(e);
 					return; // Stop here, don't handle hex
 				}
-				
+
 				if (eduFeatures.length > 0) {
 					console.log('Education facility clicked - preventing hex handler');
 					this.eduLayerManager.handleEduClick(e);
@@ -152,7 +166,6 @@ export class MapController {
 				this.hexLayerManager.handleHexHover(e);
 			});
 
-
 			// Setup hover handlers for bridges (both base and hover layers)
 			this.map.on('mousemove', 'bridge-layer', (e) => {
 				this.bridgeLayerManager.handleBridgeHover(e);
@@ -170,7 +183,6 @@ export class MapController {
 				this.bridgeLayerManager.handleBridgeHover(e);
 			});
 
-
 			// Setup hover handlers for health facilities (both base and hover layers)
 			this.map.on('mousemove', 'health-layer', (e) => {
 				this.healthLayerManager.handleHealthHover(e);
@@ -187,7 +199,6 @@ export class MapController {
 			this.map.on('mouseleave', 'health-hover-layer', (e) => {
 				this.healthLayerManager.handleHealthHover(e);
 			});
-
 
 			// Setup hover handlers for education facilities (both base and hover layers)
 			this.map.on('mousemove', 'edu-layer', (e) => {

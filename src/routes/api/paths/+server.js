@@ -20,13 +20,15 @@ export async function GET({ url, platform }) {
 		}
 
 		// Parse query parameters
-		const facilityIndex = url.searchParams.get('facilityIndex');
+		const h3Index = url.searchParams.get('h3_index');
+		const destinationIndex = url.searchParams.get('destination_index');
 
-		if (!facilityIndex) {
+		// Validate parameters
+		if (!h3Index && !destinationIndex) {
 			return json(
 				{
-					error: 'Missing facilityIndex parameter',
-					details: 'facilityIndex query parameter is required'
+					error: 'Missing required parameters',
+					details: 'Either h3_index or destination_index parameter is required'
 				},
 				{ status: 400 }
 			);
@@ -54,49 +56,69 @@ export async function GET({ url, platform }) {
 				);
 			}
 
-			// Check if health_facilities table exists
+			// Check if all_paths table exists
 			const tableCheckQuery = `
                 SELECT EXISTS (
                     SELECT FROM information_schema.tables 
-                    WHERE table_name = 'health_facilities'
+                    WHERE table_name = 'all_paths'
                 );
             `;
 
 			const tableExists = await client.query(tableCheckQuery);
 
 			if (!tableExists.rows[0].exists) {
-				console.warn('health_facilities table does not exist');
+				console.warn('all_paths table does not exist');
 				return json(
 					{
 						error: 'Table not found',
-						details: 'The health_facilities table does not exist in the database'
+						details: 'The all_paths table does not exist in the database'
 					},
 					{ status: 500 }
 				);
 			}
 
-			// Query for the specific health facility by index
-			const query = `
-                SELECT * FROM health_facilities 
-                WHERE all_health_facilities_index = $1
-            `;
+			let query, params;
 
-			// Execute the query with parameterized input for security
-			const result = await client.query(query, [parseInt(facilityIndex)]);
-			await client.end();
-
-			// Check if we found the health facility
-			if (result.rows.length === 0) {
-				return json(
-					{
-						error: 'Health facility not found',
-						details: `No health facility found with index: ${facilityIndex}`
-					},
-					{ status: 404 }
-				);
+			if (h3Index && destinationIndex) {
+				// Query specific path by both h3_index and destination_index
+				query = `
+                    SELECT *, ST_AsGeoJSON(geometry) as geojson_geometry FROM all_paths 
+                    WHERE h3_index = $1 AND destination_index = $2
+                `;
+				params = [h3Index, destinationIndex];
+			} else if (h3Index) {
+				// Query all paths for a specific hex
+				query = `
+                    SELECT *, ST_AsGeoJSON(geometry) as geojson_geometry FROM all_paths 
+                    WHERE h3_index = $1
+                `;
+				params = [h3Index];
+			} else if (destinationIndex) {
+				// Query all paths to a specific destination
+				query = `
+                    SELECT *, ST_AsGeoJSON(geometry) as geojson_geometry FROM all_paths 
+                    WHERE destination_index = $1
+                `;
+				params = [destinationIndex];
 			}
 
-			return json(result.rows[0]);
+			// Execute the query with parameterized input for security
+			const result = await client.query(query, params);
+			await client.end();
+
+			// Log first row for debugging geometry format
+			if (result.rows.length > 0) {
+				console.log('Sample path data structure:', {
+					columns: Object.keys(result.rows[0]),
+					sampleRow: result.rows[0]
+				});
+			}
+
+			// Return the results
+			return json({
+				paths: result.rows,
+				count: result.rows.length
+			});
 		} catch (dbError) {
 			console.error('Database error:', dbError);
 			// Return error for client to handle

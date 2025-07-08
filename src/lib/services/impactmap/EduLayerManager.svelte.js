@@ -6,6 +6,7 @@ export class EduLayerManager {
 		this.map = map;
 		this.hoveredEduId = null;
 		this.hexLayerManager = hexLayerManager;
+		this.pathLayerManager = null; // Will be set by MapController
 	}
 
 	async initialize() {
@@ -124,7 +125,10 @@ export class EduLayerManager {
 
 			const eduId = features[0].properties.all_education_facilities_index;
 
-			if ((impactMapState.filterMode && impactMapState.highlightedEducationFacilities.length > 0) || impactMapState.reverseFilterMode) {
+			if (
+				(impactMapState.filterMode && impactMapState.highlightedEducationFacilities.length > 0) ||
+				impactMapState.reverseFilterMode
+			) {
 				// In filter mode or reverse filter mode: don't change existing education facility filtering
 				// Just keep the current state - education facilities should stay as pins if they're already highlighted
 				return;
@@ -137,7 +141,10 @@ export class EduLayerManager {
 			// Reset cursor
 			this.map.getCanvas().style.cursor = '';
 
-			if ((impactMapState.filterMode && impactMapState.highlightedEducationFacilities.length > 0) || impactMapState.reverseFilterMode) {
+			if (
+				(impactMapState.filterMode && impactMapState.highlightedEducationFacilities.length > 0) ||
+				impactMapState.reverseFilterMode
+			) {
 				// In filter mode or reverse filter mode: don't change existing education facility filtering
 				// Keep the current state
 				return;
@@ -161,7 +168,9 @@ export class EduLayerManager {
 
 			// Query the database for this education facility and its served hexes
 			try {
-				const response = await fetch(`/api/education-facility-details?facilityIndex=${encodeURIComponent(facilityIndex)}`);
+				const response = await fetch(
+					`/api/education-facility-details?facilityIndex=${encodeURIComponent(facilityIndex)}`
+				);
 
 				if (!response.ok) {
 					const errorData = await response.json();
@@ -175,6 +184,14 @@ export class EduLayerManager {
 				// Trigger reverse filtering through HexLayerManager
 				if (this.hexLayerManager) {
 					this.hexLayerManager.applyReverseInfrastructureFilter(facilityData, 'education');
+				}
+
+				// Display paths for selected education facility
+				if (this.pathLayerManager && facilityIndex) {
+					await this.pathLayerManager.displayPathsForDestination(facilityIndex);
+					this.pathLayerManager.updatePathStyling('education');
+					impactMapState.pathsVisible = true;
+					impactMapState.pathDestinationType = 'education';
 				}
 			} catch (error) {
 				console.error('Failed to fetch education facility data:', error);
@@ -193,7 +210,11 @@ export class EduLayerManager {
 				highlightFilter = ['==', ['get', 'all_education_facilities_index'], facilityIds[0]];
 			} else {
 				// Use 'any' with multiple equality checks for multiple facility IDs
-				const equalityChecks = facilityIds.map(id => ['==', ['get', 'all_education_facilities_index'], id]);
+				const equalityChecks = facilityIds.map((id) => [
+					'==',
+					['get', 'all_education_facilities_index'],
+					id
+				]);
 				highlightFilter = ['any', ...equalityChecks];
 			}
 
@@ -204,7 +225,7 @@ export class EduLayerManager {
 				0, // Hide circles for highlighted education facilities (showing as pins)
 				0.2 // Fade other circles
 			]);
-			
+
 			// Also fade the circle strokes
 			this.map.setPaintProperty('edu-layer', 'circle-stroke-opacity', [
 				'case',
@@ -227,7 +248,11 @@ export class EduLayerManager {
 			if (facilityIds.length === 1) {
 				selectFilter = ['==', ['get', 'all_education_facilities_index'], facilityIds[0]];
 			} else {
-				const equalityChecks = facilityIds.map(id => ['==', ['get', 'all_education_facilities_index'], id]);
+				const equalityChecks = facilityIds.map((id) => [
+					'==',
+					['get', 'all_education_facilities_index'],
+					id
+				]);
 				selectFilter = ['any', ...equalityChecks];
 			}
 
@@ -238,7 +263,7 @@ export class EduLayerManager {
 				0, // Hide circles for selected education facility (showing as pin)
 				0.3 // Fade other circles
 			]);
-			
+
 			// Also fade the circle strokes
 			this.map.setPaintProperty('edu-layer', 'circle-stroke-opacity', [
 				'case',
@@ -276,7 +301,7 @@ export class EduLayerManager {
 			11,
 			1
 		]);
-		
+
 		// Reset circle strokes to original opacity
 		this.map.setPaintProperty('edu-layer', 'circle-stroke-opacity', [
 			'interpolate',

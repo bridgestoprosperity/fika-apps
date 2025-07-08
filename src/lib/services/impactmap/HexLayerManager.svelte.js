@@ -13,6 +13,7 @@ export class HexLayerManager {
 		this.bridgeLayerManager = layerManagers.bridgeLayerManager;
 		this.healthLayerManager = layerManagers.healthLayerManager;
 		this.eduLayerManager = layerManagers.eduLayerManager;
+		this.pathLayerManager = layerManagers.pathLayerManager;
 	}
 
 	async initialize() {
@@ -377,6 +378,12 @@ export class HexLayerManager {
 
 				// Extract infrastructure IDs from hex data
 				this.applyInfrastructureFilter(hexData);
+
+				// Display paths for selected hex
+				if (this.pathLayerManager && hexData.h3_index) {
+					await this.pathLayerManager.displayPathsForHex(hexData.h3_index);
+					impactMapState.pathsVisible = true;
+				}
 			} catch (error) {
 				console.error('Failed to fetch hex data:', error);
 			}
@@ -410,11 +417,11 @@ export class HexLayerManager {
 		const bridgeIdsArray = Array.from(bridgeIds);
 
 		// Extract health and education facility IDs and convert to numbers
-		const healthIds = (hexData.health_destinations || []).map(id => {
+		const healthIds = (hexData.health_destinations || []).map((id) => {
 			const numericId = parseInt(id, 10);
 			return isNaN(numericId) ? id : numericId;
 		});
-		const eduIds = (hexData.edu_destinations || []).map(id => {
+		const eduIds = (hexData.edu_destinations || []).map((id) => {
 			const numericId = parseInt(id, 10);
 			return isNaN(numericId) ? id : numericId;
 		});
@@ -424,7 +431,6 @@ export class HexLayerManager {
 			health: healthIds,
 			education: eduIds
 		});
-
 
 		// Update state
 		impactMapState.highlightedBridges = bridgeIdsArray;
@@ -458,6 +464,11 @@ export class HexLayerManager {
 		impactMapState.highlightedHealthFacilities = [];
 		impactMapState.highlightedEducationFacilities = [];
 
+		// Reset path state
+		impactMapState.pathsVisible = false;
+		impactMapState.selectedPaths = [];
+		impactMapState.pathHighlightId = null;
+
 		// Reset filters on layer managers
 		if (this.bridgeLayerManager) {
 			this.bridgeLayerManager.resetFilter();
@@ -469,6 +480,11 @@ export class HexLayerManager {
 
 		if (this.eduLayerManager) {
 			this.eduLayerManager.resetFilter();
+		}
+
+		// Clear paths
+		if (this.pathLayerManager) {
+			this.pathLayerManager.clearPaths();
 		}
 
 		// Reset hex layer styling
@@ -483,7 +499,7 @@ export class HexLayerManager {
 			'case',
 			['==', ['get', 'h3_index'], hexId],
 			0.6, // Selected hex more visible
-			0.2  // Other hexes faded
+			0.2 // Other hexes faded
 		]);
 
 		// Fill the selected hex with the hover outline color
@@ -501,11 +517,19 @@ export class HexLayerManager {
 
 		// Reset hex opacity to original
 		this.map.setPaintProperty('hex-layer', 'fill-opacity', [
-			'interpolate', ['linear'], ['zoom'], 8, 0, 8.2, 0.8
+			'interpolate',
+			['linear'],
+			['zoom'],
+			8,
+			0,
+			8.2,
+			0.8
 		]);
 
 		// Reset hex color to original
-		this.map.setPaintProperty('hex-layer', 'fill-color', 
+		this.map.setPaintProperty(
+			'hex-layer',
+			'fill-color',
 			this.colorUtils.getHexColorExpression(impactMapState.dataMapKey)
 		);
 	}
@@ -514,7 +538,7 @@ export class HexLayerManager {
 	applyReverseInfrastructureFilter(infrastructureData, infrastructureType) {
 		// Extract H3 indices based on infrastructure type
 		let h3_indices = [];
-		
+
 		if (infrastructureType === 'bridge') {
 			// For bridges, combine the specified categories into one array
 			const categories = [
@@ -522,13 +546,13 @@ export class HexLayerManager {
 				'used_by_h3_for_all_health_facilities_optimal',
 				'used_by_h3_for_all_education_facilities_fixed'
 			];
-			
-			categories.forEach(category => {
+
+			categories.forEach((category) => {
 				if (infrastructureData[category] && Array.isArray(infrastructureData[category])) {
 					h3_indices = h3_indices.concat(infrastructureData[category]);
 				}
 			});
-			
+
 			// Remove duplicates
 			h3_indices = [...new Set(h3_indices)];
 		} else {
@@ -556,24 +580,20 @@ export class HexLayerManager {
 
 		if (hexIds && hexIds.length > 0) {
 			// Create filter expression for highlighted hexes using match
-			const highlightFilter = [
-				'match',
-				['get', 'h3_index'],
-				hexIds,
-				true,
-				false
-			];
+			const highlightFilter = ['match', ['get', 'h3_index'], hexIds, true, false];
 
 			// Fade all hexes except highlighted ones
 			this.map.setPaintProperty('hex-layer', 'fill-opacity', [
 				'case',
 				highlightFilter,
 				0.8, // Highlighted hexes more visible
-				0.1  // Other hexes faded
+				0.1 // Other hexes faded
 			]);
 
 			// Keep original color for highlighted hexes, fade others
-			const originalColorExpression = this.colorUtils.getHexColorExpression(impactMapState.dataMapKey);
+			const originalColorExpression = this.colorUtils.getHexColorExpression(
+				impactMapState.dataMapKey
+			);
 			this.map.setPaintProperty('hex-layer', 'fill-color', [
 				'case',
 				highlightFilter,
@@ -585,7 +605,7 @@ export class HexLayerManager {
 
 	applyReverseInfrastructureFiltering(infrastructureData, infrastructureType) {
 		// Convert bridges_used array to numbers if they exist
-		const bridgesUsed = (infrastructureData.bridges_used || []).map(id => {
+		const bridgesUsed = (infrastructureData.bridges_used || []).map((id) => {
 			const numericId = parseInt(id, 10);
 			return isNaN(numericId) ? id : numericId;
 		});
@@ -597,32 +617,32 @@ export class HexLayerManager {
 					const bridgeId = parseInt(infrastructureData.bridge_index, 10);
 					this.bridgeLayerManager.highlightSelectedBridge([bridgeId]);
 				}
-				
+
 				// Highlight health destinations served by this bridge
-				const healthDestinations = (infrastructureData.health_destinations || []).map(id => {
+				const healthDestinations = (infrastructureData.health_destinations || []).map((id) => {
 					const numericId = parseInt(id, 10);
 					return isNaN(numericId) ? id : numericId;
 				});
-				
+
 				if (healthDestinations.length > 0 && this.healthLayerManager) {
 					this.healthLayerManager.highlightSelectedHealthFacility(healthDestinations);
 				} else if (this.healthLayerManager) {
 					this.healthLayerManager.fadeAllFacilities();
 				}
-				
+
 				// Highlight education destinations served by this bridge
-				const eduDestinations = (infrastructureData.edu_destinations || []).map(id => {
+				const eduDestinations = (infrastructureData.edu_destinations || []).map((id) => {
 					const numericId = parseInt(id, 10);
 					return isNaN(numericId) ? id : numericId;
 				});
-				
+
 				if (eduDestinations.length > 0 && this.eduLayerManager) {
 					this.eduLayerManager.highlightSelectedEducationFacility(eduDestinations);
 				} else if (this.eduLayerManager) {
 					this.eduLayerManager.fadeAllFacilities();
 				}
 				break;
-				
+
 			case 'health':
 				// Fade all education facilities first
 				if (this.eduLayerManager) {
@@ -640,7 +660,7 @@ export class HexLayerManager {
 					this.bridgeLayerManager.fadeAllBridges();
 				}
 				break;
-				
+
 			case 'education':
 				// Fade all health facilities first
 				if (this.healthLayerManager) {
@@ -670,6 +690,11 @@ export class HexLayerManager {
 		impactMapState.reverseFilterMode = false;
 		impactMapState.highlightedHexes = [];
 
+		// Reset path state
+		impactMapState.pathsVisible = false;
+		impactMapState.selectedPaths = [];
+		impactMapState.pathHighlightId = null;
+
 		// Reset hex styling
 		this.resetHexHighlight();
 
@@ -682,6 +707,11 @@ export class HexLayerManager {
 		}
 		if (this.eduLayerManager) {
 			this.eduLayerManager.resetFilter();
+		}
+
+		// Clear paths
+		if (this.pathLayerManager) {
+			this.pathLayerManager.clearPaths();
 		}
 	}
 }
