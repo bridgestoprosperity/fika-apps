@@ -59,7 +59,17 @@ const impactMapState = $state({
 	filterMode: false, // Whether infrastructure filtering is active
 	highlightedBridges: [], // Array of bridge IDs to highlight
 	highlightedHealthFacilities: [], // Array of health facility IDs to highlight
-	highlightedEducationFacilities: [] // Array of education facility IDs to highlight
+	highlightedEducationFacilities: [], // Array of education facility IDs to highlight
+	// Reverse filtering (infrastructure to hex)
+	reverseFilterMode: false, // Whether reverse infrastructure filtering is active
+	selectedInfrastructureData: null, // Currently selected infrastructure data from API
+	selectedInfrastructureType: null, // 'bridge', 'health', or 'education'
+	highlightedHexes: [], // Array of hex IDs to highlight when infrastructure is selected
+	// Path visualization
+	pathsVisible: false, // Whether paths are currently displayed
+	selectedPaths: [], // Array of current path data
+	pathHighlightId: null, // ID of currently highlighted path
+	pathDestinationType: 'default' // Type of destination for path styling ('health', 'education', 'bridge', 'default')
 });
 
 export {

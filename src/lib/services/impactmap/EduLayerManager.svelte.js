@@ -1,9 +1,12 @@
-import eduIcon from '$lib/images/map-icons/edu-hex.png';
+import eduIcon from '$lib/images/map-icons/edu-icon-bubble.png';
+import { impactMapState } from '$lib/utils/state.svelte';
 
 export class EduLayerManager {
-	constructor(map) {
+	constructor(map, hexLayerManager = null) {
 		this.map = map;
 		this.hoveredEduId = null;
+		this.hexLayerManager = hexLayerManager;
+		this.pathLayerManager = null; // Will be set by MapController
 	}
 
 	async initialize() {
@@ -29,27 +32,40 @@ export class EduLayerManager {
 				}
 
 				// Add the image to the map if it doesn't already exist
-				if (!this.map.hasImage('edu-hex')) {
-					this.map.addImage('edu-hex', image);
+				if (!this.map.hasImage('edu-icon-bubble')) {
+					this.map.addImage('edu-icon-bubble', image);
 				}
 
-				// Add education layer with icon behind waterway layer
+				// Add education layer with circles behind waterway layer
 				this.map.addLayer(
 					{
 						id: 'edu-layer',
-						type: 'symbol',
+						type: 'circle',
 						source: 'edu-source',
 						'source-layer': 'education_facilities',
 						minzoom: 7.8,
 						maxzoom: 22,
-						layout: {
-							'icon-image': 'edu-hex',
-							'icon-size': ['interpolate', ['exponential', 1.5], ['zoom'], 8, 0.01, 14.5, 0.2],
-							'icon-allow-overlap': true,
-							'icon-ignore-placement': true
-						},
+						layout: {},
 						paint: {
-							'icon-opacity': ['interpolate', ['linear'], ['zoom'], 7.8, 0, 8, 0.7, 14, 0.8]
+							'circle-color': [
+								'case',
+								['==', ['get', 'is_a_level'], true],
+								'#d48216',
+								['==', ['get', 'is_o_level'], true],
+								'#e39c40',
+								['==', ['get', 'is_preschool'], true],
+								'rgba(226, 156, 64, 0)',
+								['==', ['get', 'is_primary'], true],
+								'rgba(226, 156, 64, 0)',
+								['==', ['get', 'is_primary'], false],
+								'#e39c40',
+								'#e39c40'
+							],
+							'circle-radius': ['interpolate', ['exponential', 1.2], ['zoom'], 3, 0.1, 15, 5],
+							'circle-opacity': ['interpolate', ['linear'], ['zoom'], 9, 0.1, 11, 1],
+							'circle-stroke-width': ['interpolate', ['linear'], ['zoom'], 8, 0.1, 15, 5],
+							'circle-stroke-color': '#d48216',
+							'circle-stroke-opacity': ['interpolate', ['linear'], ['zoom'], 9, 0.1, 11, 1]
 						}
 					},
 					'waterway'
@@ -65,14 +81,14 @@ export class EduLayerManager {
 						minzoom: 7.8,
 						maxzoom: 22,
 						layout: {
-							'icon-image': 'edu-hex',
-							'icon-size': ['interpolate', ['exponential', 1.5], ['zoom'], 8, 0.04, 14.5, 0.5],
+							'icon-image': 'edu-icon-bubble',
+							'icon-size': ['interpolate', ['exponential', 1.5], ['zoom'], 8, 0.02, 14.5, 0.15],
 							'icon-allow-overlap': true,
 							'icon-ignore-placement': true
 						},
 						paint: {
 							'icon-opacity': 1,
-							'icon-translate': [0, -5]
+							'icon-translate': [0, 5]
 						},
 						filter: ['==', 'all_education_facilities_index', ''] // Initially hide all education facilities
 					},
@@ -109,31 +125,77 @@ export class EduLayerManager {
 
 			const eduId = features[0].properties.all_education_facilities_index;
 
-			// Hide the hovered education facility from the base layer
-			this.map.setFilter('edu-layer', ['!=', 'all_education_facilities_index', eduId]);
-
-			// Show only the hovered education facility in the hover layer
-			this.map.setFilter('edu-hover-layer', ['==', 'all_education_facilities_index', eduId]);
+			if (
+				(impactMapState.filterMode && impactMapState.highlightedEducationFacilities.length > 0) ||
+				impactMapState.reverseFilterMode
+			) {
+				// In filter mode or reverse filter mode: don't change existing education facility filtering
+				// Just keep the current state - education facilities should stay as pins if they're already highlighted
+				return;
+			} else {
+				// Normal hover mode: hide hovered facility from base layer and show in hover layer
+				this.map.setFilter('edu-layer', ['!=', 'all_education_facilities_index', eduId]);
+				this.map.setFilter('edu-hover-layer', ['==', 'all_education_facilities_index', eduId]);
+			}
 		} else {
 			// Reset cursor
 			this.map.getCanvas().style.cursor = '';
 
-			// Show all education facilities in base layer
-			this.map.setFilter('edu-layer', null);
-
-			// Hide all education facilities in hover layer
-			this.map.setFilter('edu-hover-layer', ['==', 'all_education_facilities_index', '']);
+			if (
+				(impactMapState.filterMode && impactMapState.highlightedEducationFacilities.length > 0) ||
+				impactMapState.reverseFilterMode
+			) {
+				// In filter mode or reverse filter mode: don't change existing education facility filtering
+				// Keep the current state
+				return;
+			} else {
+				// Normal mode: reset to default state
+				this.map.setFilter('edu-layer', null);
+				this.map.setFilter('edu-hover-layer', ['==', 'all_education_facilities_index', '']);
+			}
 		}
 	}
 
-	handleEduClick(e) {
+	async handleEduClick(e) {
 		const features = this.map.queryRenderedFeatures(e.point, {
-			layers: ['edu-layer']
+			layers: ['edu-hover-layer']
 		});
 
 		if (features.length) {
 			const feature = features[0];
+			const facilityIndex = feature.properties.all_education_facilities_index;
 			console.log('Clicked education facility feature:', feature.properties);
+
+			// Query the database for this education facility and its served hexes
+			try {
+				const response = await fetch(
+					`/api/education-facility-details?facilityIndex=${encodeURIComponent(facilityIndex)}`
+				);
+
+				if (!response.ok) {
+					const errorData = await response.json();
+					console.error('Error fetching education facility data:', errorData);
+					return;
+				}
+
+				const facilityData = await response.json();
+				console.log('Education facility data from database:', facilityData);
+
+				// Trigger reverse filtering through HexLayerManager
+				if (this.hexLayerManager) {
+					this.hexLayerManager.applyReverseInfrastructureFilter(facilityData, 'education');
+				}
+
+				// Display paths for selected education facility
+				if (this.pathLayerManager && facilityIndex) {
+					await this.pathLayerManager.displayPathsForDestination(facilityIndex);
+					this.pathLayerManager.updatePathStyling('education');
+					impactMapState.pathsVisible = true;
+					impactMapState.pathDestinationType = 'education';
+				}
+			} catch (error) {
+				console.error('Failed to fetch education facility data:', error);
+			}
 		}
 	}
 
@@ -148,34 +210,110 @@ export class EduLayerManager {
 				highlightFilter = ['==', ['get', 'all_education_facilities_index'], facilityIds[0]];
 			} else {
 				// Use 'any' with multiple equality checks for multiple facility IDs
-				const equalityChecks = facilityIds.map(id => ['==', ['get', 'all_education_facilities_index'], id]);
+				const equalityChecks = facilityIds.map((id) => [
+					'==',
+					['get', 'all_education_facilities_index'],
+					id
+				]);
 				highlightFilter = ['any', ...equalityChecks];
 			}
 
-			// Fade out non-highlighted education facilities
-			this.map.setPaintProperty('edu-layer', 'icon-opacity', [
+			// Hide circles for highlighted education facilities, fade others
+			this.map.setPaintProperty('edu-layer', 'circle-opacity', [
 				'case',
 				highlightFilter,
-				0.8, // Full opacity for highlighted
-				0.2  // Low opacity for others
+				0, // Hide circles for highlighted education facilities (showing as pins)
+				0.2 // Fade other circles
 			]);
+
+			// Also fade the circle strokes
+			this.map.setPaintProperty('edu-layer', 'circle-stroke-opacity', [
+				'case',
+				highlightFilter,
+				0, // Hide strokes for highlighted education facilities (showing as pins)
+				0.2 // Fade other circle strokes
+			]);
+
+			// Show icon pins for highlighted education facilities only
+			this.map.setFilter('edu-hover-layer', highlightFilter);
 		}
+	}
+
+	highlightSelectedEducationFacility(facilityIds) {
+		if (!this.map.getLayer('edu-layer')) return;
+
+		if (facilityIds && facilityIds.length > 0) {
+			// Create filter expression for selected education facility
+			let selectFilter;
+			if (facilityIds.length === 1) {
+				selectFilter = ['==', ['get', 'all_education_facilities_index'], facilityIds[0]];
+			} else {
+				const equalityChecks = facilityIds.map((id) => [
+					'==',
+					['get', 'all_education_facilities_index'],
+					id
+				]);
+				selectFilter = ['any', ...equalityChecks];
+			}
+
+			// Hide circles for selected education facility, fade others
+			this.map.setPaintProperty('edu-layer', 'circle-opacity', [
+				'case',
+				selectFilter,
+				0, // Hide circles for selected education facility (showing as pin)
+				0.3 // Fade other circles
+			]);
+
+			// Also fade the circle strokes
+			this.map.setPaintProperty('edu-layer', 'circle-stroke-opacity', [
+				'case',
+				selectFilter,
+				0, // Hide strokes for selected education facility (showing as pin)
+				0.3 // Fade other circle strokes
+			]);
+
+			// Show icon pin for selected education facility only
+			this.map.setFilter('edu-hover-layer', selectFilter);
+		}
+	}
+
+	fadeAllFacilities() {
+		if (!this.map.getLayer('edu-layer')) return;
+
+		// Fade all education facilities to 20% opacity
+		this.map.setPaintProperty('edu-layer', 'circle-opacity', 0.2);
+		this.map.setPaintProperty('edu-layer', 'circle-stroke-opacity', 0.2);
+
+		// Hide all icon pins
+		this.map.setFilter('edu-hover-layer', ['==', 'all_education_facilities_index', '']);
 	}
 
 	resetFilter() {
 		if (!this.map.getLayer('edu-layer')) return;
 
-		// Reset to original opacity
-		this.map.setPaintProperty('edu-layer', 'icon-opacity', [
+		// Reset circles to original opacity
+		this.map.setPaintProperty('edu-layer', 'circle-opacity', [
 			'interpolate',
 			['linear'],
 			['zoom'],
-			7.8,
-			0,
-			8,
-			0.7,
-			14,
-			0.8
+			9,
+			0.1,
+			11,
+			1
 		]);
+
+		// Reset circle strokes to original opacity
+		this.map.setPaintProperty('edu-layer', 'circle-stroke-opacity', [
+			'interpolate',
+			['linear'],
+			['zoom'],
+			9,
+			0.1,
+			11,
+			1
+		]);
+
+		// Hide all icon pins
+		this.map.setFilter('edu-hover-layer', ['==', 'all_education_facilities_index', '']);
 	}
 }
