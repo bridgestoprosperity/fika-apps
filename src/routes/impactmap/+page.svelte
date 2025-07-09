@@ -3,6 +3,7 @@
 	import ImpactMapControls from '$lib/components/impactmap/ImpactMapControls.svelte';
 	import SideNav from '$lib/components/SideNav.svelte';
 	import ControlPanel from '$lib/components/ControlPanel.svelte';
+	import HexDataPanel from '$lib/components/HexDataPanel.svelte';
 </script>
 
 <svelte:head>
@@ -27,6 +28,9 @@
 			<ImpactMapControls />
 		</ControlPanel>
 	</div>
+
+	<!-- Hex Data Panel on the right side -->
+	<HexDataPanel />
 
 	<!-- example of how i could add custom items to sideNav -->
 	<!-- <SideNav items={saiNavItems}/> -->

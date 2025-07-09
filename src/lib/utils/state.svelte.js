@@ -69,7 +69,9 @@ const impactMapState = $state({
 	pathsVisible: false, // Whether paths are currently displayed
 	selectedPaths: [], // Array of current path data
 	pathHighlightId: null, // ID of currently highlighted path
-	pathDestinationType: 'default' // Type of destination for path styling ('health', 'education', 'bridge', 'default')
+	pathDestinationType: 'default', // Type of destination for path styling ('health', 'education', 'bridge', 'default')
+	// Hex data panel
+	hexDataPanelOpen: false // Whether the hex data analysis panel is open
 });
 
 export {
