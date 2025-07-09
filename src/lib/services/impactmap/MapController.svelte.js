@@ -146,7 +146,6 @@ export class MapController {
 				});
 
 				if (hexFeatures.length > 0) {
-					console.log('Hex clicked');
 					this.hexLayerManager.handleHexClick(e);
 				} else if (impactMapState.filterMode) {
 					// Clicked on empty area while in filter mode - reset filters

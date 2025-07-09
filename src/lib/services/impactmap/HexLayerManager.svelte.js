@@ -356,8 +356,10 @@ export class HexLayerManager {
 
 			const feature = features[0];
 			let hexID = feature.properties.h3_index;
+			
+			// Get click coordinates and convert to lat/lng
+			const clickCoords = this.map.unproject(e.point);
 			console.log('Clicked hex feature ID:', hexID);
-			console.log('Clicked hex feature:', feature.properties);
 
 			// Query the database for this hex
 			try {
@@ -370,11 +372,18 @@ export class HexLayerManager {
 				}
 
 				const hexData = await response.json();
-				console.log('Hex area data from database:', hexData);
+				console.log('Hex area data loaded for:', hexData.h3_index);
+
+				// Add click coordinates to hex data before setting state
+				hexData.clickCoordinates = {
+					lat: clickCoords.lat,
+					lng: clickCoords.lng
+				};
 
 				// Update global state
 				impactMapState.selectedHexData = hexData;
 				impactMapState.filterMode = true;
+				impactMapState.hexDataPanelOpen = true;
 
 				// Extract infrastructure IDs from hex data
 				this.applyInfrastructureFilter(hexData);
@@ -463,6 +472,7 @@ export class HexLayerManager {
 		impactMapState.highlightedBridges = [];
 		impactMapState.highlightedHealthFacilities = [];
 		impactMapState.highlightedEducationFacilities = [];
+		impactMapState.hexDataPanelOpen = false;
 
 		// Reset path state
 		impactMapState.pathsVisible = false;
