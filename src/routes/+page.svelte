@@ -25,6 +25,7 @@
 	import waternetAppImage from '$lib/images/app-screenshots/waternet-magma-4.png';
 	import bridgeDesignToolImage from '$lib/images/app-screenshots/bridge-design-tool.jpg';
 	import hexDataExplorerImage from '$lib/images/app-screenshots/civ-dash-all.png';
+	import fikaImpactImage from '$lib/images/app-screenshots/fika-impact-map1.png';
 
 	let isLoaded = $state(false);
 
@@ -48,7 +49,7 @@
 		{
 			src: tile4,
 			alt: 'tile 4',
-			className: `slide-from-left animation-delay-0 col-start-1 row-start-3 row-span-2 min-[800px]:col-start-5 min-[800px]:row-start-1`
+			className: `slide-from-left animation-delay-0 col-start-1 row-start-3 row-span-1 min-[800px]:col-start-5 min-[800px]:row-start-1`
 		},
 		{
 			src: tile5,
@@ -89,6 +90,15 @@
 
 	const appCards = [
 		{
+			image: fikaImpactImage,
+			alt: 'Fika Impact Map Prototype',
+			title: 'Fika Impact Map',
+			description:
+				'Prototype of a map application allowing user to visualize impact of trail bridges on communities across seven countries in Africa',
+			href: 'https://apps.fikamap.com/impactmap',
+			learn: ''
+		},
+		{
 			image: waternetAppImage,
 			alt: 'Waterway Explorer example',
 			title: 'Waterways Data Explorer App',
@@ -99,8 +109,8 @@
 		},
 		{
 			image: fikaMapAppImage,
-			alt: 'Fika Map example',
-			title: 'Fika Impact Map',
+			alt: 'Rwanda Impact Map Prototype',
+			title: 'Rwanda Impact Map',
 			description:
 				'Prototype of a map application allowing user to visualize impact of trail bridges on communities around Rwanda',
 			href: 'https://map.fikamap.com/',
@@ -172,7 +182,7 @@
 							</div>
 
 							<div
-								class="apps-slide col-span-3 col-start-2 row-start-3 flex items-center justify-center min-[800px]:col-span-2 min-[800px]:col-start-3 min-[800px]:row-start-3">
+								class="apps-slide col-span-3 col-start-2 row-start-3 flex items-center justify-center rounded-md min-[800px]:col-span-2 min-[800px]:col-start-3 min-[800px]:row-start-3">
 								<span class="title-text relative z-10">Apps</span>
 							</div>
 
@@ -211,11 +221,21 @@
 	.fika-slide {
 		animation: fikaSlide 1.5s ease-out forwards;
 		opacity: 0;
+		background-color: #fcfaf2;
+		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+		outline: 4px solid #f5f2e8;
+		outline-offset: -4px;
+		
 	}
 
 	.apps-slide {
 		animation: appsSlide 1.5s ease-out forwards;
 		opacity: 0;
+		background-color: #fcfaf2;
+		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+		outline: 4px solid #f5f2e8;
+		outline-offset: -4px;
+
 	}
 
 	.slide-from-top {
@@ -264,7 +284,7 @@
 	} */
 
 	.background-texture {
-		background-color: #fcfaf2;
+		background-color: #ffffff;
 		/* background-image: url('https://www.transparenttextures.com/patterns/bedge-grunge.png'); */
 	}
 
