@@ -39,6 +39,7 @@ export class MapController {
 			hash: true
 		});
 
+
 		// Setup layer managers
 		this.rasterLayerManager = new RasterLayerManager(this.map);
 
@@ -86,6 +87,12 @@ export class MapController {
 		this.map.on('style.load', async () => {
 			console.log('Style loaded');
 			this.styleLoaded = true;
+
+			// Add navigation control
+			const nav = new mapboxgl.NavigationControl({
+				visualizePitch: true
+			});
+			this.map.addControl(nav, 'bottom-right');
 
 			// Initialize hex layers first
 			await this.hexLayerManager.initialize();
