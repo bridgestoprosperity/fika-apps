@@ -361,6 +361,10 @@
 		});
 
 		map.on('load', async () => {
+			const nav = new mapboxgl.NavigationControl({
+				visualizePitch: true
+			});
+			map.addControl(nav, 'bottom-right');
 			try {
 				await initializeLayers();
 			} catch (error) {

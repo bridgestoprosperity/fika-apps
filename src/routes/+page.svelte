@@ -222,23 +222,25 @@
 		animation: fikaSlide 1.5s ease-out forwards;
 		opacity: 0;
 		background-color: #fcfaf2;
-		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+		box-shadow:
+			0 4px 6px -1px rgba(0, 0, 0, 0.3),
+			0 2px 4px -1px rgba(0, 0, 0, 0.06);
 		outline: 6px solid #009149;
 		outline-offset: -6px;
 		/* curve corners */
 		border-radius: 10px;
-		
 	}
 
 	.apps-slide {
 		animation: appsSlide 1.5s ease-out forwards;
 		opacity: 0;
 		background-color: #fcfaf2;
-		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+		box-shadow:
+			0 4px 6px -1px rgba(0, 0, 0, 0.3),
+			0 2px 4px -1px rgba(0, 0, 0, 0.06);
 		outline: 6px solid #009149;
 		outline-offset: -6px;
 		border-radius: 10px;
-
 	}
 
 	.slide-from-top {
