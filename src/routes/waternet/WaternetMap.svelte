@@ -144,6 +144,10 @@
 		});
 
 		map.on('load', async () => {
+			const nav = new mapboxgl.NavigationControl({
+				visualizePitch: true
+			});
+			map.addControl(nav, 'bottom-right');
 			try {
 				const PMTILES_URL =
 					'https://data.source.coop/fika/waternet/pmtiles/waterway_model_outputs_20m_vector.pmtiles';

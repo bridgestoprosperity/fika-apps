@@ -701,7 +701,7 @@ export const impactDataMap = {
 			name: 'Births',
 			info_text: 'Births per year in selected polygon',
 			hover_text: 'Births',
-			unit: 'births/yr',
+			unit: '/yr',
 			color_scale: 'slate',
 			reverse_color_scale: false,
 			legend_labels: ['Less Births', 'More Births']
@@ -732,7 +732,7 @@ export const impactDataMap = {
 			name: 'Pregnancies',
 			info_text: 'Pregnancies per year in selected polygon',
 			hover_text: 'Pregnancies',
-			unit: 'pregnancies/yr',
+			unit: '/yr',
 			color_scale: 'slate',
 			reverse_color_scale: false,
 			legend_labels: ['Less Pregnancies', 'More Pregnancies']

@@ -356,7 +356,7 @@ export class HexLayerManager {
 
 			const feature = features[0];
 			let hexID = feature.properties.h3_index;
-			
+
 			// Get click coordinates and convert to lat/lng
 			const clickCoords = this.map.unproject(e.point);
 			console.log('Clicked hex feature ID:', hexID);

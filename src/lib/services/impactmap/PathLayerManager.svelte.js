@@ -37,19 +37,26 @@ export class PathLayerManager {
 					paint: {
 						'line-color': [
 							'case',
-							['==', ['get', 'path_type'], 'education'], '#C88534',
-							['==', ['get', 'path_type'], 'health'], '#A64535',
-							['==', ['get', 'path_type'], 'market'], '#6E3A86',
-							['==', ['get', 'path_type'], 'bridge'], '#FF6B6B',
+							['==', ['get', 'path_type'], 'education'],
+							'#C88534',
+							['==', ['get', 'path_type'], 'health'],
+							'#A64535',
+							['==', ['get', 'path_type'], 'market'],
+							'#6E3A86',
+							['==', ['get', 'path_type'], 'bridge'],
+							'#FF6B6B',
 							'#FF6B6B' // fallback color
 						],
 						'line-width': ['interpolate', ['linear'], ['zoom'], 3, 0.1, 15, 3],
 						'line-dasharray': [0.2, 2],
 						'line-offset': [
 							'case',
-							['==', ['get', 'path_type'], 'health'], 2,
-							['==', ['get', 'path_type'], 'market'], -2,
-							['==', ['get', 'path_type'], 'education'], 0,
+							['==', ['get', 'path_type'], 'health'],
+							2,
+							['==', ['get', 'path_type'], 'market'],
+							-2,
+							['==', ['get', 'path_type'], 'education'],
+							0,
 							-1 // fallback for bridge/other
 						]
 					}
@@ -70,19 +77,26 @@ export class PathLayerManager {
 					paint: {
 						'line-color': [
 							'case',
-							['==', ['get', 'path_type'], 'education'], '#C88534',
-							['==', ['get', 'path_type'], 'health'], '#A64535',
-							['==', ['get', 'path_type'], 'market'], '#6E3A86',
-							['==', ['get', 'path_type'], 'bridge'], '#FF6B6B',
+							['==', ['get', 'path_type'], 'education'],
+							'#C88534',
+							['==', ['get', 'path_type'], 'health'],
+							'#A64535',
+							['==', ['get', 'path_type'], 'market'],
+							'#6E3A86',
+							['==', ['get', 'path_type'], 'bridge'],
+							'#FF6B6B',
 							'#FF6B6B' // fallback color
 						],
 						'line-width': ['interpolate', ['linear'], ['zoom'], 3, 0.2, 15, 5],
 						'line-dasharray': [0.2, 2],
 						'line-offset': [
 							'case',
-							['==', ['get', 'path_type'], 'health'], 1,
-							['==', ['get', 'path_type'], 'market'], -1,
-							['==', ['get', 'path_type'], 'education'], 0,
+							['==', ['get', 'path_type'], 'health'],
+							1,
+							['==', ['get', 'path_type'], 'market'],
+							-1,
+							['==', ['get', 'path_type'], 'education'],
+							0,
 							-1 // fallback for bridge/other
 						],
 						'line-opacity': 1
@@ -123,7 +137,7 @@ export class PathLayerManager {
 			// Convert path data to GeoJSON features
 			const features = this.currentPaths.map((path, index) => {
 				let geometry;
-				
+
 				// Use the GeoJSON geometry returned by ST_AsGeoJSON
 				if (path.geojson_geometry) {
 					try {
@@ -197,7 +211,7 @@ export class PathLayerManager {
 			// Convert path data to GeoJSON features
 			const features = this.currentPaths.map((path, index) => {
 				let geometry;
-				
+
 				// Use the GeoJSON geometry returned by ST_AsGeoJSON
 				if (path.geojson_geometry) {
 					try {

@@ -12,7 +12,7 @@
 	<div
 		class="group card w-full bg-base-100 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl">
 		<figure class="relative overflow-hidden">
-			<button 
+			<button
 				class="block h-full w-full cursor-pointer border-0 bg-transparent p-0"
 				onclick={() => navigate(href)}>
 				<img
