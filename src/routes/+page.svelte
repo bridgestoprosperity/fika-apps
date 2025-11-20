@@ -24,8 +24,9 @@
 	import bridgeSitesAppImage from '$lib/images/app-screenshots/sites-zoom-sat.png';
 	import waternetAppImage from '$lib/images/app-screenshots/waternet-magma-4.png';
 	import bridgeDesignToolImage from '$lib/images/app-screenshots/bridge-design-tool.jpg';
-	import hexDataExplorerImage from '$lib/images/app-screenshots/civ-dash-all.png';
 	import fikaImpactImage from '$lib/images/app-screenshots/fika-impact-map1.png';
+	import fikaCollectImage from '$lib/images/app-screenshots/fika-collect-1.jpg';
+
 
 	let isLoaded = $state(false);
 
@@ -107,6 +108,24 @@
 			learn:
 				'https://medium.com/fika-blog/waternet-ai-powered-global-water-mapping-triples-known-waterways-bc3095783661'
 		},
+		
+		{
+			image: bridgeSitesAppImage,
+			alt: 'map of ethiopia',
+			title: 'Bridges Built Worldwide',
+			description: 'Locations of bridges built by Bridges to Prosperity around the world',
+			href: 'https://bridge-locations-map.vercel.app/',
+			learn: 'https://bridgestoprosperity.org/our-impact/'
+		},
+				{
+			image: fikaCollectImage,
+			alt: 'Fika Collect App Screenshot',
+			title: 'Fika Collect',
+			description:
+				'Fika Collect is an Android application designed to collect information about the transportation barriers impacting access to critical infrastructure primarily in a rural context.',
+			href: 'https://play.google.com/store/apps/details?id=com.fikacollect',
+			learn: ''
+		},
 		{
 			image: fikaMapAppImage,
 			alt: 'Rwanda Impact Map Prototype',
@@ -126,29 +145,12 @@
 			learn: ''
 		},
 		{
-			image: bridgeSitesAppImage,
-			alt: 'map of ethiopia',
-			title: 'Bridges Built Worldwide',
-			description: 'Locations of bridges built by Bridges to Prosperity around the world',
-			href: 'https://bridge-locations-map.vercel.app/',
-			learn: 'https://bridgestoprosperity.org/our-impact/'
-		},
-		{
 			image: waternetVectorEthiopia,
 			alt: 'map of ethiopia',
 			title: 'Safe Access Index Proof of Concept',
 			description:
 				'Proof of concept application visualizing the travel time of communities to their nearest major road',
 			href: '/saipoc',
-			learn: ''
-		},
-		{
-			image: hexDataExplorerImage,
-			alt: 'Hex Data Explorer',
-			title: 'Hex Data Explorer',
-			description:
-				'Interactive visualization of hexagonal grid data with population, travel time, and other analytics',
-			href: '/hexmap',
 			learn: ''
 		},
 		{
