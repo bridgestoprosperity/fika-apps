@@ -78,12 +78,12 @@ export class RasterLayerManager {
 
 		const dataName = impactDataMap[dataKey].meta_info.data_name;
 		const baseUrl =
-			'http://localhost:8000/';
+			'https://public-b2p-geodata.s3.us-east-1.amazonaws.com/impact-map-raster-tiles/';
 		const url = `${baseUrl}all_countries_merged_hex8_${dataName}/{z}/{x}/{y}.png`;
 
 		console.log('Tile URL:', url);
 		return url;
 	}
 }
-// 'https://public-b2p-geodata.s3.us-east-1.amazonaws.com/impact-map-raster-tiles/'
-// /Volumes/samsung-4tb/b2p/impact-model/cleaned_data/hex_data/impact-map-raster-tiles
+// production 'https://public-b2p-geodata.s3.us-east-1.amazonaws.com/impact-map-raster-tiles/'
+// dev /Volumes/samsung-4tb/b2p/impact-model/cleaned_data/hex_data/impact-map-raster-tiles
