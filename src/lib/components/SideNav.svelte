@@ -22,7 +22,7 @@
 		{
 			icon: CircleInfoSolid,
 			label: 'Info',
-			action: () => {}
+			action: () => (window.location.href = 'https://public-b2p-geodata.s3.us-east-1.amazonaws.com/research/AGU_2025_poster.pdf')
 		}
 	];
 
