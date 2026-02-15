@@ -74,11 +74,25 @@ const impactMapState = $state({
 	hexDataPanelOpen: false // Whether the hex data analysis panel is open
 });
 
+const zambiaMapState = $state({
+	selectedMetric: 'population',
+	selectedHexData: null,
+	selectedBridgeData: null,
+	selectedDestinationData: null,
+	filterMode: false,
+	clickedFeatureType: null, // 'hex', 'bridge', or 'destination'
+	highlightedBridges: [],
+	highlightedDestinations: [],
+	highlightedHexes: [],
+	pathsVisible: false
+});
+
 export {
 	generalState,
 	waternetMapState,
 	saiMapState,
 	hexMapState,
 	impactMapDatabaseState,
-	impactMapState
+	impactMapState,
+	zambiaMapState
 };
