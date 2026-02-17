@@ -3,7 +3,11 @@
 	import { MapController } from '$lib/services/zambiademo/MapController.svelte.js';
 
 	let mapContainer;
-	let mapController;
+	let mapController = $state(null);
+
+	export function getMapController() {
+		return mapController;
+	}
 
 	onMount(() => {
 		mapController = new MapController(mapContainer);
