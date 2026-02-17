@@ -1,3 +1,4 @@
+import bridgeIcon from '$lib/images/map-icons/bridge-icon-bubble.png';
 import { zambiaMapState } from '$lib/utils/state.svelte';
 
 const S3_BASE = 'https://public-b2p-geodata.s3.us-east-1.amazonaws.com/zambia-analysis-demo';
@@ -50,35 +51,67 @@ export class BridgeLayerManager {
 				generateId: true
 			});
 
-			// Base circle layer
-			this.map.addLayer({
-				id: 'bridge-layer',
-				type: 'circle',
-				source: 'bridge-source',
-				paint: {
-					'circle-color': '#7897e7',
-					'circle-radius': 8,
-					'circle-opacity': 1,
-					'circle-stroke-width': 3,
-					'circle-stroke-color': '#3d5ba9',
-					'circle-stroke-opacity': 1
+			// Load bridge icon
+			this.map.loadImage(bridgeIcon, (error, image) => {
+				if (error) {
+					console.error('Error loading bridge icon:', error);
+					return;
 				}
-			});
 
-			// Hover/highlight layer (larger)
-			this.map.addLayer({
-				id: 'bridge-hover-layer',
-				type: 'circle',
-				source: 'bridge-source',
-				paint: {
-					'circle-color': '#7897e7',
-					'circle-radius': 12,
-					'circle-stroke-width': 3,
-					'circle-stroke-color': '#ffffff',
-					'circle-opacity': 1,
-					'circle-stroke-opacity': 1
-				},
-				filter: ['==', ['get', 'bridge_index'], -1]
+				if (!this.map.hasImage('bridge-icon-bubble')) {
+					this.map.addImage('bridge-icon-bubble', image);
+				}
+
+				// Main icon layer - always shows pins
+				this.map.addLayer({
+					id: 'bridge-layer',
+					type: 'symbol',
+					source: 'bridge-source',
+					layout: {
+						'icon-image': 'bridge-icon-bubble',
+						'icon-size': [
+							'interpolate',
+							['exponential', 1.5],
+							['zoom'],
+							8,
+							0.05,
+							14.5,
+							0.1
+						],
+						'icon-allow-overlap': true,
+						'icon-ignore-placement': true
+					},
+					paint: {
+						'icon-opacity': 1,
+						'icon-translate': [0, 5]
+					}
+				});
+
+				// Hover layer - hidden by default, used for click detection on highlighted bridges
+				this.map.addLayer({
+					id: 'bridge-hover-layer',
+					type: 'symbol',
+					source: 'bridge-source',
+					layout: {
+						'icon-image': 'bridge-icon-bubble',
+						'icon-size': [
+							'interpolate',
+							['exponential', 1.5],
+							['zoom'],
+							8,
+							0.05,
+							14.5,
+							0.1
+						],
+						'icon-allow-overlap': true,
+						'icon-ignore-placement': true
+					},
+					paint: {
+						'icon-opacity': 1,
+						'icon-translate': [0, 5]
+					},
+					filter: ['==', ['get', 'bridge_index'], '']
+				});
 			});
 		} catch (error) {
 			console.error('Error initializing bridge layers:', error);
@@ -92,17 +125,8 @@ export class BridgeLayerManager {
 
 		if (features.length > 0) {
 			this.map.getCanvas().style.cursor = 'pointer';
-
-			if (zambiaMapState.filterMode) return;
-
-			const bridgeIndex = features[0].properties.bridge_index;
-			this.map.setFilter('bridge-hover-layer', ['==', ['get', 'bridge_index'], bridgeIndex]);
 		} else {
 			this.map.getCanvas().style.cursor = '';
-
-			if (zambiaMapState.filterMode) return;
-
-			this.map.setFilter('bridge-hover-layer', ['==', ['get', 'bridge_index'], -1]);
 		}
 	}
 
@@ -132,6 +156,7 @@ export class BridgeLayerManager {
 		zambiaMapState.selectedBridgeData = feature;
 		zambiaMapState.filterMode = true;
 		zambiaMapState.clickedFeatureType = 'bridge';
+		zambiaMapState.dataPanelOpen = true;
 		zambiaMapState.highlightedHexes = Array.from(allHexes);
 		zambiaMapState.highlightedDestinations = [...healthDests, ...eduDests];
 
@@ -166,20 +191,13 @@ export class BridgeLayerManager {
 			];
 		}
 
-		this.map.setPaintProperty('bridge-layer', 'circle-opacity', [
+		// Fade non-highlighted bridges
+		this.map.setPaintProperty('bridge-layer', 'icon-opacity', [
 			'case',
 			highlightFilter,
-			1.0,
+			1,
 			0.2
 		]);
-		this.map.setPaintProperty('bridge-layer', 'circle-stroke-opacity', [
-			'case',
-			highlightFilter,
-			1.0,
-			0.2
-		]);
-
-		this.map.setFilter('bridge-hover-layer', highlightFilter);
 	}
 
 	highlightSelectedBridge(bridgeIndex) {
@@ -187,27 +205,18 @@ export class BridgeLayerManager {
 
 		const selectFilter = ['==', ['get', 'bridge_index'], bridgeIndex];
 
-		this.map.setPaintProperty('bridge-layer', 'circle-opacity', [
+		// Fade non-selected bridges
+		this.map.setPaintProperty('bridge-layer', 'icon-opacity', [
 			'case',
 			selectFilter,
-			1.0,
+			1,
 			0.3
 		]);
-		this.map.setPaintProperty('bridge-layer', 'circle-stroke-opacity', [
-			'case',
-			selectFilter,
-			1.0,
-			0.3
-		]);
-
-		this.map.setFilter('bridge-hover-layer', selectFilter);
 	}
 
 	resetFilter() {
 		if (!this.map.getLayer('bridge-layer')) return;
 
-		this.map.setPaintProperty('bridge-layer', 'circle-opacity', 1.0);
-		this.map.setPaintProperty('bridge-layer', 'circle-stroke-opacity', 1.0);
-		this.map.setFilter('bridge-hover-layer', ['==', ['get', 'bridge_index'], -1]);
+		this.map.setPaintProperty('bridge-layer', 'icon-opacity', 1);
 	}
 }

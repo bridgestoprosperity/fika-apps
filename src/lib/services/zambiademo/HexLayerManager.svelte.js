@@ -151,6 +151,8 @@ export class HexLayerManager {
 		const feature = features[0];
 		const props = feature.properties;
 
+		console.log('Hex clicked:', props.h3_index, props);
+
 		// Parse bridge and destination references
 		const bridgeIds = new Set();
 		Object.keys(props).forEach((key) => {
@@ -166,6 +168,7 @@ export class HexLayerManager {
 		zambiaMapState.selectedHexData = feature;
 		zambiaMapState.filterMode = true;
 		zambiaMapState.clickedFeatureType = 'hex';
+		zambiaMapState.dataPanelOpen = true;
 		zambiaMapState.highlightedBridges = Array.from(bridgeIds);
 		zambiaMapState.highlightedDestinations = [...healthDests, ...eduDests];
 
@@ -242,6 +245,7 @@ export class HexLayerManager {
 		zambiaMapState.highlightedDestinations = [];
 		zambiaMapState.highlightedHexes = [];
 		zambiaMapState.pathsVisible = false;
+		zambiaMapState.dataPanelOpen = false;
 
 		// Reset hex styling
 		this.resetHexHighlight();

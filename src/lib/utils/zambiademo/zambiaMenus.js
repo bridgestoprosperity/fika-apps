@@ -15,7 +15,6 @@ export const zambiaMenus = {
 		'Major Roads': 'travel_time_major_roads'
 	},
 	Impact: {
-		'Health Centers': 'time_delta_no_sites_health_centers',
-		'Major Roads': 'time_delta_no_sites_major_roads'
+		'Bridge Impact': 'impact'
 	}
 };

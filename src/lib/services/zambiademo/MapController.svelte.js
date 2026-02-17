@@ -24,8 +24,8 @@ export class MapController {
 		this.map = new mapboxgl.Map({
 			container: container,
 			style: 'mapbox://styles/bridgestoprosperity/cm8nlprgt001j01snclz4henr',
-			center: [26.0, -15.75],
-			zoom: 11,
+			center: [26.099, -15.533],
+			zoom: 12,
 			hash: true
 		});
 
