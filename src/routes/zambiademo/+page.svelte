@@ -1,7 +1,7 @@
 <script>
 	import ZambiaMap from '$lib/components/zambiademo/ZambiaMap.svelte';
 	import ZambiaMapControls from '$lib/components/zambiademo/ZambiaMapControls.svelte';
-	import InfoCard from '$lib/components/zambiademo/InfoCard.svelte';
+	import ZambiaDataPanel from '$lib/components/zambiademo/ZambiaDataPanel.svelte';
 	import SideNav from '$lib/components/SideNav.svelte';
 	import ControlPanel from '$lib/components/ControlPanel.svelte';
 </script>
@@ -24,7 +24,7 @@
 		</ControlPanel>
 	</div>
 
-	<InfoCard />
+	<ZambiaDataPanel />
 
 	<SideNav />
 </div>

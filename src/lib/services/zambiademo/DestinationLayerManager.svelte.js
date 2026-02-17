@@ -1,3 +1,5 @@
+import healthIcon from '$lib/images/map-icons/health-icon-bubble.png';
+import eduIcon from '$lib/images/map-icons/edu-icon-bubble.png';
 import { zambiaMapState } from '$lib/utils/state.svelte';
 
 const S3_BASE = 'https://public-b2p-geodata.s3.us-east-1.amazonaws.com/zambia-analysis-demo';
@@ -50,49 +52,89 @@ export class DestinationLayerManager {
 				generateId: true
 			});
 
-			// Main destination circles colored by category
+			// Load both icons
+			await Promise.all([
+				new Promise((resolve) => {
+					this.map.loadImage(healthIcon, (error, image) => {
+						if (!error && !this.map.hasImage('health-icon-bubble')) {
+							this.map.addImage('health-icon-bubble', image);
+						}
+						resolve();
+					});
+				}),
+				new Promise((resolve) => {
+					this.map.loadImage(eduIcon, (error, image) => {
+						if (!error && !this.map.hasImage('edu-icon-bubble')) {
+							this.map.addImage('edu-icon-bubble', image);
+						}
+						resolve();
+					});
+				})
+			]);
+
+			// Main icon layer - always shows pins, icon based on facility type
 			this.map.addLayer({
 				id: 'destination-layer',
-				type: 'circle',
+				type: 'symbol',
 				source: 'destination-source',
-				paint: {
-					'circle-color': [
+				layout: {
+					'icon-image': [
 						'match',
-						['get', 'category'],
+						['get', 'facility_type'],
 						'school',
-						'#C88534',
+						'edu-icon-bubble',
 						'health',
-						'#A64535',
-						'#666666'
+						'health-icon-bubble',
+						'health-icon-bubble'
 					],
-					'circle-radius': 8,
-					'circle-stroke-width': 2,
-					'circle-stroke-color': '#ffffff',
-					'circle-opacity': 1,
-					'circle-stroke-opacity': 1
+					'icon-size': [
+						'interpolate',
+						['exponential', 1.5],
+						['zoom'],
+						8,
+						0.02,
+						14.5,
+						0.15
+					],
+					'icon-allow-overlap': true,
+					'icon-ignore-placement': true
+				},
+				paint: {
+					'icon-opacity': 1,
+					'icon-translate': [0, 5]
 				}
 			});
 
-			// Hover/highlight layer
+			// Hover layer - hidden by default
 			this.map.addLayer({
 				id: 'destination-hover-layer',
-				type: 'circle',
+				type: 'symbol',
 				source: 'destination-source',
-				paint: {
-					'circle-color': [
+				layout: {
+					'icon-image': [
 						'match',
-						['get', 'category'],
+						['get', 'facility_type'],
 						'school',
-						'#C88534',
+						'edu-icon-bubble',
 						'health',
-						'#A64535',
-						'#666666'
+						'health-icon-bubble',
+						'health-icon-bubble'
 					],
-					'circle-radius': 12,
-					'circle-stroke-width': 3,
-					'circle-stroke-color': '#ffffff',
-					'circle-opacity': 1,
-					'circle-stroke-opacity': 1
+					'icon-size': [
+						'interpolate',
+						['exponential', 1.5],
+						['zoom'],
+						8,
+						0.02,
+						14.5,
+						0.15
+					],
+					'icon-allow-overlap': true,
+					'icon-ignore-placement': true
+				},
+				paint: {
+					'icon-opacity': 1,
+					'icon-translate': [0, 5]
 				},
 				filter: ['==', ['id'], -1]
 			});
@@ -129,16 +171,8 @@ export class DestinationLayerManager {
 
 		if (features.length > 0) {
 			this.map.getCanvas().style.cursor = 'pointer';
-
-			if (zambiaMapState.filterMode) return;
-
-			this.map.setFilter('destination-hover-layer', ['==', ['id'], features[0].id]);
 		} else {
 			this.map.getCanvas().style.cursor = '';
-
-			if (zambiaMapState.filterMode) return;
-
-			this.map.setFilter('destination-hover-layer', ['==', ['id'], -1]);
 		}
 	}
 
@@ -157,9 +191,9 @@ export class DestinationLayerManager {
 		const h3Indices = parsePgArray(props.h3_indices);
 		const bridgesUsed = parsePgArrayNum(props.bridges_used);
 
-		// Get destination index based on category
+		// Get destination index based on facility type
 		const destIndex =
-			props.category === 'school'
+			props.facility_type === 'school'
 				? props.all_education_facilities_index
 				: props.all_health_facilities_index;
 
@@ -167,6 +201,7 @@ export class DestinationLayerManager {
 		zambiaMapState.selectedDestinationData = feature;
 		zambiaMapState.filterMode = true;
 		zambiaMapState.clickedFeatureType = 'destination';
+		zambiaMapState.dataPanelOpen = true;
 		zambiaMapState.highlightedHexes = h3Indices;
 		zambiaMapState.highlightedBridges = bridgesUsed;
 
@@ -204,16 +239,11 @@ export class DestinationLayerManager {
 
 		const highlightFilter = ['any', ...checks];
 
-		this.map.setPaintProperty('destination-layer', 'circle-opacity', [
+		// Fade non-highlighted destinations
+		this.map.setPaintProperty('destination-layer', 'icon-opacity', [
 			'case',
 			highlightFilter,
-			1.0,
-			0.2
-		]);
-		this.map.setPaintProperty('destination-layer', 'circle-stroke-opacity', [
-			'case',
-			highlightFilter,
-			1.0,
+			1,
 			0.2
 		]);
 	}
@@ -223,27 +253,18 @@ export class DestinationLayerManager {
 
 		const selectFilter = ['==', ['id'], featureId];
 
-		this.map.setPaintProperty('destination-layer', 'circle-opacity', [
+		// Fade non-selected destinations
+		this.map.setPaintProperty('destination-layer', 'icon-opacity', [
 			'case',
 			selectFilter,
-			1.0,
+			1,
 			0.3
 		]);
-		this.map.setPaintProperty('destination-layer', 'circle-stroke-opacity', [
-			'case',
-			selectFilter,
-			1.0,
-			0.3
-		]);
-
-		this.map.setFilter('destination-hover-layer', selectFilter);
 	}
 
 	resetFilter() {
 		if (!this.map.getLayer('destination-layer')) return;
 
-		this.map.setPaintProperty('destination-layer', 'circle-opacity', 1.0);
-		this.map.setPaintProperty('destination-layer', 'circle-stroke-opacity', 1.0);
-		this.map.setFilter('destination-hover-layer', ['==', ['id'], -1]);
+		this.map.setPaintProperty('destination-layer', 'icon-opacity', 1);
 	}
 }

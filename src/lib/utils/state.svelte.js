@@ -84,7 +84,8 @@ const zambiaMapState = $state({
 	highlightedBridges: [],
 	highlightedDestinations: [],
 	highlightedHexes: [],
-	pathsVisible: false
+	pathsVisible: false,
+	dataPanelOpen: false
 });
 
 export {

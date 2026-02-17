@@ -43,8 +43,13 @@
 		if (!metaInfo.legend_labels || !styleStops) return null;
 
 		const colorScale = metaInfo.color_scale;
-		const reverse = metaInfo.reverse_color_scale;
-		const palette = reverse ? [...palettes[colorScale]].reverse() : palettes[colorScale];
+		let palette;
+		if (colorScale === 'impact_green') {
+			palette = ['#e0e0e0', '#c6e6c0', '#7dc67d', '#2ca25f', '#006d2c'];
+		} else {
+			const reverse = metaInfo.reverse_color_scale;
+			palette = reverse ? [...palettes[colorScale]].reverse() : palettes[colorScale];
+		}
 
 		return {
 			labels: metaInfo.legend_labels,
