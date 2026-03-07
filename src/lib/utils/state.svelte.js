@@ -18,7 +18,7 @@ const waternetMapState = $state({
 });
 
 const saiMapState = $state({
-	selectedViz: 'travel_time_health_centers',
+	selectedViz: 'travel_time_no_sites_major_roads',
 	selectedPalette: 'inferno',
 	reversePalette: true,
 	satelliteImagery: false,
