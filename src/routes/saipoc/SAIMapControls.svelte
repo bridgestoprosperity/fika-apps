@@ -4,95 +4,122 @@
 	import { vizOptions } from '$lib/utils/saiMapProperties';
 	import ColorPaletteBar from '$lib/components/ColorPaletteBar.svelte';
 
-	// Create an array of all available columns for visualization
-	const allColumns = [
-		// Base/demographic columns
-		'population',
-		'rwi',
-		'underweight',
-		'births',
-		'pregnancies',
-		'pop_0_4',
-		'females_0_4',
-		'males_0_4',
-		'pop_5_9',
-		'females_5_9',
-		'males_5_9',
-		'pop_10_14',
-		'females_10_14',
-		'males_10_14',
-		'pop_0_9',
-		'females_0_9',
-		'males_0_9',
-		'pop_15_49',
-		'females_15_49',
-		'males_15_49',
-		'pop_50_64',
-		'females_50_64',
-		'males_50_64',
-		'pop_65_plus',
-		'females_65_plus',
-		'males_65_plus',
-		'female_educational_attainment_mean',
-		'male_educational_attainment_mean',
-
-		// Travel time columns
-		'travel_time',
-		'travel_time_no_sites',
-		'time_delta_no_sites',
-		'travel_time_no_sites_all_health',
-		'time_delta_no_sites_semi_dense_urban',
-		'travel_time_health_posts',
-		'travel_time_major_roads',
-		'travel_time_no_sites_secondary_schools',
-		'travel_time_secondary_schools',
-		'travel_time_no_sites_health_centers',
-		'travel_time_no_sites_major_roads',
-		'time_delta_no_sites_secondary_schools',
-		'time_delta_no_sites_all_health',
-		'travel_time_health_centers',
-		'time_delta_no_sites_health_centers',
-		'time_delta_no_sites_major_roads',
-		'travel_time_semi_dense_urban',
-		'time_delta_no_sites_major_hospitals',
-		'travel_time_all_health',
-		'travel_time_no_sites_primary_schools',
-		'travel_time_no_sites_semi_dense_urban',
-		'time_delta_no_sites_health_posts',
-		'travel_time_no_sites_all_education',
-		'travel_time_major_hospitals',
-		'travel_time_no_sites_major_hospitals',
-		'travel_time_primary_schools',
-		'time_delta_no_sites_primary_schools',
-		'travel_time_all_education',
-		'time_delta_no_sites_all_education',
-		'travel_time_no_sites_health_posts'
+	// Structured category/option definitions with human-readable labels
+	const categories = [
+		{
+			id: 'walking_time_no_bridges',
+			label: 'Walking time w/o bridges',
+			options: [
+				{ value: 'travel_time_no_sites_major_roads', label: 'To major roads' },
+				{ value: 'travel_time_no_sites_health_centers', label: 'To health centers' },
+				{ value: 'travel_time_no_sites_major_hospitals', label: 'To major hospitals' },
+				{ value: 'travel_time_no_sites_health_posts', label: 'To health posts' },
+				{ value: 'travel_time_no_sites_all_health', label: 'To all health facilities' },
+				{ value: 'travel_time_no_sites_primary_schools', label: 'To primary schools' },
+				{ value: 'travel_time_no_sites_secondary_schools', label: 'To secondary schools' },
+				{ value: 'travel_time_no_sites_all_education', label: 'To all education facilities' },
+				{ value: 'travel_time_no_sites_semi_dense_urban', label: 'To urban areas' }
+			]
+		},
+		{
+			id: 'walking_time_with_bridges',
+			label: 'Walking time with bridges',
+			options: [
+				{ value: 'travel_time_major_roads', label: 'To major roads' },
+				{ value: 'travel_time_health_centers', label: 'To health centers' },
+				{ value: 'travel_time_major_hospitals', label: 'To major hospitals' },
+				{ value: 'travel_time_health_posts', label: 'To health posts' },
+				{ value: 'travel_time_all_health', label: 'To all health facilities' },
+				{ value: 'travel_time_primary_schools', label: 'To primary schools' },
+				{ value: 'travel_time_secondary_schools', label: 'To secondary schools' },
+				{ value: 'travel_time_all_education', label: 'To all education facilities' },
+				{ value: 'travel_time_semi_dense_urban', label: 'To urban areas' }
+			]
+		},
+		{
+			id: 'time_saved',
+			label: 'Walking time saved by trail bridges',
+			options: [
+				{ value: 'time_delta_no_sites_major_roads', label: 'To major roads' },
+				{ value: 'time_delta_no_sites_health_centers', label: 'To health centers' },
+				{ value: 'time_delta_no_sites_major_hospitals', label: 'To major hospitals' },
+				{ value: 'time_delta_no_sites_health_posts', label: 'To health posts' },
+				{ value: 'time_delta_no_sites_all_health', label: 'To all health facilities' },
+				{ value: 'time_delta_no_sites_primary_schools', label: 'To primary schools' },
+				{ value: 'time_delta_no_sites_secondary_schools', label: 'To secondary schools' },
+				{ value: 'time_delta_no_sites_all_education', label: 'To all education facilities' },
+				{ value: 'time_delta_no_sites_semi_dense_urban', label: 'To urban areas' }
+			]
+		},
+		{
+			id: 'population',
+			label: 'Population data',
+			options: [
+				{ value: 'population', label: 'Total population' },
+				{ value: 'pop_0_4', label: 'Age 0-4' },
+				{ value: 'females_0_4', label: 'Females age 0-4' },
+				{ value: 'males_0_4', label: 'Males age 0-4' },
+				{ value: 'pop_5_9', label: 'Age 5-9' },
+				{ value: 'females_5_9', label: 'Females age 5-9' },
+				{ value: 'males_5_9', label: 'Males age 5-9' },
+				{ value: 'pop_10_14', label: 'Age 10-14' },
+				{ value: 'females_10_14', label: 'Females age 10-14' },
+				{ value: 'males_10_14', label: 'Males age 10-14' },
+				{ value: 'pop_0_9', label: 'Age 0-9' },
+				{ value: 'females_0_9', label: 'Females age 0-9' },
+				{ value: 'males_0_9', label: 'Males age 0-9' },
+				{ value: 'pop_15_49', label: 'Age 15-49' },
+				{ value: 'females_15_49', label: 'Females age 15-49' },
+				{ value: 'males_15_49', label: 'Males age 15-49' },
+				{ value: 'pop_50_64', label: 'Age 50-64' },
+				{ value: 'females_50_64', label: 'Females age 50-64' },
+				{ value: 'males_50_64', label: 'Males age 50-64' },
+				{ value: 'pop_65_plus', label: 'Age 65+' },
+				{ value: 'females_65_plus', label: 'Females age 65+' },
+				{ value: 'males_65_plus', label: 'Males age 65+' }
+			]
+		},
+		{
+			id: 'demographics',
+			label: 'Demographic & other indicators',
+			options: [
+				{ value: 'births', label: 'Births' },
+				{ value: 'pregnancies', label: 'Pregnancies' },
+				{ value: 'underweight', label: 'Underweight prevalence' },
+				{ value: 'rwi', label: 'Relative wealth index' },
+				{ value: 'female_educational_attainment_mean', label: 'Female educational attainment (mean)' },
+				{ value: 'male_educational_attainment_mean', label: 'Male educational attainment (mean)' }
+			]
+		}
 	];
 
-	// Group columns by category for the dropdown
-	const columnGroups = {
-		Population: allColumns.filter(
-			(col) =>
-				col === 'population' ||
-				col.startsWith('pop_') ||
-				col.includes('females_') ||
-				col.includes('males_')
-		),
-		'Health Indicators': ['births', 'pregnancies', 'underweight', 'rwi'],
-		Education: ['female_educational_attainment_mean', 'male_educational_attainment_mean'],
-		'Travel Time': allColumns.filter(
-			(col) => col.startsWith('travel_time') && !col.includes('no_sites')
-		),
-		'Travel Time (No Sites)': allColumns.filter((col) => col.startsWith('travel_time_no_sites')),
-		'Time Delta': allColumns.filter((col) => col.startsWith('time_delta'))
-	};
+	// Find which category the current selectedViz belongs to
+	function findCategoryForViz(viz) {
+		for (const cat of categories) {
+			if (cat.options.some((o) => o.value === viz)) return cat.id;
+		}
+		return categories[0].id;
+	}
 
-	// Create a derived value for the current visualization's properties
+	let selectedCategory = $state(findCategoryForViz(saiMapState.selectedViz));
+
+	let currentCategoryOptions = $derived(
+		categories.find((c) => c.id === selectedCategory)?.options ?? []
+	);
+
+	function onCategoryChange(newCategoryId) {
+		selectedCategory = newCategoryId;
+		const cat = categories.find((c) => c.id === newCategoryId);
+		if (cat && cat.options.length > 0) {
+			saiMapState.selectedViz = cat.options[0].value;
+		}
+	}
+
+	// Derived viz props for statistics display
 	let currentVizProps = $derived.by(() => {
 		const selectedViz = saiMapState.selectedViz;
 		let vizName = selectedViz;
 
-		// Map visualization columns to their base property sets
 		if (selectedViz.startsWith('travel_time_no_sites_')) {
 			vizName = 'travel_time_no_sites';
 		} else if (selectedViz.startsWith('travel_time_') && selectedViz !== 'travel_time') {
@@ -101,32 +128,40 @@
 			vizName = 'time_delta_no_sites';
 		}
 
-		// Return the visualization properties or default to population if not found
 		return vizOptions[vizName] || vizOptions['population'];
 	});
 </script>
 
 <div class="space-y-4">
-	<!-- Visualization Selection -->
+	<!-- Category Selection -->
 	<div>
-		<p class="font-bold">Data Visualized</p>
+		<p class="font-bold">Category</p>
+		<div class="form-control mt-3">
+			<select
+				class="select select-bordered select-secondary bg-transparent p-1 font-mono"
+				value={selectedCategory}
+				onchange={(e) => onCategoryChange(e.target.value)}>
+				{#each categories as category}
+					<option value={category.id}>{category.label}</option>
+				{/each}
+			</select>
+		</div>
+	</div>
+
+	<!-- Metric Selection -->
+	<div>
+		<p class="font-bold">Show on map</p>
 		<div class="form-control mt-3">
 			<select
 				class="select select-bordered select-secondary bg-transparent p-1 font-mono"
 				bind:value={saiMapState.selectedViz}>
-				{#each Object.entries(columnGroups) as [groupName, columns]}
-					<optgroup label={groupName}>
-						{#each columns as column}
-							<option value={column}>
-								{column.replace(/_/g, ' ')}
-							</option>
-						{/each}
-					</optgroup>
+				{#each currentCategoryOptions as option}
+					<option value={option.value}>{option.label}</option>
 				{/each}
 			</select>
 		</div>
 
-		<!-- statistics display -->
+		<!-- Statistics display -->
 		{#if currentVizProps}
 			<div class="mt-2 space-y-1 text-sm">
 				<p>Mean: {currentVizProps.mean.toFixed(2)}</p>
@@ -165,7 +200,7 @@
 				checked={saiMapState.reversePalette} />
 		</label>
 	</div>
-	<!-- if sasiMapState.clickedData doesn't = {} add it it below -->
+	<!-- Selected feature data -->
 	{#if Object.keys(saiMapState.clickedData).length > 0}
 		<div>
 			<p class="font-bold">Selected Feature</p>

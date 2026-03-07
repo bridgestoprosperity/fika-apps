@@ -245,7 +245,7 @@
 		// Fall back to population if the viz isn't defined
 		const vizProps = vizOptions[vizName] || vizOptions['population'];
 		saiMapState.selectedPalette = vizProps.defaultPalette;
-		saiMapState.reversePalette = vizProps.reversePalette;
+		saiMapState.reversePalette = vizProps.reverse;
 
 		if (map) {
 			try {
