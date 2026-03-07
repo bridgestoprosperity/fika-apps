@@ -33,6 +33,22 @@
 		return saiMapState.reversePalette ? palette.slice().reverse() : palette;
 	});
 
+	// Demographics and time delta categories should exclude 0 values from the layer
+	function shouldExcludeZeros(viz) {
+		return (
+			viz.startsWith('time_delta') ||
+			['births', 'pregnancies', 'underweight', 'rwi',
+			 'female_educational_attainment_mean', 'male_educational_attainment_mean'].includes(viz)
+		);
+	}
+
+	function fillFilter(viz) {
+		if (shouldExcludeZeros(viz)) {
+			return ['all', ['has', viz], ['!=', ['coalesce', ['to-number', ['get', viz]], 0], 0]];
+		}
+		return ['has', viz];
+	}
+
 	$effect(() => {
 		console.log(currentPalette);
 	});
@@ -86,7 +102,7 @@
 				source: 'sai-hex6',
 				'source-layer': 'hex6-impact-data',
 				maxzoom: 7.5, // Only visible up to zoom level 6
-				filter: ['has', saiMapState.selectedViz],
+				filter: fillFilter(saiMapState.selectedViz),
 				paint: {
 					'fill-color': [
 						'interpolate',
@@ -114,7 +130,7 @@
 				source: 'sai-hex8',
 				'source-layer': 'hex8-impact-data',
 				minzoom: 7.5, // Only visible from zoom level 7
-				filter: ['has', saiMapState.selectedViz],
+				filter: fillFilter(saiMapState.selectedViz),
 				paint: {
 					'fill-color': [
 						'interpolate',
@@ -251,7 +267,7 @@
 			try {
 				// Update filters for both hex6 and hex8 layers
 				if (map.getLayer('sai-fill-hex6')) {
-					map.setFilter('sai-fill-hex6', ['has', selectedViz]);
+					map.setFilter('sai-fill-hex6', fillFilter(selectedViz));
 					map.setFilter('sai-line-hex6', [
 						'all',
 						['has', selectedViz],
@@ -260,7 +276,7 @@
 				}
 
 				if (map.getLayer('sai-fill-hex8')) {
-					map.setFilter('sai-fill-hex8', ['has', selectedViz]);
+					map.setFilter('sai-fill-hex8', fillFilter(selectedViz));
 					map.setFilter('sai-line-hex8', [
 						'all',
 						['has', selectedViz],
@@ -310,7 +326,6 @@
 			map.setPaintProperty('sai-fill-hex6', 'fill-color', [
 				'interpolate',
 				['linear'],
-				// First convert string to number, then apply coalesce to handle null values
 				['coalesce', ['to-number', ['get', saiMapState.selectedViz]], 0],
 				vizProps['stop0'],
 				currentPalette[0],
@@ -330,7 +345,6 @@
 			map.setPaintProperty('sai-fill-hex8', 'fill-color', [
 				'interpolate',
 				['linear'],
-				// First convert string to number, then apply coalesce to handle null values
 				['coalesce', ['to-number', ['get', saiMapState.selectedViz]], 0],
 				vizProps['stop0'],
 				currentPalette[0],

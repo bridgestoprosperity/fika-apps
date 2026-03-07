@@ -66,7 +66,7 @@ export const vizOptions = {
 		stop3: 45,
 		stop4: 60,
 		defaultPalette: 'greens',
-		reverse: true
+		reverse: false
 	},
 	rwi: {
 		count: 1949086.0,
@@ -180,8 +180,8 @@ export const vizOptions = {
 		stop2: 51,
 		stop3: 147,
 		stop4: 1442,
-		defaultPalette: 'magma',
-		reverse: true
+		defaultPalette: 'blues',
+		reverse: false
 	},
 	births: {
 		count: 1949086.0,
@@ -203,8 +203,8 @@ export const vizOptions = {
 		stop2: 3,
 		stop3: 4,
 		stop4: 37,
-		defaultPalette: 'magma',
-		reverse: true
+		defaultPalette: 'blues',
+		reverse: false
 	},
 	pregnancies: {
 		count: 1949086.0,
@@ -226,8 +226,8 @@ export const vizOptions = {
 		stop2: 3,
 		stop3: 5,
 		stop4: 52,
-		defaultPalette: 'magma',
-		reverse: true
+		defaultPalette: 'blues',
+		reverse: false
 	},
 	pop_0_4: {
 		count: 1949086.0,
@@ -249,8 +249,8 @@ export const vizOptions = {
 		stop2: 8,
 		stop3: 24,
 		stop4: 224,
-		defaultPalette: 'magma',
-		reverse: true
+		defaultPalette: 'blues',
+		reverse: false
 	},
 	females_0_4: {
 		count: 1949086.0,
@@ -272,8 +272,8 @@ export const vizOptions = {
 		stop2: 4,
 		stop3: 12,
 		stop4: 111,
-		defaultPalette: 'magma',
-		reverse: true
+		defaultPalette: 'blues',
+		reverse: false
 	},
 	males_0_4: {
 		count: 1949086.0,
@@ -295,8 +295,8 @@ export const vizOptions = {
 		stop2: 4,
 		stop3: 12,
 		stop4: 112,
-		defaultPalette: 'magma',
-		reverse: true
+		defaultPalette: 'blues',
+		reverse: false
 	},
 	pop_5_9: {
 		count: 1949086.0,
@@ -318,8 +318,8 @@ export const vizOptions = {
 		stop2: 7,
 		stop3: 21,
 		stop4: 203,
-		defaultPalette: 'magma',
-		reverse: true
+		defaultPalette: 'blues',
+		reverse: false
 	},
 	females_5_9: {
 		count: 1949086.0,
@@ -341,8 +341,8 @@ export const vizOptions = {
 		stop2: 3,
 		stop3: 10,
 		stop4: 101,
-		defaultPalette: 'magma',
-		reverse: true
+		defaultPalette: 'blues',
+		reverse: false
 	},
 	males_5_9: {
 		count: 1949086.0,
@@ -364,8 +364,8 @@ export const vizOptions = {
 		stop2: 3,
 		stop3: 10,
 		stop4: 102,
-		defaultPalette: 'magma',
-		reverse: true
+		defaultPalette: 'blues',
+		reverse: false
 	},
 	pop_10_14: {
 		count: 1949086.0,
@@ -387,8 +387,8 @@ export const vizOptions = {
 		stop2: 6,
 		stop3: 19,
 		stop4: 186,
-		defaultPalette: 'magma',
-		reverse: true
+		defaultPalette: 'blues',
+		reverse: false
 	},
 	females_10_14: {
 		count: 1949086.0,
@@ -410,8 +410,8 @@ export const vizOptions = {
 		stop2: 3,
 		stop3: 9,
 		stop4: 92,
-		defaultPalette: 'magma',
-		reverse: true
+		defaultPalette: 'blues',
+		reverse: false
 	},
 	males_10_14: {
 		count: 1949086.0,
@@ -433,8 +433,8 @@ export const vizOptions = {
 		stop2: 3,
 		stop3: 9,
 		stop4: 93,
-		defaultPalette: 'magma',
-		reverse: true
+		defaultPalette: 'blues',
+		reverse: false
 	},
 	pop_0_9: {
 		count: 1949086.0,
@@ -456,8 +456,8 @@ export const vizOptions = {
 		stop2: 16,
 		stop3: 46,
 		stop4: 427,
-		defaultPalette: 'magma',
-		reverse: true
+		defaultPalette: 'blues',
+		reverse: false
 	},
 	females_0_9: {
 		count: 1949086.0,
@@ -479,8 +479,8 @@ export const vizOptions = {
 		stop2: 7,
 		stop3: 22,
 		stop4: 212,
-		defaultPalette: 'magma',
-		reverse: true
+		defaultPalette: 'blues',
+		reverse: false
 	},
 	males_0_9: {
 		count: 1949086.0,
@@ -502,8 +502,8 @@ export const vizOptions = {
 		stop2: 8,
 		stop3: 23,
 		stop4: 214,
-		defaultPalette: 'magma',
-		reverse: true
+		defaultPalette: 'blues',
+		reverse: false
 	},
 	pop_15_49: {
 		count: 1949086.0,
@@ -525,8 +525,8 @@ export const vizOptions = {
 		stop2: 23,
 		stop3: 67,
 		stop4: 695,
-		defaultPalette: 'magma',
-		reverse: true
+		defaultPalette: 'blues',
+		reverse: false
 	},
 	females_15_49: {
 		count: 1949086.0,
@@ -548,8 +548,8 @@ export const vizOptions = {
 		stop2: 11,
 		stop3: 33,
 		stop4: 348,
-		defaultPalette: 'magma',
-		reverse: true
+		defaultPalette: 'blues',
+		reverse: false
 	},
 	males_15_49: {
 		count: 1949086.0,
@@ -571,8 +571,8 @@ export const vizOptions = {
 		stop2: 11,
 		stop3: 33,
 		stop4: 347,
-		defaultPalette: 'magma',
-		reverse: true
+		defaultPalette: 'blues',
+		reverse: false
 	},
 	pop_50_64: {
 		count: 1949086.0,
@@ -594,8 +594,8 @@ export const vizOptions = {
 		stop2: 3,
 		stop3: 9,
 		stop4: 95,
-		defaultPalette: 'magma',
-		reverse: true
+		defaultPalette: 'blues',
+		reverse: false
 	},
 	females_50_64: {
 		count: 1949086.0,
@@ -617,8 +617,8 @@ export const vizOptions = {
 		stop2: 2,
 		stop3: 4,
 		stop4: 49,
-		defaultPalette: 'magma',
-		reverse: true
+		defaultPalette: 'blues',
+		reverse: false
 	},
 	males_50_64: {
 		count: 1949086.0,
@@ -640,8 +640,8 @@ export const vizOptions = {
 		stop2: 3,
 		stop3: 4,
 		stop4: 45,
-		defaultPalette: 'magma',
-		reverse: true
+		defaultPalette: 'blues',
+		reverse: false
 	},
 	pop_65_plus: {
 		count: 1949086.0,
@@ -663,8 +663,8 @@ export const vizOptions = {
 		stop2: 2,
 		stop3: 4,
 		stop4: 43,
-		defaultPalette: 'magma',
-		reverse: true
+		defaultPalette: 'blues',
+		reverse: false
 	},
 	females_65_plus: {
 		count: 1949086.0,
@@ -686,8 +686,8 @@ export const vizOptions = {
 		stop2: 2,
 		stop3: 3,
 		stop4: 24,
-		defaultPalette: 'magma',
-		reverse: true
+		defaultPalette: 'blues',
+		reverse: false
 	},
 	males_65_plus: {
 		count: 1949086.0,
@@ -709,7 +709,7 @@ export const vizOptions = {
 		stop2: 3,
 		stop3: 4,
 		stop4: 19,
-		defaultPalette: 'magma',
-		reverse: true
+		defaultPalette: 'blues',
+		reverse: false
 	}
 };
