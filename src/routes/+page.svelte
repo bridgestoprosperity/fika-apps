@@ -113,9 +113,9 @@
 			image: bridgeSitesAppImage,
 			alt: 'map of ethiopia',
 			title: 'Bridges Built Worldwide',
-			description: 'Locations of bridges built by Bridges to Prosperity around the world',
+			description: 'Locations of bridges built by Fika around the world',
 			href: 'https://bridge-locations-map.vercel.app/',
-			learn: 'https://bridgestoprosperity.org/our-impact/'
+			learn: 'https://fika.org/our-impact/'
 		},
 				{
 			image: fikaCollectImage,

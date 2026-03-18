@@ -1,6 +1,6 @@
 # FIKA Apps
 
-A suite of interactive mapping applications for Bridges to Prosperity (B2P).
+A suite of interactive mapping applications for Fika.
 
 ## Features
 

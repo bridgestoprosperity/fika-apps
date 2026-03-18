@@ -9,7 +9,7 @@
 
 <svelte:head>
 	<title>Fika Apps</title>
-	<meta name="description" content="Digital applications developed by Bridges to Prosperity" />
+	<meta name="description" content="Digital applications developed by Fika" />
 	<meta property="og:image" content="https://apps.fikamap.com/fika-apps-cover.png" />
 	<meta name="twitter:image" content="https://apps.fikamap.com/fika-apps-cover.png" />
 	<meta property="og:image:width" content="1200" />
