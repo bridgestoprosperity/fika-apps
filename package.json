@@ -3,7 +3,7 @@
 	"version": "0.0.1",
 	"type": "module",
 	"engines": {
-		"node": "20.x"
+		"node": ">=20"
 	},
 	"scripts": {
 		"dev": "vite dev",
@@ -35,6 +35,7 @@
 		"mapbox-pmtiles": "^1.0.53",
 		"pg": "^8.11.3",
 		"postcss": "^8.4.49",
+		"svelte-clerk": "^1.1.5",
 		"web-vitals": "^4.2.4"
 	}
 }

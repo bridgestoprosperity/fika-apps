@@ -4,6 +4,7 @@
 	import 'mapbox-gl/dist/mapbox-gl.css';
 	import { injectAnalytics } from '@vercel/analytics/sveltekit';
 	import Header from './Header.svelte';
+	import { ClerkProvider } from 'svelte-clerk';
 	injectAnalytics();
 </script>
 
@@ -16,13 +17,15 @@
 	<meta property="og:image:height" content="6663" />
 </svelte:head>
 
-<div class="app">
-	<Header />
-	<main>
-		{@render children()}
-	</main>
-	<footer></footer>
-</div>
+<ClerkProvider>
+	<div class="app">
+		<Header />
+		<main>
+			{@render children()}
+		</main>
+		<footer></footer>
+	</div>
+</ClerkProvider>
 
 <style>
 	.app {
