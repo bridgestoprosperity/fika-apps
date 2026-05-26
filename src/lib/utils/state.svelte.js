@@ -18,11 +18,12 @@ const waternetMapState = $state({
 });
 
 const saiMapState = $state({
-	selectedViz: 'travel_time_no_sites_major_roads',
-	selectedPalette: 'inferno',
-	reversePalette: true,
+	selectedViz: 'travel_time_no_sites_all_education',
+	selectedPalette: 'ylorrd',
+	reversePalette: false,
 	satelliteImagery: false,
-	clickedData: {}
+	clickedData: {},
+	tourActive: false
 });
 
 const hexMapState = $state({
