@@ -5,10 +5,13 @@
 	const MAPBOX_TOKEN =
 		'pk.eyJ1IjoiYnJpZGdlc3RvcHJvc3Blcml0eSIsImEiOiJjajRpd2sxeGQwMjU5MnhxajJkNzZnODZtIn0.UrOwxq6A1Zl2yvwzYxBudQ';
 
-	const MARTIN_URL = 'http://98.92.93.210:3000';
+	const MARTIN_URL = 'http://98.81.113.158:3000';
 
 	let mapContainer;
 	let map;
+
+	// The column the map should request. Mutate this from a dropdown later.
+	let currentColumn = 'rwi';
 
 	onMount(() => {
 		mapboxgl.accessToken = MAPBOX_TOKEN;
@@ -18,18 +21,22 @@
 			style: 'mapbox://styles/mapbox/light-v11',
 			center: [26.19, -0.21],
 			zoom: 4,
-			hash: true
+			hash: true,
+			transformRequest: (url, resourceType) => {
+				if (resourceType === 'Tile' && url.includes('/hex_tiles/')) {
+					const sep = url.includes('?') ? '&' : '?';
+					return { url: `${url}${sep}column=${encodeURIComponent(currentColumn)}` };
+				}
+				return { url };
+			}
 		});
 
 		map.addControl(new mapboxgl.NavigationControl());
 
 		map.on('load', () => {
-			// Use TileJSON URL so Mapbox reads correct bounds/zoom from Martin
-			const column = 'rwi'; // this will eventually come from a dropdown
-
 			map.addSource('martin-hex', {
 				type: 'vector',
-				tiles: [`${MARTIN_URL}/hex_tiles/{z}/{x}/{y}?column=${column}`],
+				tiles: [`${MARTIN_URL}/hex_tiles/{z}/{x}/{y}`],
 				minzoom: 8,
 				maxzoom: 22
 			});
@@ -38,29 +45,19 @@
 				id: 'hex-fill',
 				type: 'fill',
 				source: 'martin-hex',
-				'source-layer': 'hex_tiles', // matches function name
+				'source-layer': 'hex_tiles',
 				minzoom: 8,
 				maxzoom: 22,
 				paint: {
 					'fill-color': [
-						'case',
-						['==', ['get', 'value'], null], // column is now always 'value'
-						'#f4f4f4',
-						[
-							'interpolate',
-							['linear'],
-							['get', 'value'],
-							-3,
-							'#d73027',
-							-1,
-							'#fee08b',
-							0,
-							'#e8f5e9',
-							1,
-							'#66bb6a',
-							3,
-							'#009149'
-						]
+						'interpolate',
+						['linear'],
+						['coalesce', ['to-number', ['get', 'value']], 0],
+						-0.778, '#d7191c',
+						-0.389, '#fdae61',
+						0,      '#ffffbf',
+						0.166,  '#a6d96a',
+						0.332,  '#1a9641'
 					],
 					'fill-opacity': 0.8
 				}
@@ -74,28 +71,23 @@
 				minzoom: 8,
 				maxzoom: 22,
 				paint: {
-					'line-color': '#000000',
+					'line-color': '#ffffff',
 					'line-opacity': 0.15,
 					'line-width': 0.5
 				}
 			});
-		});
-		map.on('click', 'hex-fill', (e) => {
-			const features = map.queryRenderedFeatures(e.point, {
-				layers: ['hex-fill']
-			});
-			if (!features.length) {
-				return;
-			}
-			const feature = features[0];
-			const coordinates = feature.geometry.coordinates.slice();
-			const description = `properties: ${JSON.stringify(feature.properties)}`;
 
-			new mapboxgl.Popup().setLngLat(e.lngLat).setHTML(description).addTo(map);
+			map.on('click', 'hex-fill', (e) => {
+				const features = map.queryRenderedFeatures(e.point, { layers: ['hex-fill'] });
+				if (!features.length) return;
+				const feature = features[0];
+				const description = `properties: ${JSON.stringify(feature.properties)}`;
+				new mapboxgl.Popup().setLngLat(e.lngLat).setHTML(description).addTo(map);
+			});
 		});
 
 		return () => {
-			map.remove();
+			map?.remove();
 		};
 	});
 </script>
