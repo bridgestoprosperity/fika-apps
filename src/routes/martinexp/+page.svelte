@@ -3,7 +3,7 @@
 	import mapboxgl from 'mapbox-gl';
 
 	const MAPBOX_TOKEN =
-		'pk.eyJ1IjoiYnJpZGdlc3RvcHJvc3Blcml0eSIsImEiOiJjajRpd2sxeGQwMjU5MnhxajJkNzZnODZtIn0.UrOwxq6A1Zl2yvwzYxBudQ';
+		'pk.eyJ1IjoiYnJpZGdlc3RvcHJvc3Blcml0eSIsImEiOiJjbG51aHV6MDEwZDI1Mmx0MzhqcHFvb3BuIn0.wgSlMp8cyuIYVMvj_p-Ojg';
 
 	const MARTIN_URL = 'http://98.81.113.158:3000';
 
