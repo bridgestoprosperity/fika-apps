@@ -23,7 +23,9 @@
 	import fikaMapAppImage from '$lib/images/app-screenshots/fikamap-maponly.png';
 	import bridgeSitesAppImage from '$lib/images/app-screenshots/sites-zoom-sat.png';
 	import waternetAppImage from '$lib/images/app-screenshots/waternet-magma-4.png';
-	import bridgeDesignToolImage from '$lib/images/app-screenshots/bridge-design-tool.jpg';
+	import bridgeCostImage from '$lib/images/app-screenshots/bridge-cost.jpg';
+	import bridgeTypeImage from '$lib/images/app-screenshots/bridge-type.jpg';
+	import rntiBudgetImage from '$lib/images/app-screenshots/rnti-budget.jpg';
 	import fikaImpactImage from '$lib/images/app-screenshots/fika-impact-map1.png';
 	import fikaCollectImage from '$lib/images/app-screenshots/fika-collect-1.jpg';
 
@@ -154,11 +156,27 @@
 			learn: ''
 		},
 		{
-			image: bridgeDesignToolImage,
-			alt: 'Bridge design tool app screenshot',
-			title: 'Bridge Design Tools',
-			description: 'A suite of tools designed to support the building and design of trailbridges',
-			href: 'https://bridgedesignv3.streamlit.app/Updated_Bridge_Design_Helper',
+			image: bridgeCostImage,
+			alt: 'Bridge Cost Estimator screenshot',
+			title: 'Bridge Cost Estimator',
+			description: 'Estimate the cost of building a trailbridge based on site conditions and design parameters',
+			href: 'https://bridgedesignv3.streamlit.app/Bridge_Price_Estimation',
+			learn: ''
+		},
+		{
+			image: rntiBudgetImage,
+			alt: 'RNTI Planner screenshot',
+			title: 'RNTI Planner',
+			description: 'Plan rural network transportation infrastructure budgets and prioritize bridge investments across a region',
+			href: 'https://bridgedesignv3.streamlit.app/RNTI_Budget_Calculator',
+			learn: ''
+		},
+		{
+			image: bridgeTypeImage,
+			alt: 'Bridge Type Recommendation Engine screenshot',
+			title: 'Bridge Type Recommendation Engine',
+			description: 'Get a recommended bridge type based on site-specific conditions and engineering constraints',
+			href: 'https://bridgedesignv3.streamlit.app/Bridge_Type_Recommender',
 			learn: ''
 		}
 	];
