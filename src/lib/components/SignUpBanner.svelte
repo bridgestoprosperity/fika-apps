@@ -28,7 +28,7 @@
 				Sign up for full access to every Fika Digital application
 			</p>
 			<a
-				href="#signup"
+				href="https://apps.fikadigital.org/sign-up"
 				class="btn btn-sm shrink-0 border-none bg-primary text-white hover:bg-primary/90 md:btn-md">
 				Sign Up
 			</a>

@@ -34,6 +34,7 @@
 	import bplLogo from '$lib/images/supported-by/bpl.png';
 	import ciscofLogo from '$lib/images/supported-by/ciscof.png';
 	import gwLogo from '$lib/images/supported-by/gw.png';
+	import mbLogo from '$lib/images/supported-by/mb.png';
 	import pjmfLogo from '$lib/images/supported-by/pjmf.png';
 	import sahajLogo from '$lib/images/supported-by/sahaj.png';
 
@@ -42,6 +43,7 @@
 		{ src: bplLogo, alt: 'Better Planet Laboratory' },
 		{ src: ciscofLogo, alt: 'Cisco Foundation' },
 		{ src: gwLogo, alt: 'GiveWell' },
+		{ src: mbLogo, alt: 'Mapbox' },
 		{ src: pjmfLogo, alt: 'Patrick J. McGovern Foundation' },
 		{ src: sahajLogo, alt: 'Sahaj Software' }
 	];
@@ -258,8 +260,7 @@
 				<h1
 					class="hero-init text-4xl font-bold leading-tight text-secondary md:flex-1 md:text-5xl lg:text-6xl"
 					class:hero-slide-left={heroVisible}>
-					Digital Products and AI models that provide insight into rural access need and
-					scales impact
+					Data & AI models delivering rural access at scale
 				</h1>
 				<div class="flex flex-col gap-6 md:flex-1">
 					<p
@@ -273,12 +274,12 @@
 						class="hero-init text-lg leading-relaxed text-gray-600 md:text-xl"
 						class:hero-fade-up={heroVisible}
 						class:animation-delay-400={heroVisible}>
-						Our Digital group conducts research, produces data, and develops applications to
+						Our Digital group conducts research, produces data, and develops products to
 						close data gaps and transform rural access. The technology we build scales our work
 						as we aim to transform rural access solutions around the world.
 					</p>
 					<a
-						href="#signup"
+						href="https://apps.fikadigital.org/sign-up"
 						class="hero-init btn btn-lg mt-2 self-start border-none bg-primary px-10 text-white transition-transform hover:-translate-y-0.5 hover:bg-primary/90 hover:shadow-lg"
 						class:hero-fade-up={heroVisible}
 						class:animation-delay-600={heroVisible}>
