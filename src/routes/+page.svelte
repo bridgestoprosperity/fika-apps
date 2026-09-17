@@ -29,6 +29,22 @@
 	import fikaImpactImage from '$lib/images/app-screenshots/fika-impact-map1.png';
 	import fikaCollectImage from '$lib/images/app-screenshots/fika-collect-1.jpg';
 
+	// Supported-by logos
+	import adfLogo from '$lib/images/supported-by/adf.png';
+	import bplLogo from '$lib/images/supported-by/bpl.png';
+	import ciscofLogo from '$lib/images/supported-by/ciscof.png';
+	import gwLogo from '$lib/images/supported-by/gw.png';
+	import pjmfLogo from '$lib/images/supported-by/pjmf.png';
+	import sahajLogo from '$lib/images/supported-by/sahaj.png';
+
+	const supportedByLogos = [
+		{ src: adfLogo, alt: 'Autodesk Foundation' },
+		{ src: bplLogo, alt: 'Better Planet Laboratory' },
+		{ src: ciscofLogo, alt: 'Cisco Foundation' },
+		{ src: gwLogo, alt: 'GiveWell' },
+		{ src: pjmfLogo, alt: 'Patrick J. McGovern Foundation' },
+		{ src: sahajLogo, alt: 'Sahaj Software' }
+	];
 
 	let isLoaded = $state(false);
 	let heroSection = $state();
@@ -281,6 +297,22 @@
 				{/each}
 			</div>
 		</div>
+
+		<section class="border-t border-gray-100 px-4 py-16 sm:min-[800px]:px-6 min-[800px]:px-4 lg:min-[800px]:px-8">
+			<div class="mx-auto max-w-6xl">
+				<h2 class="text-center text-sm font-semibold uppercase tracking-wide text-gray-500">
+					Supported By
+				</h2>
+				<div class="mt-8 flex flex-wrap items-center justify-center gap-x-12 gap-y-8">
+					{#each supportedByLogos as logo}
+						<img
+							src={logo.src}
+							alt={logo.alt}
+							class="h-12 w-auto object-contain grayscale transition duration-300 hover:grayscale-0 md:h-16" />
+					{/each}
+				</div>
+			</div>
+		</section>
 	</div>
 </div>
 
