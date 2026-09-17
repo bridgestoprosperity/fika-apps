@@ -4,11 +4,12 @@
 	import 'mapbox-gl/dist/mapbox-gl.css';
 	import { injectAnalytics } from '@vercel/analytics/sveltekit';
 	import Header from './Header.svelte';
+	import SignUpBanner from '$lib/components/SignUpBanner.svelte';
 	injectAnalytics();
 </script>
 
 <svelte:head>
-	<title>Fika Apps</title>
+	<title>Fika Digital</title>
 	<meta name="description" content="Digital applications developed by Fika" />
 	<meta property="og:image" content="https://apps.fikamap.com/fika-apps-cover.png" />
 	<meta name="twitter:image" content="https://apps.fikamap.com/fika-apps-cover.png" />
@@ -17,6 +18,7 @@
 </svelte:head>
 
 <div class="app">
+	<SignUpBanner />
 	<Header />
 	<main>
 		{@render children()}
