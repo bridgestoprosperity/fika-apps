@@ -31,6 +31,22 @@
 
 
 	let isLoaded = $state(false);
+	let heroSection = $state();
+	let heroVisible = $state(false);
+
+	onMount(() => {
+		const observer = new IntersectionObserver(
+			([entry]) => {
+				if (entry.isIntersecting) {
+					heroVisible = true;
+					observer.disconnect();
+				}
+			},
+			{ threshold: 0.3 }
+		);
+		if (heroSection) observer.observe(heroSection);
+		return () => observer.disconnect();
+	});
 
 	// Define grid items for better maintainability
 	const gridItems = [
@@ -203,7 +219,7 @@
 
 							<div
 								class="apps-slide col-span-3 col-start-2 row-start-3 flex items-center justify-center rounded-md min-[800px]:col-span-2 min-[800px]:col-start-3 min-[800px]:row-start-3">
-								<span class="title-text relative z-10">Apps</span>
+								<span class="title-text relative z-10">Digital</span>
 							</div>
 
 							{#each gridItems as item}
@@ -218,6 +234,43 @@
 				</div>
 			</div>
 		</header>
+
+		<section
+			bind:this={heroSection}
+			class="px-4 py-16 sm:min-[800px]:px-6 min-[800px]:px-4 lg:min-[800px]:px-8 md:py-24">
+			<div class="mx-auto flex max-w-6xl flex-col gap-10 md:flex-row md:items-center md:gap-16">
+				<h1
+					class="hero-init text-4xl font-bold leading-tight text-secondary md:flex-1 md:text-5xl lg:text-6xl"
+					class:hero-slide-left={heroVisible}>
+					Digital Products and AI models that provide insight into rural access need and
+					scales impact
+				</h1>
+				<div class="flex flex-col gap-6 md:flex-1">
+					<p
+						class="hero-init text-lg leading-relaxed text-gray-600 md:text-xl"
+						class:hero-fade-up={heroVisible}
+						class:animation-delay-200={heroVisible}>
+						Rural communities experience outsized negative effects when a lack of basic
+						infrastructure prevents them from reaching important destinations.
+					</p>
+					<p
+						class="hero-init text-lg leading-relaxed text-gray-600 md:text-xl"
+						class:hero-fade-up={heroVisible}
+						class:animation-delay-400={heroVisible}>
+						Our Digital group conducts research, produces data, and develops applications to
+						close data gaps and transform rural access. The technology we build scales our work
+						as we aim to transform rural access solutions around the world.
+					</p>
+					<a
+						href="#signup"
+						class="hero-init btn btn-lg mt-2 self-start border-none bg-primary px-10 text-white transition-transform hover:-translate-y-0.5 hover:bg-primary/90 hover:shadow-lg"
+						class:hero-fade-up={heroVisible}
+						class:animation-delay-600={heroVisible}>
+						Sign Up
+					</a>
+				</div>
+			</div>
+		</section>
 
 		<div class="px-4 sm:min-[800px]:px-6 min-[800px]:px-4 lg:min-[800px]:px-8">
 			<div class="grid grid-cols-1 gap-8 py-8 md:grid-cols-2 md:gap-10 xl:grid-cols-3 xl:gap-12">
@@ -293,6 +346,48 @@
 
 	.animation-delay-300 {
 		animation-delay: 300ms;
+	}
+
+	.animation-delay-400 {
+		animation-delay: 400ms;
+	}
+
+	.animation-delay-600 {
+		animation-delay: 600ms;
+	}
+
+	.hero-init {
+		opacity: 0;
+	}
+
+	.hero-slide-left {
+		animation: heroSlideLeft 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+	}
+
+	.hero-fade-up {
+		animation: heroFadeUp 0.8s ease-out forwards;
+	}
+
+	@keyframes heroSlideLeft {
+		from {
+			transform: translateX(-60px);
+			opacity: 0;
+		}
+		to {
+			transform: translateX(0);
+			opacity: 1;
+		}
+	}
+
+	@keyframes heroFadeUp {
+		from {
+			transform: translateY(20px);
+			opacity: 0;
+		}
+		to {
+			transform: translateY(0);
+			opacity: 1;
+		}
 	}
 
 	.title-text {
