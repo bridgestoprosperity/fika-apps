@@ -56,6 +56,8 @@ Preview the production build with `npm run preview`.
 
 ## Deployment
 
+Uses Node v.22. Note that this will need to be updated before April 2027 when this version stops receiving support.
+
 The application is configured for Vercel deployment. Add the following environment variables in Vercel:
 
 - `DATABASE_URL`: PostgreSQL connection string
