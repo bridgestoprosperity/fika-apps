@@ -90,7 +90,23 @@ const zambiaMapState = $state({
 	walkthroughActive: false
 });
 
+const printState = $state({
+	open: false,
+	tab: 'layout', // 'layout' | 'map-only'
+	title: '',
+	template: 'a4-landscape', // key in pageTemplates
+	format: 'pdf', // 'pdf' | 'png' | 'jpg'
+	width: 1100, // px, used by the map-only tab
+	height: 800,
+	dpi: 300, // 96 | 150 | 300
+	setScale: false,
+	includeAttribution: true,
+	includeLegend: true,
+	includeSelectedHex: true
+});
+
 export {
+	printState,
 	generalState,
 	waternetMapState,
 	saiMapState,
