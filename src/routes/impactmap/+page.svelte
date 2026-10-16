@@ -4,18 +4,6 @@
 	import SideNav from '$lib/components/SideNav.svelte';
 	import ControlPanel from '$lib/components/ControlPanel.svelte';
 	import HexDataPanel from '$lib/components/HexDataPanel.svelte';
-	import PrintDialog from '$lib/components/impactmap/PrintDialog.svelte';
-	import { PrintSolid } from 'svelte-awesome-icons';
-	import { printState } from '$lib/utils/state.svelte.js';
-
-	const printNavItems = [
-		{
-			icon: PrintSolid,
-			label: 'Print & export',
-			action: () => (printState.open = true),
-			isActive: () => printState.open
-		}
-	];
 </script>
 
 <svelte:head>
@@ -44,7 +32,7 @@
 	<!-- Hex Data Panel on the right side -->
 	<HexDataPanel />
 
-	<SideNav items={printNavItems} />
-
-	<PrintDialog />
+	<!-- example of how i could add custom items to sideNav -->
+	<!-- <SideNav items={saiNavItems}/> -->
+	<SideNav />
 </div>
